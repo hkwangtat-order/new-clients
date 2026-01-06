@@ -497,7 +497,7 @@
 
         if (mode === 'direct') {
             // 使用動態獲取的銷售電話 (currentSalesPhone)
-            window.open(`https://api.whatsapp.com/send?phone=${currentSalesPhone}&text=${encodeURIComponent(msg)}`,'_blank');
+            window.open(`https://api.whatsapp.com/send?phone=852${currentSalesPhone}&text=${encodeURIComponent(msg)}`,'_blank');
         } else {
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`,'_blank');
         }
