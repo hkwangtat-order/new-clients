@@ -3,29 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta property="og:title" content="宏達新客戶 - 專用電子落單表">
-    <title>新客戶專用訂貨單</title>
+    <meta property="og:title" content="自助電子落單表">
+    <meta property="og:description" content="香港宏達有限公司提供">
+    <title>自助電子落單表</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        /* 樣式保持 V9.5 的設計 */
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f8f9fa; padding-bottom: 140px; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f8f9fa; padding-bottom: 160px; }
         .sticky-header-container { position: sticky; top: 0; z-index: 1020; background-color: #212529; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .top-info { padding: 12px 15px 5px 15px; color: white; }
-        .client-name { font-size: 1.3rem; font-weight: 800; color: #ffc107; }
-        .search-section { background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; }
+        .top-info { padding: 12px 15px 5px 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .client-name { font-size: 1.3rem; font-weight: 800; color: #ffc107; cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
+        .nav-tabs { border-bottom: none; padding: 0 10px; }
+        .nav-link { color: #aaa; font-weight: bold; border: none; border-radius: 10px 10px 0 0; padding: 10px 15px; font-size: 1rem; background: transparent; }
+        .nav-link.active { background-color: #f8f9fa; color: #000; border-bottom: 4px solid #ffc107; }
+        .search-section { background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; display: none; }
+        .search-wrapper { position: relative; }
         .search-input { border-radius: 20px; border: 1px solid #ccc; padding: 8px 35px 8px 15px; width: 100%; }
-        .cat-header { background-color: #ffc107; color: #000; font-weight: 800; padding: 8px 15px; font-size: 1.1rem; border-bottom: 1px solid #e0a800; }
+        .btn-clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #adb5bd; cursor: pointer; font-size: 1.1rem; display: none; z-index: 10; }
+        .cat-header { background-color: #ffc107; color: #000; font-weight: 800; padding: 8px 15px; margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid #e0a800; }
         .product-row { background: white; border-bottom: 1px solid #eee; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .product-row.oos { background-color: #f8f9fa; opacity: 0.8; }
+        .p-info { flex: 1; padding-right: 10px; overflow: hidden; }
+        .p-name { font-size: 1.1rem; font-weight: 700; color: #000; line-height: 1.3; margin-bottom: 2px; }
+        .p-code { font-size: 0.85rem; color: #888; font-weight: normal; font-family: Arial, sans-serif; }
+        .oos-badge { font-size: 0.8rem; background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
+        .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ced4da; border-radius: 8px; width: 120px; justify-content: space-between; height: 38px; flex-shrink: 0; overflow: hidden; }
+        .qty-control.disabled { background: #e9ecef; border-color: #dee2e6; }
+        .qty-btn { width: 35px; height: 100%; border-radius: 0; background: #f8f9fa; color: #212529; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; user-select: none; border: none; }
+        .qty-btn:active { background: #ffc107; }
+        .qty-btn.disabled { color: #adb5bd; cursor: not-allowed; background: #e9ecef; }
+        .qty-input { width: 50px; text-align: center; border: none; font-weight: bold; font-size: 1.1rem; color: #333; background: transparent; padding: 0; }
+        .qty-input.unit-kg { color: #d63384; font-size: 1rem; }
         .product-row.selected { background-color: #fff9db; border-left: 5px solid #ffc107; }
-        .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ced4da; border-radius: 8px; width: 120px; height: 38px; }
-        .qty-btn { width: 35px; height: 100%; border: none; background: #f8f9fa; font-weight: bold; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .qty-input { width: 50px; text-align: center; border: none; font-weight: bold; font-size: 1.1rem; background: transparent; }
         .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); padding: 10px 15px; z-index: 1030; display: flex; flex-direction: column; gap: 8px; }
-        .btn-view-cart { background-color: #6c757d; color: white; border: none; padding: 6px 15px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; width: 100%; }
-        .btn-send { border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1rem; color: white; background-color: #25D366; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        /* 隱藏元素 */
-        .hidden { display: none !important; }
+        .bottom-info-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; }
+        .bottom-btn-row { display: flex; gap: 8px; width: 100%; }
+        .total-box { font-size: 1.1rem; font-weight: bold; color: #333; }
+        .total-num { color: #d32f2f; font-size: 1.4rem; padding: 0 3px; }
+        .btn-view-cart { background-color: #6c757d; color: white; border: none; padding: 6px 15px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; transition: all 0.3s ease; }
+        .btn-view-cart.active { background: linear-gradient(45deg, #ff9800, #ff5722); box-shadow: 0 2px 8px rgba(255, 87, 34, 0.4); }
+        .btn-send { border: none; padding: 12px 5px; border-radius: 10px; font-weight: bold; font-size: 1rem; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; color: white; transition: transform 0.1s; }
+        .btn-send:active { transform: scale(0.98); }
+        .btn-sales { background-color: #25D366; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); } 
+        .btn-group { background-color: #0d6efd; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
+        .modal-footer { display: flex; gap: 8px; padding: 15px; justify-content: space-between; flex-wrap: wrap; }
+        .modal-footer .btn { flex: 1; min-width: 100px; }
+        .modal-footer .btn-outline-danger { flex: 0 0 auto; min-width: auto; border-radius: 50px; padding: 8px 15px; } 
+        .modal-footer .btn-secondary { display: none; }
+        .tab-content { display: none; padding-top: 10px; }
+        .tab-content.active { display: block; }
+        .modal-header { background-color: #212529; color: white; }
+        .modal-title { font-weight: bold; color: #ffc107; }
+        .unit-btn-group { display: flex; gap: 15px; justify-content: center; padding: 20px; }
+        .btn-unit-select { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .btn-unit-select:hover { background-color: #f8f9fa; }
+        .btn-unit-select.piece { border-color: #212529; color: #212529; }
+        .btn-unit-select.kg { border-color: #d63384; color: #d63384; }
+        .freq-divider { text-align: center; margin: 20px 0; font-size: 0.85rem; color: #aaa; position: relative; }
+        .freq-divider:before { content: ""; position: absolute; top: 50%; left: 15%; width: 25%; height: 1px; background: #ddd; }
+        .freq-divider:after { content: ""; position: absolute; top: 50%; right: 15%; width: 25%; height: 1px; background: #ddd; }
+        
+        .setup-input-group { margin-bottom: 15px; text-align: left; }
+        .setup-label { font-weight: bold; margin-bottom: 5px; display: block; color: #333; }
+        .setup-input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .setup-input:focus { border-color: #ffc107; outline: none; }
+        .btn-setup-save { width: 100%; background-color: #ffc107; color: black; font-weight: bold; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; margin-top: 10px; }
+        
+        .admin-controls { text-align: center; margin: 40px 0 20px 0; padding-top: 20px; border-top: 1px dashed #ddd; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .btn-reset { padding: 8px 20px; border-radius: 50px; font-size: 0.9rem; transition: all 0.2s; cursor: pointer; border: 1px solid; background: white; width: fit-content; }
+        .btn-reset-freq { color: #6c757d; border-color: #ced4da; }
+        .btn-reset-freq:hover { background: #f8f9fa; color: #495057; border-color: #adb5bd; }
+        .btn-logout { color: #d32f2f; border-color: #f5c6cb; }
+        .btn-logout:hover { background: #fff5f5; color: #a50e0e; border-color: #d32f2f; }
     </style>
 </head>
 <body>
@@ -33,66 +82,154 @@
 <script src="sales_config.js"></script>
 
 <div class="sticky-header-container">
-    <div class="top-info d-flex justify-content-between align-items-center">
-        <div>
-            <div class="client-name" id="displayClientName">新客戶</div>
-            <div style="font-size: 0.8rem; color: #ccc;" id="displaySalesName">載入中...</div>
+    <div class="top-info">
+        <div onclick="openSetupModal()">
+            <div class="client-name" id="displayClientName">請設定客戶名稱 <i class="bi bi-pencil-square" style="font-size:0.8em"></i></div>
+            <div style="font-size: 0.8rem; color: #ccc;" id="displayClientCode">點擊此處設定</div>
         </div>
-        <div style="text-align: right; font-size: 0.8rem; color: #ccc;">宏達批發<br>Tel: <span id="displayPhone"></span></div>
+        <div style="text-align: right; font-size: 0.8rem; color: #ccc;">
+            <span id="displaySalesName">宏達批發</span><br>Tel: <span id="displayPhone"></span>
+        </div>
     </div>
-    <div class="search-section">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜尋產品..." oninput="renderAll(this.value)">
+    <ul class="nav nav-tabs">
+        <li class="nav-item" style="flex:1; text-align:center;"><button class="nav-link active" style="width:100%" onclick="switchTab('frequent')">🌟 常用清單</button></li>
+        <li class="nav-item" style="flex:1; text-align:center;"><button class="nav-link" style="width:100%" onclick="switchTab('all')">📋 全部產品</button></li>
+    </ul>
+    <div class="search-section" id="searchBar">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜尋產品 / 編號..." oninput="filterAllProducts()">
+            <i class="bi bi-x-circle-fill btn-clear-search" id="clearSearchBtn" onclick="clearSearch()"></i>
+        </div>
     </div>
 </div>
 
-<div id="productList"></div>
+<div id="tab-frequent" class="tab-content active">
+    <div class="text-center p-5 text-muted" id="emptyFrequentMsg">
+        <i class="bi bi-basket3" style="font-size: 2rem;"></i><br><br>
+        您的常用清單目前是空的。<br>
+        請到「全部產品」頁面選購，<br>系統會自動記憶您的選擇！
+    </div>
+    <div id="frequentListContent"></div>
+    <div class="admin-controls" id="adminControls">
+        <button class="btn-reset btn-reset-freq" onclick="resetFrequentList()" id="btnResetFreq" style="display:none;">
+            <i class="bi bi-arrow-counterclockwise"></i> 重置常用清單
+        </button>
+        <button class="btn-reset btn-logout" onclick="logoutUser()">
+            <i class="bi bi-box-arrow-right"></i> 登出 / 重置身份
+        </button>
+    </div>
+</div>
+<div id="tab-all" class="tab-content"></div>
 
 <div class="bottom-bar">
-    <div class="d-flex justify-content-between align-items-center mb-1">
-        <div style="font-weight:bold">共 <span id="totalQty" style="color:#d32f2f;font-size:1.3rem">0</span> 款</div>
-        <button id="viewCartBtn" class="btn-view-cart" onclick="openCartModal()" disabled>查看已選</button>
+    <div class="bottom-info-row">
+        <div class="total-box">共 <span id="totalQty" class="total-num">0</span> 款</div>
+        <button id="viewCartBtn" class="btn-view-cart" onclick="openCartModal()" disabled><i class="bi bi-cart3"></i> 查看已選</button>
     </div>
-    <button class="btn-send" onclick="openSetupModal()"><i class="bi bi-whatsapp"></i> 下一步：填寫資料</button>
+    <div class="bottom-btn-row">
+        <button class="btn-send btn-sales" onclick="sendWhatsApp('direct')"><i class="bi bi-whatsapp"></i> 發送給銷售</button>
+        <button class="btn-send btn-group" onclick="sendWhatsApp('group')"><i class="bi bi-people-fill"></i> 發送到群組</button>
+    </div>
 </div>
 
-<div class="modal fade" id="setupModal" tabindex="-1" data-bs-backdrop="static">
+<div class="modal fade" id="setupModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-dark text-white"><h5 class="modal-title">首次下單請填寫</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header">
+                <h5 class="modal-title">⚙️ 客戶資料設定</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="setupCloseBtn" style="display:none;"></button>
+            </div>
             <div class="modal-body">
-                <div class="mb-3"><label>店舖名稱</label><input type="text" id="setupName" class="form-control" placeholder="例如：好吃壽司店"></div>
-                <div class="mb-3"><label>區份</label><input type="text" id="setupDistrict" class="form-control" placeholder="例如：旺角"></div>
-                <button class="btn btn-primary w-100" onclick="confirmOrder()">生成訂單發送</button>
+                <div class="setup-input-group">
+                    <label class="setup-label">客戶名稱 / 店鋪名</label>
+                    <input type="text" id="inputClientName" class="setup-input" placeholder="例如：我的餐廳">
+                </div>
+                <div class="setup-input-group">
+                    <label class="setup-label">客戶編號 (或填寫 新客戶)</label>
+                    <input type="text" id="inputClientCode" class="setup-input" placeholder="例如：A1234">
+                </div>
+                <button class="btn-setup-save" onclick="saveClientDetails()">💾 儲存設定</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="cartModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">已選清單</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="cartModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-outline-danger" onclick="clearCart()">清空</button></div></div></div></div>
+<div class="modal fade" id="unitSelectionModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">請選擇計價單位</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body">
+                <p class="text-center mb-3">此產品支持稱重計價，請確認單位：</p>
+                <div class="unit-btn-group">
+                    <button id="btn-unit-left" class="btn-unit-select"><i class="bi bi-box-seam"></i> 左按鈕</button>
+                    <button id="btn-unit-right" class="btn-unit-select"><i class="bi bi-speedometer2"></i> 右按鈕</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">已選產品清單</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body" id="cartModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger" onclick="clearCart()"><i class="bi bi-trash"></i> 清空</button>
+                <button type="button" class="btn btn-send btn-sales" onclick="sendWhatsApp('direct')">發給銷售</button>
+                <button type="button" class="btn btn-send btn-group" onclick="sendWhatsApp('group')">發到群組</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 2. 初始化銷售資料 (核心邏輯)
-    let currentSalesPhone = "";
+    // 2. 初始化變數
+    let currentSalesPhone = ""; 
+    let salesID = "";
     
+    // 3. 銷售識別系統 (核心引擎)
     function initSalesSystem() {
-        // 從網址獲取 ?sales=X
+        if (typeof salesTeam === 'undefined') {
+            alert("系統錯誤：找不到 sales_config.js！請檢查文件是否上傳。");
+            return;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
-        const salesID = urlParams.get('sales') || defaultSales; // 如果沒寫，就用預設 A
+        salesID = urlParams.get('sales') || defaultSales; // 從網址讀取 ?sales=A
         
         const salesInfo = salesTeam[salesID];
         
         if (salesInfo) {
-            document.getElementById('displaySalesName').innerText = "負責銷售: " + salesInfo.name;
+            document.getElementById('displaySalesName').innerText = "宏達 (" + salesInfo.name + ")";
             document.getElementById('displayPhone').innerText = salesInfo.phone;
             currentSalesPhone = salesInfo.phone;
         } else {
-            alert("銷售代號錯誤，將使用預設銷售。");
+            // 如果代號錯誤，使用預設 A
             currentSalesPhone = salesTeam[defaultSales].phone;
+            document.getElementById('displayPhone').innerText = currentSalesPhone;
         }
     }
 
-    // 產品清單 (範例，您可以放您完整的新客戶清單)
+    // V9.5 + V10.0 Combined Logic
+    let customerName = ""; 
+    let customerCode = "";
+    
+    // 4. 動態生成 Storage Keys (讓不同銷售的客戶資料不打架)
+    // 這樣 A 客戶的購物車不會跑到 B 客戶那裡
+    // 我們使用 salesID 來區分存儲空間
+    let storageKey = ""; 
+    let profileKey = ""; 
+
+    let itemCounts = {}; 
+    let learnedFrequent = []; 
+
+    const outOfStockCodes = ["D58C","D10F","D10D","D09M","D09G"];
+    const eelProducts = ["D22J", "D22L", "D22", "D22C", "D22A", "D22D", "D22I", "D22G"];
+    const weightedProducts = ["D61B", "D61C", "D18A", "D17E", "D17C", "B01", "D18"];
+    
+    // 5. 您的完整產品清單 (我把您原本的代碼保留在這裡了)
     const fullCatalog = [
         { cat: "環球海膽", items: ["膠盒海膽 (A06F)", "加拿大海膽 (A03)", "澳洲海膽 (A08)", "練海膽醬 (C59)", "凍海膽漿 (D01)", "紫海膽(膠盒) (A07C)", "墨西哥海膽 (A12A)", "墨西哥海膽10格 (A12B)", "本地海膽 (A02)", "凍熟馬糞膽 (A06E)"] },
         { cat: "日本海膽", items: ["A Grade(直排) (AJ1)", "A Grade(亂排) (AJ4)", "B Grade(亂排) (AJ3)", "鹽水海膽 (AJ6)"] },
@@ -123,78 +260,256 @@
         { cat: "漬物", items: ["壽司紅薑 (C27)", "壽司白薑 (C27A)", "牛蒡醬油漬 (C31B)", "薑芽(30本) (C27B)", "海葡萄100g (D81A)", "青雞冠草 (C09)", "泡菜（400g） (C87B)", "大L蘿白 (C31)", "味噌蒜頭漬 (C31C)", "紅雞冠草 (C09A)", "味付筍 (C31D)", "青海草 (C10AA)"] },
         { cat: "伴碟/乾貨/工具", items: ["軍艦紫菜50片 (C18A)", "壽司紫菜50片 (C18C)", "神戶切絲紫菜 (C18E)", "單翼手捲海苔 (C18F)", "日出昆布 (C57)", "碎海草 (C10A)", "海苔粉 (C18G)", "紫菜杯 (C18J)", "日高昆布 (C57A)", "山形膠葉 (C01B)", "櫻花蝦乾500g (C03)", "櫻花蝦乾90g (C03A)", "醫用丁晴手套 S (C50BA)", "醫用丁晴手套 M (C50BB)", "醫用丁晴手套 L (C50BC)", "保鮮綿紙M (C70)", "914保鮮紙 (C914SC)", "912保鮮紙 (C912SC)", "910保鮮紙 (C910SC)", "613錫紙 (C613)", "3寸木皮船 (C04C)", "手套S (C50AA)", "手套M (C50AB)", "天婦羅紙 (C43A)", "木盒 (C07)", "細木盒 (C07A)", "日本JFDA消毒酒精 (C50D)"] }
     ];
-
-    let cart = {}; 
-
+    let productMap = {}, cart = {}, cartUnits = {}, cartModal = null, unitModal = null, pendingProductCode = null, setupModal = null;
+    
     function init() {
-        initSalesSystem(); // 執行銷售初始化
-        renderAll();
-        const cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
-        const setupModal = new bootstrap.Modal(document.getElementById('setupModal'));
-        window.openCartModal = () => { renderCart(); cartModal.show(); };
-        window.openSetupModal = () => { if(Object.keys(cart).length===0) return alert("請先選產品"); setupModal.show(); };
-    }
+        // 6. 啟動銷售系統
+        initSalesSystem();
+        
+        // 生成產品 Map (為了顯示中文名稱)
+        productMap = {}; 
+        fullCatalog.forEach(c=>{c.items.forEach(i=>{const m=i.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);if(m)productMap[m[2]]={fullName:i,name:m[1],code:m[2]}})});
+        
+        // 7. 使用銷售 ID 來區分存儲鍵值
+        storageKey = "gen_user_" + salesID; 
+        profileKey = "gen_profile_" + salesID; 
 
-    function renderAll(filter = "") {
-        const c = document.getElementById('productList');
-        let h = "";
-        filter = filter.toUpperCase();
-        fullCatalog.forEach(cat => {
-            const items = cat.items.filter(i => i.toUpperCase().includes(filter));
-            if(items.length > 0) {
-                h += `<div class="cat-header">${cat.cat}</div>`;
-                items.forEach(item => {
-                    const code = item.match(/\((.*?)\)/)[1];
-                    const name = item.split('(')[0];
-                    const qty = cart[code] || 0;
-                    h += `<div class="product-row ${qty>0?'selected':''}">
-                        <div class="p-info"><div class="p-name">${name}</div><div class="p-code">${code}</div></div>
-                        <div class="qty-control">
-                            <button class="qty-btn" onclick="updateQty('${code}', -1)">-</button>
-                            <input class="qty-input" value="${qty}" readonly>
-                            <button class="qty-btn" onclick="updateQty('${code}', 1)">+</button>
-                        </div>
-                    </div>`;
-                });
-            }
-        });
-        c.innerHTML = h || '<div class="text-center p-5">無相關產品</div>';
-    }
+        // 讀取客戶資料
+        customerName = localStorage.getItem(profileKey + "_name") || "";
+        customerCode = localStorage.getItem(profileKey + "_code") || "";
+        updateClientInfoUI();
 
-    window.updateQty = (code, delta) => {
-        if(!cart[code]) cart[code] = 0;
-        cart[code] += delta;
-        if(cart[code] <= 0) delete cart[code];
-        renderAll(document.getElementById('searchInput').value);
-        calcTotal();
-    }
+        // 讀取常用清單
+        const savedStats = localStorage.getItem(storageKey + '_stats');
+        if(savedStats) { try { itemCounts = JSON.parse(savedStats); } catch(e) {} }
+        learnedFrequent = Object.keys(itemCounts);
 
-    function calcTotal() {
-        const count = Object.keys(cart).length;
-        document.getElementById('totalQty').innerText = count;
-        document.getElementById('viewCartBtn').disabled = count === 0;
-    }
+        loadCart(); renderFrequent(); renderAll();
+        
+        cartModal=new bootstrap.Modal(document.getElementById('cartModal')); 
+        unitModal=new bootstrap.Modal(document.getElementById('unitSelectionModal'));
+        setupModal=new bootstrap.Modal(document.getElementById('setupModal'));
 
-    function renderCart() {
-        let h = "";
-        for(let code in cart) { h += `<div class="d-flex justify-content-between border-bottom p-2"><span>${code}</span><b>x ${cart[code]}</b></div>`; }
-        document.getElementById('cartModalBody').innerHTML = h || "空";
+        // 如果沒有設定過客戶資料，強制彈窗
+        if(!customerName || !customerCode){
+            openSetupModal(false);
+        }
     }
     
-    window.clearCart = () => { cart={}; renderAll(); calcTotal(); };
-
-    window.confirmOrder = () => {
-        const name = document.getElementById('setupName').value;
-        const dist = document.getElementById('setupDistrict').value;
-        if(!name || !dist) return alert("請填寫店名和區份");
-
-        let msg = `新客戶開單\n店名：${name}\n區份：${dist}\n\n訂單：\n`;
-        for(let code in cart) { msg += `${code} x ${cart[code]}\n`; }
-
-        // 使用動態獲取的電話號碼發送
-        window.open(`https://api.whatsapp.com/send?phone=${currentSalesPhone}&text=${encodeURIComponent(msg)}`, '_blank');
+    function openSetupModal(allowClose = true) {
+        document.getElementById('inputClientName').value = customerName;
+        document.getElementById('inputClientCode').value = customerCode;
+        const closeBtn = document.getElementById('setupCloseBtn');
+        closeBtn.style.display = allowClose ? 'block' : 'none';
+        setupModal.show();
     }
 
+    function saveClientDetails() {
+        const name = document.getElementById('inputClientName').value.trim();
+        const code = document.getElementById('inputClientCode').value.trim();
+        if(!name || !code) { alert("請輸入完整的名稱和編號！"); return; }
+        
+        customerName = name;
+        customerCode = code;
+        localStorage.setItem(profileKey + "_name", customerName);
+        localStorage.setItem(profileKey + "_code", customerCode);
+        
+        updateClientInfoUI();
+        setupModal.hide();
+    }
+
+    function updateClientInfoUI() {
+        if(customerName) document.getElementById('displayClientName').innerHTML = customerName + ' <i class="bi bi-pencil-square" style="font-size:0.8em"></i>';
+        if(customerCode) document.getElementById('displayClientCode').innerText = customerCode;
+    }
+
+    function logoutUser() {
+        if(confirm("確定要登出並清除此裝置上的客戶資料嗎？\n(常用清單和購物車也會被清空)")) {
+            localStorage.removeItem(profileKey + "_name");
+            localStorage.removeItem(profileKey + "_code");
+            localStorage.removeItem(storageKey + '_stats');
+            localStorage.removeItem('orderCart_'+storageKey);
+            localStorage.removeItem('orderUnits_'+storageKey);
+            
+            customerName = "";
+            customerCode = "";
+            itemCounts = {};
+            learnedFrequent = [];
+            cart = {};
+            cartUnits = {};
+            
+            updateClientInfoUI();
+            renderFrequent();
+            renderAll();
+            calcTotal();
+            
+            openSetupModal(false);
+        }
+    }
+    
+    function getDeliveryDate() {
+        const now = new Date();
+        const hour = now.getHours();
+        let targetDate = new Date(now);
+        if (hour >= 11) targetDate.setDate(targetDate.getDate() + 1);
+        if (targetDate.getDay() === 0) targetDate.setDate(targetDate.getDate() + 1);
+        
+        const y = targetDate.getFullYear();
+        const m = String(targetDate.getMonth() + 1).padStart(2, '0');
+        const d = String(targetDate.getDate()).padStart(2, '0');
+        const w = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"][targetDate.getDay()];
+        return `${y}-${m}-${d} (${w})`;
+    }
+
+    function loadCart() {
+        const c=localStorage.getItem('orderCart_'+storageKey), u=localStorage.getItem('orderUnits_'+storageKey);
+        if(c)try{cart=JSON.parse(c)}catch(e){} if(u)try{cartUnits=JSON.parse(u)}catch(e){}
+        calcTotal();
+    }
+    function saveCart() {
+        localStorage.setItem('orderCart_'+storageKey, JSON.stringify(cart));
+        localStorage.setItem('orderUnits_'+storageKey, JSON.stringify(cartUnits));
+    }
+    function switchTab(t){document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.nav-link').forEach(e=>e.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');event.target.classList.add('active');if(t==='all'){clearSearch();document.getElementById('searchBar').style.display='block';window.scrollTo(0,0)}else{document.getElementById('searchBar').style.display='none'}}
+    
+    function renderFrequent(){
+        const c=document.getElementById('frequentListContent');
+        const emptyMsg = document.getElementById('emptyFrequentMsg');
+        const resetBtn = document.getElementById('btnResetFreq');
+        let h='';
+        
+        let sortedKeys = Object.keys(itemCounts).sort((a,b) => {
+            let diff = itemCounts[b] - itemCounts[a];
+            return diff !== 0 ? diff : a.localeCompare(b);
+        });
+
+        if (sortedKeys.length > 0) {
+            emptyMsg.style.display = 'none';
+            resetBtn.style.display = 'inline-block'; 
+            sortedKeys.forEach(code=>{
+                const p=productMap[code];
+                if(p) h+=createProductRow(p.fullName);
+            });
+        } else {
+            emptyMsg.style.display = 'block';
+            resetBtn.style.display = 'none'; 
+        }
+        c.innerHTML = h;
+    }
+
+    function resetFrequentList() {
+        if(confirm("確定要重置常用清單嗎？\n這將清空所有自動記憶的產品。")) {
+            itemCounts = {};
+            learnedFrequent = [];
+            localStorage.removeItem(storageKey + '_stats');
+            renderFrequent();
+        }
+    }
+    
+    function renderAll(f=''){const c=document.getElementById('tab-all');let h='';const t=f.toUpperCase().split('');fullCatalog.forEach(cat=>{const items=cat.items.filter(i=>{if(!f)return true;const u=i.toUpperCase();return t.every(x=>u.includes(x))});if(items.length>0){if(!f)h+=`<div class="cat-header">${cat.cat}</div>`;items.forEach(i=>h+=createProductRow(i))}});if(h==='')h='<div class="text-center p-5 text-muted">找不到相關產品</div>';c.innerHTML=h}
+    
+    function createProductRow(s){
+        let n=s,c='UNKNOWN';const m=s.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);if(m){n=m[1];c=m[2]}else{c=s.replace(/[^a-zA-Z0-9]/g,'')}
+        if (outOfStockCodes.includes(c)) return `<div class="product-row oos" id="row-${c}"><div class="p-info"><div class="p-name">${n} <span class="oos-badge">🚫 缺貨</span></div><div class="p-code">${c}</div></div><div class="qty-control disabled"><div class="qty-btn disabled">-</div><input type="text" class="qty-input" value="0" readonly disabled><div class="qty-btn disabled">+</div></div></div>`;
+        const q=cart[c]||0; let val=q, cls='qty-input'; if(q>0&&cartUnits[c]==='kg'){val+=' K';cls+=' unit-kg'}
+        const sel=q>0?'selected':'';
+        return `<div class="product-row ${sel}" id="row-${c}"><div class="p-info"><div class="p-name">${n}</div><div class="p-code">${c}</div></div><div class="qty-control"><div class="qty-btn" onclick="updateQty('${c}',-1)">-</div><input type="text" class="${cls}" id="qty-${c}" value="${val}" readonly><div class="qty-btn" onclick="updateQty('${c}',1)">+</div></div></div>`
+    }
+    
+    function filterAllProducts(){const v=document.getElementById('searchInput').value;document.getElementById('clearSearchBtn').style.display=v.length?'block':'none';renderAll(v)}
+    function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('clearSearchBtn').style.display='none';renderAll('')}
+    
+    function updateQty(c,d){
+        if (outOfStockCodes.includes(c)) return;
+        if(eelProducts.includes(c)){
+            if(d>0&&(!cart[c]||cart[c]===0)){cart[c]=5;cartUnits[c]='kg'}else{if(!cart[c])cart[c]=0;cart[c]+=d*5}
+            if(cart[c]<=0){delete cart[c];delete cartUnits[c]}
+            syncUI(c); return;
+        }
+        if(d>0&&(!cart[c]||cart[c]===0)&&weightedProducts.includes(c)&&!cartUnits[c]){
+            pendingProductCode=c;
+            const leftBtn = document.getElementById('btn-unit-left');
+            const rightBtn = document.getElementById('btn-unit-right');
+            leftBtn.className = 'btn-unit-select';
+            rightBtn.className = 'btn-unit-select';
+            if (c === 'B01') {
+                leftBtn.classList.add('kg'); leftBtn.innerHTML = '<i class="bi bi-speedometer2"></i> KG<br>(默認)'; leftBtn.onclick = function() { confirmUnit('kg'); };
+                rightBtn.classList.add('piece'); rightBtn.innerHTML = '<i class="bi bi-box-seam"></i> 隻'; rightBtn.onclick = function() { confirmUnit('piece'); };
+            } else {
+                leftBtn.classList.add('piece'); leftBtn.innerHTML = '<i class="bi bi-box-seam"></i> 件 / 包<br>(默認)'; leftBtn.onclick = function() { confirmUnit('piece'); };
+                rightBtn.classList.add('kg'); rightBtn.innerHTML = '<i class="bi bi-speedometer2"></i> KG<br>(公斤)'; rightBtn.onclick = function() { confirmUnit('kg'); };
+            }
+            unitModal.show(); return;
+        }
+        if(!cart[c])cart[c]=0; cart[c]+=d;
+        if(cart[c]<=0){delete cart[c];delete cartUnits[c]}
+        syncUI(c);
+    }
+    
+    function confirmUnit(u){if(pendingProductCode){cartUnits[pendingProductCode]=u;updateQty(pendingProductCode,1);unitModal.hide();pendingProductCode=null}}
+    
+    function syncUI(c){
+        const q=cart[c]||0, u=cartUnits[c];
+        document.querySelectorAll(`#qty-${c}`).forEach(i=>{
+            i.className='qty-input'+(u==='kg'?' unit-kg':'');
+            i.value=q+(u==='kg'?' K':'');
+            const r=i.closest('.product-row');
+            if(r&&!r.classList.contains('modal-row')){q>0?r.classList.add('selected'):r.classList.remove('selected')}
+        });
+        calcTotal(); saveCart(); if(document.getElementById('cartModal').classList.contains('show'))renderCartModalItems();
+    }
+    
+    function clearCart(){if(Object.keys(cart).length===0)return;if(confirm("確定要清空所有已選貨品嗎？")){cart={};cartUnits={};localStorage.removeItem('orderCart_'+storageKey);localStorage.removeItem('orderUnits_'+storageKey);renderFrequent();renderAll();calcTotal();renderCartModalItems()}}
+    
+    function calcTotal(){
+        const count=Object.keys(cart).length; document.getElementById('totalQty').innerText=count;
+        const b=document.getElementById('viewCartBtn');
+        if(count>0){b.classList.add('active');b.disabled=false;b.innerHTML=`<i class="bi bi-cart-check-fill"></i> 查看已選 (${count})`}else{b.classList.remove('active');b.disabled=true;b.innerHTML=`<i class="bi bi-cart3"></i> 查看已選`}
+    }
+    function openCartModal(){renderCartModalItems();cartModal.show()}
+    function renderCartModalItems(){
+        const c=document.getElementById('cartModalBody');
+        if(Object.keys(cart).length===0){c.innerHTML='<div class="text-center p-4 text-muted">尚未選擇任何產品</div>';return}
+        let h=''; for(let k in cart){const p=productMap[k];h+=createProductRow(p?p.fullName:`${k} (未知)`);} c.innerHTML=h;
+    }
+    
+    function sendWhatsApp(mode){
+        if(!customerName || !customerCode) { alert("請先設定客戶資料！"); openSetupModal(); return; }
+        if(Object.keys(cart).length===0){alert("請先選擇產品！");return}
+        
+        const dateStr = getDeliveryDate();
+        let msg=`${customerCode} ${customerName}\n日期：${dateStr}\n訂貨單：\n\n`;
+        const fmt=c=>{const p=productMap[c];const n=p?p.name:c;let q=cart[c].toString();if(cartUnits[c]==='kg')q+='K';else if(cartUnits[c]==='piece')q+='隻';return ` ${q.padEnd(5,' ')} ${n} (${c})\n`};
+        
+        let codes = Object.keys(cart).sort(); 
+        
+        let hasNewItems = false;
+        for(let c of codes){
+            msg+=fmt(c);
+            if(itemCounts[c]) itemCounts[c]++;
+            else itemCounts[c] = 1;
+            hasNewItems = true;
+        }
+        
+        if(hasNewItems){
+            localStorage.setItem(storageKey + '_stats', JSON.stringify(itemCounts));
+            renderFrequent(); 
+        }
+
+        if (mode === 'direct') {
+            // 使用動態獲取的銷售電話 (currentSalesPhone)
+            window.open(`https://api.whatsapp.com/send?phone=${currentSalesPhone}&text=${encodeURIComponent(msg)}`,'_blank');
+        } else {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`,'_blank');
+        }
+        
+        setTimeout(() => {
+            cart = {}; cartUnits = {};
+            saveCart();
+            renderAll(); renderFrequent(); calcTotal();
+            if(document.getElementById('cartModal').classList.contains('show')) cartModal.hide();
+        }, 1000);
+    }
     init();
 </script>
 </body>
