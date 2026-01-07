@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宏達內部 - 客戶鏈接總控台</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         body { background-color: #f0f2f5; font-family: "Microsoft JhengHei", sans-serif; padding-bottom: 50px; }
         .header { background: #212529; color: #ffc107; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -13,21 +12,25 @@
         .nav-pills .nav-link.active { background-color: #ffc107; color: black; border-color: #ffc107; }
         .nav-scroll { overflow-x: auto; white-space: nowrap; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
         
-        .client-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ddd; }
-        .client-info { flex: 1; }
-        .c-name { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 2px; }
-        .c-code { font-size: 0.85rem; color: #888; font-family: monospace; }
-        .btn-action { width: 42px; height: 42px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-left: 8px; transition: transform 0.1s; text-decoration: none; }
-        .btn-action:active { transform: scale(0.9); }
-        .btn-whatsapp { background-color: #25D366; color: white; }
-        .btn-link { background-color: #0d6efd; color: white; }
-        .sales-badge { font-size: 0.75rem; background: #eee; padding: 2px 6px; border-radius: 4px; color: #555; margin-left: 5px; }
+        /* 卡片樣式 */
+        .client-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px; border-left: 5px solid #ddd; }
+        .client-header { display: flex; justify-content: space-between; align-items: start; }
+        .c-name { font-size: 1.2rem; font-weight: bold; color: #333; }
+        .c-code { font-size: 0.9rem; color: #888; font-family: monospace; }
+        
+        /* 按鈕樣式 */
+        .btn-row { display: flex; gap: 10px; margin-top: 5px; }
+        .btn-action { flex: 1; padding: 10px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; font-size: 1rem; color: white; border: none; display: flex; align-items: center; justify-content: center; gap: 5px; transition: opacity 0.2s; }
+        .btn-action:active { opacity: 0.8; }
+        .btn-check { background-color: #0d6efd; } /* 藍色 */
+        .btn-share { background-color: #25D366; } /* 綠色 */
+        
     </style>
 </head>
 <body>
 
 <div class="header">
-    <i class="bi bi-diagram-3-fill"></i> 宏達客戶鏈接分發中心
+    🎯 宏達客戶鏈接分發中心
 </div>
 
 <div class="container">
@@ -46,7 +49,7 @@
 
 <script src="customers.js"></script>
 <script>
-    // 基礎網址 (請確保這個網址是正確的)
+    // 基礎網址
     const baseUrl = "https://hkwangtat-order.github.io/new-clients/index.html";
 
     function init() {
@@ -54,54 +57,58 @@
     }
 
     function filterSales(salesCode) {
-        // 更新按鈕狀態
+        // 1. 更新按鈕狀態
         document.querySelectorAll('.nav-link').forEach(btn => {
             btn.classList.remove('active');
             if(btn.innerText.includes(`(${salesCode})`)) btn.classList.add('active');
         });
 
         const container = document.getElementById('clientListArea');
-        container.innerHTML = ''; // 清空
+        container.innerHTML = ''; 
 
-        // 遍歷所有客戶
+        // 2. 獲取並倒序排列 (最新的在最上面)
+        let clientArray = Object.entries(clientDB).reverse();
+
         let found = false;
-        for (const [id, data] of Object.entries(clientDB)) {
+        let html = '';
+
+        for (const [id, data] of clientArray) {
             if (data.sales === salesCode) {
                 found = true;
-                const link = `${baseUrl}?id=${id}`;
                 
-                // 生成 WhatsApp 預設文字
-                // 這裡解決了「專屬感」的問題 👇
+                const link = `${baseUrl}?id=${id}`;
+                // WhatsApp 預設文字
                 const msg = `你好 ${data.name}，這是宏達為您準備的專屬電子落單鏈接，請保存：\n${link}`;
                 const waLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
 
-                const html = `
+                html += `
                     <div class="client-card" style="border-left-color: ${getColor(salesCode)}">
-                        <div class="client-info">
-                            <div class="c-name">${data.name}</div>
-                            <div class="c-code">${id} <span class="sales-badge">Sales: ${salesCode}</span></div>
+                        <div class="client-header">
+                            <span class="c-name">${data.name}</span>
+                            <span class="c-code">${id}</span>
                         </div>
-                        <div style="display:flex">
-                            <a href="${link}" target="_blank" class="btn-action btn-link" title="直接打開檢查">
-                                <i class="bi bi-box-arrow-up-right"></i>
+                        
+                        <div class="btn-row">
+                            <a href="${link}" target="_blank" class="btn-action btn-check">
+                                🔍 檢查鏈接
                             </a>
-                            <a href="${waLink}" target="_blank" class="btn-action btn-whatsapp" title="發送給客戶">
-                                <i class="bi bi-whatsapp"></i>
+                            <a href="${waLink}" target="_blank" class="btn-action btn-share">
+                                📲 WhatsApp 轉發
                             </a>
                         </div>
                     </div>
                 `;
-                container.innerHTML += html;
             }
         }
 
         if (!found) {
             container.innerHTML = '<div class="text-center text-muted mt-5">暫無此銷售的客戶資料</div>';
+        } else {
+            container.innerHTML = html;
         }
     }
 
     function getColor(code) {
-        // 給每個銷售一點顏色區分
         const colors = { 'A': '#0d6efd', 'E': '#198754', 'B': '#dc3545', 'C': '#ffc107', 'D': '#6f42c1' };
         return colors[code] || '#ccc';
     }
