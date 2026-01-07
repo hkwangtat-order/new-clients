@@ -273,7 +273,7 @@
             // === 老客戶模式 ===
             const client = clientDB[clientID];
             customerName = client.name;
-            customerCode = clientID;
+            customerCode = client.realID || clientID;
             salesID = client.sales || "A"; 
             presetFrequent = client.list || []; 
             
