@@ -11,17 +11,16 @@
         body { background-color: #f0f2f5; font-family: "Microsoft JhengHei", sans-serif; padding-bottom: 50px; }
         .header { background: #212529; color: #ffc107; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
+        /* 導航按鈕樣式 */
         .nav-pills .nav-link { color: #555; font-weight: bold; background: white; margin: 0 4px; border: 1px solid #ddd; border-radius: 20px; font-size: 0.95rem; padding: 8px 15px; }
         .nav-pills .nav-link.active { background-color: #ffc107; color: black; border-color: #ffc107; }
         .nav-scroll { overflow-x: auto; white-space: nowrap; padding-bottom: 15px; -webkit-overflow-scrolling: touch; }
         
-        /* === 卡片樣式 (舒適版) === */
+        /* === 卡片樣式 (V2.6 舒適版) === */
         .client-card { 
             background: white; 
             border-radius: 10px; 
-            /* 👇 這裡加大了，讓格子變高 */
-            padding: 16px 15px; 
-            /* 👇 這裡加大了，拉開間距 */
+            padding: 16px 15px; /* 高度舒適 */
             margin-bottom: 15px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             display: flex; 
@@ -39,8 +38,7 @@
             margin-right: 5px;
         }
         .c-name { 
-            /* 👇 字體加大 */
-            font-size: 1.1rem; 
+            font-size: 1.1rem; /* 字體大 */
             font-weight: bold; 
             color: #333; 
             white-space: nowrap; 
@@ -62,13 +60,13 @@
             flex-shrink: 0; 
         }
         
-        /* === 按鈕樣式 (加大版) === */
+        /* === 按鈕樣式 === */
         .btn-action { 
             border: none;
             color: white;
             font-weight: bold;
-            font-size: 0.9rem; /* 字體微調大 */
-            padding: 8px 14px; /* 👇 按鈕更飽滿 */
+            font-size: 0.9rem;
+            padding: 8px 14px;
             border-radius: 6px;
             text-decoration: none;
             display: flex;
@@ -83,6 +81,7 @@
 
         .btn-blue { background-color: #0d6efd; }
         .btn-green { background-color: #198754; }
+        .btn-dark { background-color: #212529; } /* 新客戶標籤用深色 */
         
     </style>
 </head>
@@ -95,6 +94,8 @@
 <div class="container">
     <div class="nav-scroll">
         <ul class="nav nav-pills justify-content-center mb-3" id="salesTabs">
+            <li class="nav-item"><button class="nav-link" onclick="filterSales('NEW')"><i class="bi bi-people-fill"></i> 新客戶專用</button></li>
+            
             <li class="nav-item"><button class="nav-link active" onclick="filterSales('A')">志哥 (A)</button></li>
             <li class="nav-item"><button class="nav-link" onclick="filterSales('E')">二佬 (E)</button></li>
             <li class="nav-item"><button class="nav-link" onclick="filterSales('B')">博士 (B)</button></li>
@@ -111,18 +112,65 @@
     const baseUrl = "https://hkwangtat-order.github.io/new-clients/index.html";
 
     function init() {
-        filterSales('A'); 
+        filterSales('A'); // 默認顯示志哥
     }
 
     function filterSales(salesCode) {
+        // 1. 更新按鈕狀態
         document.querySelectorAll('.nav-link').forEach(btn => {
             btn.classList.remove('active');
-            if(btn.innerText.includes(`(${salesCode})`)) btn.classList.add('active');
+            // 判斷按鈕文字是否包含銷售代碼，或者特殊處理 NEW
+            if(salesCode === 'NEW' && btn.innerText.includes('新客戶')) {
+                btn.classList.add('active');
+            } else if (salesCode !== 'NEW' && btn.innerText.includes(`(${salesCode})`)) {
+                btn.classList.add('active');
+            }
         });
 
         const container = document.getElementById('clientListArea');
         container.innerHTML = ''; 
 
+        // === 分支 1：如果是點擊「新客戶專用」 ===
+        if (salesCode === 'NEW') {
+            const salesTeam = [
+                { name: "志哥 (A)", code: "A" },
+                { name: "二佬 (E)", code: "E" },
+                { name: "博士 (B)", code: "B" },
+                { name: "嫦姐 (C)", code: "C" },
+                { name: "David (D)", code: "D" }
+            ];
+
+            let html = '';
+            salesTeam.forEach(s => {
+                // ⚠️ 注意：新客戶用的是 ?sales=X 參數
+                const link = `${baseUrl}?sales=${s.code}`;
+                // 通用問候語
+                const msg = `你好，這是宏達為您準備的電子落單鏈接，請點擊下單：\n${link}`;
+                const waLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+
+                html += `
+                    <div class="client-card" style="border-left-color: #333">
+                        <div class="client-info">
+                            <div class="c-name">${s.name} 的新客戶</div>
+                            <div class="c-code">通用鏈接 (General Link)</div>
+                        </div>
+                        
+                        <div class="btn-group-custom">
+                            <a href="${link}" target="_blank" class="btn-action btn-blue">
+                                <i class="bi bi-search"></i> 檢查
+                            </a>
+                            <a href="${waLink}" target="_blank" class="btn-action btn-green">
+                                <i class="bi bi-whatsapp"></i> 轉發
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            return; // 結束函數
+        }
+
+        // === 分支 2：如果是點擊具體銷售 (舊客戶) ===
         // 倒序排列
         let clientArray = Object.entries(clientDB).reverse();
 
@@ -133,7 +181,9 @@
             if (data.sales === salesCode) {
                 found = true;
                 
+                // ⚠️ 注意：老客戶用的是 ?id=X 參數
                 const link = `${baseUrl}?id=${id}`;
+                // 專屬問候語
                 const msg = `你好 ${data.name}，這是宏達為您準備的專屬電子落單鏈接，請保存：\n${link}`;
                 const waLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
 
