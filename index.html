@@ -80,11 +80,12 @@
 <body>
 
 <script src="sales_config.js"></script>
+<script src="customers.js"></script>
 
 <div class="sticky-header-container">
     <div class="top-info">
         <div onclick="openSetupModal()">
-            <div class="client-name" id="displayClientName">請設定客戶名稱 <i class="bi bi-pencil-square" style="font-size:0.8em"></i></div>
+            <div class="client-name" id="displayClientName">設定客戶 <i class="bi bi-pencil-square" style="font-size:0.8em"></i></div>
             <div style="font-size: 0.8rem; color: #ccc;" id="displayClientCode">點擊此處設定</div>
         </div>
         <div style="text-align: right; font-size: 0.8rem; color: #ccc;">
@@ -185,50 +186,24 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 2. 初始化變數
+    // 2. 初始化核心變數
     let currentSalesPhone = ""; 
-    let salesID = "";
-    
-    // 3. 銷售識別系統 (核心引擎)
-    function initSalesSystem() {
-        if (typeof salesTeam === 'undefined') {
-            alert("系統錯誤：找不到 sales_config.js！請檢查文件是否上傳。");
-            return;
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        salesID = urlParams.get('sales') || defaultSales; // 從網址讀取 ?sales=A
-        
-        const salesInfo = salesTeam[salesID];
-        
-        if (salesInfo) {
-            document.getElementById('displayPhone').innerText = salesInfo.phone;
-            currentSalesPhone = salesInfo.phone;
-        } else {
-            // 如果代號錯誤，使用預設 A
-            currentSalesPhone = salesTeam[defaultSales].phone;
-            document.getElementById('displayPhone').innerText = currentSalesPhone;
-        }
-    }
-
-    // V9.5 + V10.0 Combined Logic
+    let salesID = "A"; // 默認值
     let customerName = ""; 
     let customerCode = "";
     
-    // 4. 動態生成 Storage Keys (讓不同銷售的客戶資料不打架)
-    // 這樣 A 客戶的購物車不會跑到 B 客戶那裡
-    // 我們使用 salesID 來區分存儲空間
+    // 儲存鍵值
     let storageKey = ""; 
     let profileKey = ""; 
-
     let itemCounts = {}; 
     let learnedFrequent = []; 
+    let presetFrequent = []; // 專門給老客戶的預設清單
 
     const outOfStockCodes = ["D58C","D10F","D10D","D09M","D09G"];
     const eelProducts = ["D22J", "D22L", "D22", "D22C", "D22A", "D22D", "D22I", "D22G"];
     const weightedProducts = ["D61B", "D61C", "D18A", "D17E", "D17C", "B01", "D18"];
     
-    // 5. 您的完整產品清單 (我把您原本的代碼保留在這裡了)
+    // 產品清單
     const fullCatalog = [
         { cat: "環球海膽", items: ["膠盒海膽 (A06F)", "加拿大海膽 (A03)", "澳洲海膽 (A08)", "練海膽醬 (C59)", "凍海膽漿 (D01)", "紫海膽(膠盒) (A07C)", "墨西哥海膽 (A12A)", "墨西哥海膽10格 (A12B)", "本地海膽 (A02)", "凍熟馬糞膽 (A06E)"] },
         { cat: "日本海膽", items: ["A Grade(直排) (AJ1)", "A Grade(亂排) (AJ4)", "B Grade(亂排) (AJ3)", "鹽水海膽 (AJ6)"] },
@@ -259,40 +234,74 @@
         { cat: "漬物", items: ["壽司紅薑 (C27)", "壽司白薑 (C27A)", "牛蒡醬油漬 (C31B)", "薑芽(30本) (C27B)", "海葡萄100g (D81A)", "青雞冠草 (C09)", "泡菜（400g） (C87B)", "大L蘿白 (C31)", "味噌蒜頭漬 (C31C)", "紅雞冠草 (C09A)", "味付筍 (C31D)", "青海草 (C10AA)"] },
         { cat: "伴碟/乾貨/工具", items: ["軍艦紫菜50片 (C18A)", "壽司紫菜50片 (C18C)", "神戶切絲紫菜 (C18E)", "單翼手捲海苔 (C18F)", "日出昆布 (C57)", "碎海草 (C10A)", "海苔粉 (C18G)", "紫菜杯 (C18J)", "日高昆布 (C57A)", "山形膠葉 (C01B)", "櫻花蝦乾500g (C03)", "櫻花蝦乾90g (C03A)", "醫用丁晴手套 S (C50BA)", "醫用丁晴手套 M (C50BB)", "醫用丁晴手套 L (C50BC)", "保鮮綿紙M (C70)", "914保鮮紙 (C914SC)", "912保鮮紙 (C912SC)", "910保鮮紙 (C910SC)", "613錫紙 (C613)", "3寸木皮船 (C04C)", "手套S (C50AA)", "手套M (C50AB)", "天婦羅紙 (C43A)", "木盒 (C07)", "細木盒 (C07A)", "日本JFDA消毒酒精 (C50D)"] }
     ];
+    
     let productMap = {}, cart = {}, cartUnits = {}, cartModal = null, unitModal = null, pendingProductCode = null, setupModal = null;
     
     function init() {
-        // 6. 啟動銷售系統
-        initSalesSystem();
-        
-        // 生成產品 Map (為了顯示中文名稱)
         productMap = {}; 
         fullCatalog.forEach(c=>{c.items.forEach(i=>{const m=i.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);if(m)productMap[m[2]]={fullName:i,name:m[1],code:m[2]}})});
+
+        // 3. 識別身份系統
+        identifyUser();
         
-        // 7. 使用銷售 ID 來區分存儲鍵值
-        storageKey = "gen_user_" + salesID; 
-        profileKey = "gen_profile_" + salesID; 
-
-        // 讀取客戶資料
-        customerName = localStorage.getItem(profileKey + "_name") || "";
-        customerCode = localStorage.getItem(profileKey + "_code") || "";
-        updateClientInfoUI();
-
-        // 讀取常用清單
-        const savedStats = localStorage.getItem(storageKey + '_stats');
-        if(savedStats) { try { itemCounts = JSON.parse(savedStats); } catch(e) {} }
-        learnedFrequent = Object.keys(itemCounts);
-
         loadCart(); renderFrequent(); renderAll();
         
         cartModal=new bootstrap.Modal(document.getElementById('cartModal')); 
         unitModal=new bootstrap.Modal(document.getElementById('unitSelectionModal'));
         setupModal=new bootstrap.Modal(document.getElementById('setupModal'));
 
-        // 如果沒有設定過客戶資料，強制彈窗
-        if(!customerName || !customerCode){
+        // 如果是新客戶且未設定過，才彈窗
+        if(presetFrequent.length === 0 && (!customerName || !customerCode)){
             openSetupModal(false);
         }
+    }
+    
+    function identifyUser() {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // 老客戶 (網址帶 ?id=W3841)
+        const clientID = urlParams.get('id');
+        
+        if (clientID && typeof clientDB !== 'undefined' && clientDB[clientID]) {
+            const client = clientDB[clientID];
+            customerName = client.name;
+            customerCode = clientID;
+            salesID = client.sales || "A"; 
+            presetFrequent = client.list || []; 
+            
+            document.getElementById('displayClientName').innerHTML = customerName;
+            document.getElementById('displayClientCode').innerText = customerCode;
+            document.querySelector('.top-info > div:first-child').onclick = null;
+            
+        } else {
+            // 新客戶
+            salesID = urlParams.get('sales') || "A";
+            profileKey = "gen_profile_" + salesID; 
+            customerName = localStorage.getItem(profileKey + "_name") || "";
+            customerCode = localStorage.getItem(profileKey + "_code") || "";
+            updateClientInfoUI(); 
+        }
+        
+        // 設定電話
+        if (typeof salesTeam !== 'undefined' && salesTeam[salesID]) {
+            currentSalesPhone = salesTeam[salesID].phone;
+            document.getElementById('displayPhone').innerText = currentSalesPhone;
+        } else {
+            currentSalesPhone = "63771688";
+            document.getElementById('displayPhone').innerText = currentSalesPhone;
+        }
+        
+        // 設定存儲 Key
+        if (clientID) {
+            storageKey = "client_user_" + clientID;
+        } else {
+            storageKey = "gen_user_" + salesID;
+        }
+        
+        // 讀取統計
+        const savedStats = localStorage.getItem(storageKey + '_stats');
+        if(savedStats) { try { itemCounts = JSON.parse(savedStats); } catch(e) {} }
+        learnedFrequent = Object.keys(itemCounts);
     }
     
     function openSetupModal(allowClose = true) {
@@ -324,25 +333,14 @@
 
     function logoutUser() {
         if(confirm("確定要登出並清除此裝置上的客戶資料嗎？\n(常用清單和購物車也會被清空)")) {
-            localStorage.removeItem(profileKey + "_name");
-            localStorage.removeItem(profileKey + "_code");
+            if(profileKey) {
+                localStorage.removeItem(profileKey + "_name");
+                localStorage.removeItem(profileKey + "_code");
+            }
             localStorage.removeItem(storageKey + '_stats');
             localStorage.removeItem('orderCart_'+storageKey);
             localStorage.removeItem('orderUnits_'+storageKey);
-            
-            customerName = "";
-            customerCode = "";
-            itemCounts = {};
-            learnedFrequent = [];
-            cart = {};
-            cartUnits = {};
-            
-            updateClientInfoUI();
-            renderFrequent();
-            renderAll();
-            calcTotal();
-            
-            openSetupModal(false);
+            location.reload(); 
         }
     }
     
@@ -377,23 +375,40 @@
         const resetBtn = document.getElementById('btnResetFreq');
         let h='';
         
+        // 顯示老客戶清單
+        if (presetFrequent.length > 0) {
+            presetFrequent.forEach(code => {
+                const p = productMap[code];
+                if(p) h += createProductRow(p.fullName);
+            });
+            if (learnedFrequent.length > 0) {
+                h += `<div class="freq-divider">👇 最近新增產品 👇</div>`;
+            }
+        }
+
+        // 顯示學習清單
         let sortedKeys = Object.keys(itemCounts).sort((a,b) => {
             let diff = itemCounts[b] - itemCounts[a];
             return diff !== 0 ? diff : a.localeCompare(b);
         });
 
         if (sortedKeys.length > 0) {
+            sortedKeys.forEach(code=>{
+                if (!presetFrequent.includes(code)) {
+                    const p=productMap[code];
+                    if(p) h+=createProductRow(p.fullName);
+                }
+            });
+        }
+
+        if (h !== '') {
             emptyMsg.style.display = 'none';
             resetBtn.style.display = 'inline-block'; 
-            sortedKeys.forEach(code=>{
-                const p=productMap[code];
-                if(p) h+=createProductRow(p.fullName);
-            });
+            c.innerHTML = h;
         } else {
             emptyMsg.style.display = 'block';
             resetBtn.style.display = 'none'; 
         }
-        c.innerHTML = h;
     }
 
     function resetFrequentList() {
@@ -496,7 +511,7 @@
         }
 
         if (mode === 'direct') {
-            // 使用動態獲取的銷售電話 (currentSalesPhone)
+            // 自動加 852
             window.open(`https://api.whatsapp.com/send?phone=852${currentSalesPhone}&text=${encodeURIComponent(msg)}`,'_blank');
         } else {
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`,'_blank');
