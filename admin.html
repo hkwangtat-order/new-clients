@@ -23,16 +23,38 @@
         .c-code { font-size: 0.85rem; color: #888; font-family: monospace; }
         
         /* 按鈕容器 */
-        .btn-group-custom { display: flex; gap: 10px; }
+        .btn-group-custom { display: flex; gap: 8px; }
         
-        /* 強制按鈕文字不換行 */
-        .btn { white-space: nowrap; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        /* 按鈕統一樣式 */
+        .btn-action { 
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+            /* 關鍵：設定最小寬度，讓短按鈕不要太短 */
+            min-width: 90px; 
+        }
+        .btn-action:hover { color: white; opacity: 0.9; }
+        .btn-action:active { transform: scale(0.98); }
 
-        /* 手機適配：屏幕很小時，名字字體變小，確保按鈕不掉下來 */
-        @media (max-width: 400px) {
+        /* 顏色定義 */
+        .btn-blue { background-color: #0d6efd; }
+        .btn-green { background-color: #198754; }
+        
+        /* 手機適配：屏幕太窄時，換行顯示 */
+        @media (max-width: 450px) {
             .client-card { flex-direction: column; align-items: flex-start; }
             .btn-group-custom { width: 100%; margin-top: 10px; }
-            .btn { flex: 1; justify-content: center; }
+            .btn-action { flex: 1; } /* 按鈕自動填滿寬度 */
         }
     </style>
 </head>
@@ -86,7 +108,6 @@
                 found = true;
                 
                 const link = `${baseUrl}?id=${id}`;
-                // WhatsApp 預設文字
                 const msg = `你好 ${data.name}，這是宏達為您準備的專屬電子落單鏈接，請保存：\n${link}`;
                 const waLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
 
@@ -98,11 +119,11 @@
                         </div>
                         
                         <div class="btn-group-custom">
-                            <a href="${link}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <a href="${link}" target="_blank" class="btn-action btn-blue">
                                 <i class="bi bi-search"></i> 檢查
                             </a>
-                            <a href="${waLink}" target="_blank" class="btn btn-sm btn-success">
-                                <i class="bi bi-whatsapp"></i> WhatsApp 轉發
+                            <a href="${waLink}" target="_blank" class="btn-action btn-green">
+                                <i class="bi bi-whatsapp"></i> 轉發
                             </a>
                         </div>
                     </div>
