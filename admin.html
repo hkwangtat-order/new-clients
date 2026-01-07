@@ -9,53 +9,79 @@
     
     <style>
         body { background-color: #f0f2f5; font-family: "Microsoft JhengHei", sans-serif; padding-bottom: 50px; }
-        .header { background: #212529; color: #ffc107; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .header { background: #212529; color: #ffc107; padding: 12px; text-align: center; font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
-        .nav-pills .nav-link { color: #555; font-weight: bold; background: white; margin: 0 5px; border: 1px solid #ddd; border-radius: 20px; }
+        .nav-pills .nav-link { color: #555; font-weight: bold; background: white; margin: 0 4px; border: 1px solid #ddd; border-radius: 20px; font-size: 0.9rem; padding: 6px 12px; }
         .nav-pills .nav-link.active { background-color: #ffc107; color: black; border-color: #ffc107; }
         .nav-scroll { overflow-x: auto; white-space: nowrap; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
         
-        /* 卡片樣式 */
-        .client-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ddd; gap: 10px; }
+        /* === 卡片樣式 (強制單行) === */
+        .client-card { 
+            background: white; 
+            border-radius: 8px; /* 圓角稍微改小，更乾淨 */
+            padding: 10px 12px; /* 減少內邊距，更緊湊 */
+            margin-bottom: 10px; /* 減少卡片間距 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            display: flex; 
+            flex-direction: row; /* 強制橫向排列 */
+            justify-content: space-between; 
+            align-items: center; 
+            border-left: 4px solid #ddd; 
+            gap: 8px; 
+        }
         
-        .client-info { flex: 1; }
-        .c-name { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 4px; }
-        .c-code { font-size: 0.85rem; color: #888; font-family: monospace; }
+        /* === 左側信息 (自動截斷) === */
+        .client-info { 
+            flex: 1; 
+            min-width: 0; /* 關鍵：允許 flex 子元素縮小，防止撐開 */
+            margin-right: 5px;
+        }
+        .c-name { 
+            font-size: 1rem; 
+            font-weight: bold; 
+            color: #333; 
+            white-space: nowrap; /* 不換行 */
+            overflow: hidden; 
+            text-overflow: ellipsis; /* 超出顯示 ... */
+            margin-bottom: 0;
+            line-height: 1.2;
+        }
+        .c-code { 
+            font-size: 0.75rem; 
+            color: #999; 
+            font-family: monospace; 
+            margin-top: 2px;
+        }
         
-        /* 按鈕容器 */
-        .btn-group-custom { display: flex; gap: 8px; }
+        /* === 右側按鈕組 === */
+        .btn-group-custom { 
+            display: flex; 
+            gap: 6px; 
+            flex-shrink: 0; /* 防止按鈕被擠壓變形 */
+        }
         
-        /* 按鈕統一樣式 */
+        /* === 按鈕樣式 (緊湊型) === */
         .btn-action { 
             border: none;
             color: white;
             font-weight: bold;
-            font-size: 0.9rem;
-            padding: 8px 12px;
-            border-radius: 6px;
+            font-size: 0.85rem; /* 字體稍小 */
+            padding: 6px 10px; /* 內邊距縮小 */
+            border-radius: 5px;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 4px;
             white-space: nowrap;
             transition: opacity 0.2s;
-            /* 關鍵：設定最小寬度，讓短按鈕不要太短 */
-            min-width: 90px; 
         }
         .btn-action:hover { color: white; opacity: 0.9; }
-        .btn-action:active { transform: scale(0.98); }
+        .btn-action:active { transform: scale(0.96); }
 
-        /* 顏色定義 */
         .btn-blue { background-color: #0d6efd; }
         .btn-green { background-color: #198754; }
         
-        /* 手機適配：屏幕太窄時，換行顯示 */
-        @media (max-width: 450px) {
-            .client-card { flex-direction: column; align-items: flex-start; }
-            .btn-group-custom { width: 100%; margin-top: 10px; }
-            .btn-action { flex: 1; } /* 按鈕自動填滿寬度 */
-        }
     </style>
 </head>
 <body>
@@ -80,15 +106,13 @@
 
 <script src="customers.js"></script>
 <script>
-    // 基礎網址
     const baseUrl = "https://hkwangtat-order.github.io/new-clients/index.html";
 
     function init() {
-        filterSales('A'); // 默認顯示志哥
+        filterSales('A'); 
     }
 
     function filterSales(salesCode) {
-        // 1. 更新按鈕狀態
         document.querySelectorAll('.nav-link').forEach(btn => {
             btn.classList.remove('active');
             if(btn.innerText.includes(`(${salesCode})`)) btn.classList.add('active');
@@ -97,7 +121,7 @@
         const container = document.getElementById('clientListArea');
         container.innerHTML = ''; 
 
-        // 2. 獲取並倒序排列 (最新的在最上面)
+        // 倒序排列
         let clientArray = Object.entries(clientDB).reverse();
 
         let found = false;
