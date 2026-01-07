@@ -493,7 +493,26 @@
         
         const dateStr = getDeliveryDate();
         let msg=`${customerCode} ${customerName}\n日期：${dateStr}\n訂貨單：\n\n`;
-        const fmt=c=>{const p=productMap[c];const n=p?p.name:c;let q=cart[c].toString();if(cartUnits[c]==='kg')q+='K';else if(cartUnits[c]==='piece')q+='隻';return ` ${q.padEnd(5,' ')} ${n} (${c})\n`};
+        
+        // 👇👇👇 主要修改了這裡的邏輯 👇👇👇
+        const fmt = c => {
+            const p = productMap[c];
+            const n = p ? p.name : c;
+            let q = cart[c].toString();
+            
+            // 邏輯 1：如果是 KG 單位，一律加 K
+            if(cartUnits[c] === 'kg') {
+                q += 'K';
+            } 
+            // 邏輯 2：如果是 件/包 單位，且產品是「活赤貝 (B01)」，才加 "隻"
+            else if(cartUnits[c] === 'piece' && c === 'B01') {
+                q += '隻';
+            }
+            // 邏輯 3：其他情況 (例如鯛魚柳選件)，什麼都不加，保持純數字
+            
+            return ` ${q.padEnd(5,' ')} ${n} (${c})\n`;
+        };
+        // 👆👆👆 修改結束 👆👆👆
         
         let codes = Object.keys(cart).sort(); 
         
@@ -507,11 +526,9 @@
         
         if(hasNewItems){
             localStorage.setItem(storageKey + '_stats', JSON.stringify(itemCounts));
-            renderFrequent(); 
         }
 
         if (mode === 'direct') {
-            // 自動加 852
             window.open(`https://api.whatsapp.com/send?phone=852${currentSalesPhone}&text=${encodeURIComponent(msg)}`,'_blank');
         } else {
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`,'_blank');
