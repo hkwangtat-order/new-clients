@@ -237,9 +237,15 @@
     
     let productMap = {}, cart = {}, cartUnits = {}, cartModal = null, unitModal = null, pendingProductCode = null, setupModal = null;
     
+    // 為了確保不覆蓋您的產品表，這段代碼請貼在 fullCatalog 定義之後
+    // 或者您確認 fullCatalog 變數還在您的文件裡
+    
     function init() {
         productMap = {}; 
-        fullCatalog.forEach(c=>{c.items.forEach(i=>{const m=i.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);if(m)productMap[m[2]]={fullName:i,name:m[1],code:m[2]}})});
+        // 這裡依賴上面的 fullCatalog，請確保它存在
+        if(typeof fullCatalog !== 'undefined') {
+            fullCatalog.forEach(c=>{c.items.forEach(i=>{const m=i.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);if(m)productMap[m[2]]={fullName:i,name:m[1],code:m[2]}})});
+        }
 
         // 3. 識別身份系統
         identifyUser();
@@ -258,11 +264,13 @@
     
     function identifyUser() {
         const urlParams = new URLSearchParams(window.location.search);
-        
-        // 老客戶 (網址帶 ?id=W3841)
         const clientID = urlParams.get('id');
         
+        // 控制「登出」按鈕的顯示
+        const logoutBtn = document.querySelector('.btn-logout');
+        
         if (clientID && typeof clientDB !== 'undefined' && clientDB[clientID]) {
+            // === 老客戶模式 ===
             const client = clientDB[clientID];
             customerName = client.name;
             customerCode = clientID;
@@ -273,16 +281,21 @@
             document.getElementById('displayClientCode').innerText = customerCode;
             document.querySelector('.top-info > div:first-child').onclick = null;
             
+            // 老客戶隱藏登出按鈕
+            if(logoutBtn) logoutBtn.style.display = 'none';
+            
         } else {
-            // 新客戶
+            // === 新客戶模式 ===
             salesID = urlParams.get('sales') || "A";
             profileKey = "gen_profile_" + salesID; 
             customerName = localStorage.getItem(profileKey + "_name") || "";
             customerCode = localStorage.getItem(profileKey + "_code") || "";
             updateClientInfoUI(); 
+            
+            // 新客戶顯示登出按鈕
+            if(logoutBtn) logoutBtn.style.display = 'inline-block';
         }
         
-        // 設定電話
         if (typeof salesTeam !== 'undefined' && salesTeam[salesID]) {
             currentSalesPhone = salesTeam[salesID].phone;
             document.getElementById('displayPhone').innerText = currentSalesPhone;
@@ -291,14 +304,12 @@
             document.getElementById('displayPhone').innerText = currentSalesPhone;
         }
         
-        // 設定存儲 Key
         if (clientID) {
             storageKey = "client_user_" + clientID;
         } else {
             storageKey = "gen_user_" + salesID;
         }
         
-        // 讀取統計
         const savedStats = localStorage.getItem(storageKey + '_stats');
         if(savedStats) { try { itemCounts = JSON.parse(savedStats); } catch(e) {} }
         learnedFrequent = Object.keys(itemCounts);
@@ -369,50 +380,84 @@
     }
     function switchTab(t){document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.nav-link').forEach(e=>e.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');event.target.classList.add('active');if(t==='all'){clearSearch();document.getElementById('searchBar').style.display='block';window.scrollTo(0,0)}else{document.getElementById('searchBar').style.display='none'}}
     
+    // 👇👇👇 核心修改：渲染常用清單的邏輯優化 👇👇👇
     function renderFrequent(){
         const c=document.getElementById('frequentListContent');
         const emptyMsg = document.getElementById('emptyFrequentMsg');
         const resetBtn = document.getElementById('btnResetFreq');
         let h='';
         
-        // 顯示老客戶清單
+        // 1. 處理老客戶 (有預設清單)
         if (presetFrequent.length > 0) {
+            // 先顯示預設的
             presetFrequent.forEach(code => {
                 const p = productMap[code];
                 if(p) h += createProductRow(p.fullName);
             });
-            if (learnedFrequent.length > 0) {
+
+            // 再計算「最近新增」 (在記憶中，但不在預設名單裡的)
+            // 先排序
+            let sortedKeys = Object.keys(itemCounts).sort((a,b) => {
+                let diff = itemCounts[b] - itemCounts[a];
+                return diff !== 0 ? diff : a.localeCompare(b);
+            });
+            
+            // 過濾掉已經在預設清單裡的
+            let newAddedItems = sortedKeys.filter(code => !presetFrequent.includes(code));
+
+            // 如果有新增的，顯示分隔線
+            if (newAddedItems.length > 0) {
                 h += `<div class="freq-divider">👇 最近新增產品 👇</div>`;
+                newAddedItems.forEach(code => {
+                    const p = productMap[code];
+                    if(p) h += createProductRow(p.fullName);
+                });
+                
+                // 老客戶顯示「清除最近新增」
+                resetBtn.innerHTML = '<i class="bi bi-trash"></i> 清除最近新增';
+                resetBtn.style.display = 'inline-block';
+            } else {
+                // 如果沒有新增的，老客戶不需要重置按鈕 (因為預設清單刪不掉)
+                resetBtn.style.display = 'none';
             }
-        }
+            
+            emptyMsg.style.display = 'none';
+            c.innerHTML = h;
 
-        // 顯示學習清單
-        let sortedKeys = Object.keys(itemCounts).sort((a,b) => {
-            let diff = itemCounts[b] - itemCounts[a];
-            return diff !== 0 ? diff : a.localeCompare(b);
-        });
+        } else {
+            // 2. 處理新客戶 (無預設清單)
+            let sortedKeys = Object.keys(itemCounts).sort((a,b) => {
+                let diff = itemCounts[b] - itemCounts[a];
+                return diff !== 0 ? diff : a.localeCompare(b);
+            });
 
-        if (sortedKeys.length > 0) {
-            sortedKeys.forEach(code=>{
-                if (!presetFrequent.includes(code)) {
+            if (sortedKeys.length > 0) {
+                sortedKeys.forEach(code=>{
                     const p=productMap[code];
                     if(p) h+=createProductRow(p.fullName);
-                }
-            });
-        }
-
-        if (h !== '') {
-            emptyMsg.style.display = 'none';
-            resetBtn.style.display = 'inline-block'; 
-            c.innerHTML = h;
-        } else {
-            emptyMsg.style.display = 'block';
-            resetBtn.style.display = 'none'; 
+                });
+                emptyMsg.style.display = 'none';
+                resetBtn.style.display = 'inline-block'; 
+                // 新客戶顯示「重置常用清單」
+                resetBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> 重置常用清單';
+                c.innerHTML = h;
+            } else {
+                emptyMsg.style.display = 'block';
+                resetBtn.style.display = 'none'; 
+                c.innerHTML = '';
+            }
         }
     }
 
+    // 👇👇👇 核心修改：重置功能的邏輯優化 👇👇👇
     function resetFrequentList() {
-        if(confirm("確定要重置常用清單嗎？\n這將清空所有自動記憶的產品。")) {
+        // 判斷是老客戶還是新客戶
+        const isOldClient = presetFrequent.length > 0;
+        const msg = isOldClient 
+            ? "確定要清除「最近新增」的產品記錄嗎？\n(原本的固定清單不會受影響)" 
+            : "確定要重置常用清單嗎？\n這將清空所有自動記憶的產品。";
+
+        if(confirm(msg)) {
             itemCounts = {};
             learnedFrequent = [];
             localStorage.removeItem(storageKey + '_stats');
@@ -494,28 +539,16 @@
         const dateStr = getDeliveryDate();
         let msg=`${customerCode} ${customerName}\n日期：${dateStr}\n訂貨單：\n\n`;
         
-        // 👇👇👇 主要修改了這裡的邏輯 👇👇👇
         const fmt = c => {
             const p = productMap[c];
             const n = p ? p.name : c;
             let q = cart[c].toString();
-            
-            // 邏輯 1：如果是 KG 單位，一律加 K
-            if(cartUnits[c] === 'kg') {
-                q += 'K';
-            } 
-            // 邏輯 2：如果是 件/包 單位，且產品是「活赤貝 (B01)」，才加 "隻"
-            else if(cartUnits[c] === 'piece' && c === 'B01') {
-                q += '隻';
-            }
-            // 邏輯 3：其他情況 (例如鯛魚柳選件)，什麼都不加，保持純數字
-            
+            if(cartUnits[c] === 'kg') { q += 'K'; } 
+            else if(cartUnits[c] === 'piece' && c === 'B01') { q += '隻'; }
             return ` ${q.padEnd(5,' ')} ${n} (${c})\n`;
         };
-        // 👆👆👆 修改結束 👆👆👆
         
         let codes = Object.keys(cart).sort(); 
-        
         let hasNewItems = false;
         for(let c of codes){
             msg+=fmt(c);
@@ -526,6 +559,7 @@
         
         if(hasNewItems){
             localStorage.setItem(storageKey + '_stats', JSON.stringify(itemCounts));
+            // 這裡不需要重新 renderFrequent，因為發完就跳轉了，或者清空了
         }
 
         if (mode === 'direct') {
