@@ -1,0 +1,15 @@
+{
+  "name": "宏達分發中心",
+  "short_name": "宏達助手",
+  "start_url": "./admin.html",
+  "display": "standalone",
+  "background_color": "#212529",
+  "theme_color": "#ffc107",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
