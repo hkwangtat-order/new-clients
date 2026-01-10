@@ -1,6 +1,6 @@
 {
-  "name": "宏達分發中心",
-  "short_name": "宏達助手",
+  "name": "宏達客戶通",
+  "short_name": "宏達客戶通",
   "start_url": "./admin.html",
   "display": "standalone",
   "background_color": "#212529",
