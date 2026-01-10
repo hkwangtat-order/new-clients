@@ -89,7 +89,6 @@
 
         .btn-blue { background-color: #0d6efd; }
         .btn-green { background-color: #198754; }
-        .btn-dark { background-color: #212529; } 
         
     </style>
 </head>
@@ -138,7 +137,7 @@
         const container = document.getElementById('clientListArea');
         container.innerHTML = ''; 
 
-        // === 分支 1：新客戶專用 (簡單直接) ===
+        // === 分支 1：新客戶專用 ===
         if (salesCode === 'NEW') {
             const salesTeam = [
                 { name: "志哥 (A)", code: "A" },
@@ -151,8 +150,9 @@
             let html = '';
             salesTeam.forEach(s => {
                 const link = `${baseUrl}?sales=${s.code}`;
-                // 新客戶通用話術
+                // 新客戶極簡話術
                 const msg = `你好，這是宏達為您準備的電子落單鏈接，請點擊下單：\n${link}`;
+                // 直接生成 WhatsApp 鏈接
                 const waLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
 
                 html += `
@@ -177,7 +177,7 @@
             return;
         }
 
-        // === 分支 2：老客戶 (一鍵轉發) ===
+        // === 分支 2：老客戶 (極速模式) ===
         let clientArray = Object.entries(clientDB).reverse();
 
         let found = false;
@@ -215,23 +215,18 @@
         }
     }
 
-    // === 核心功能：老客戶一鍵轉發 (固定話術) ===
+    // === 核心修改：老客戶極速轉發 (無彈窗) ===
     function copyLink(id, name) {
         const link = `${baseUrl}?id=${id}`;
         
-        // 您指定的固定話術
-        const msg = `${name} 你好！為咗加快出貨流程，公司全面推行自助落單。我已經將你平時叫開嗰啲貨 Set 好晒喺「常用清單」度。以後唔使打字咁煩，入去撳個掣就搞掂，快好多㗎！記得 Save 低佢：\n${link}`;
+        // 您的指定簡短話術
+        const msg = `你好 ${name}，這是宏達為您準備的專屬電子落單鏈接，請保存：\n${link}`;
 
-        // 複製到剪貼簿並嘗試打開 WhatsApp
-        navigator.clipboard.writeText(msg).then(() => {
-            // 彈出確認框，點確定直接跳轉
-            if(confirm(`✅ 內容已複製！\n\n發送給：${name}\n\n是否立即跳轉 WhatsApp 發送？`)) {
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
-            }
-        }).catch(err => {
-            // 如果瀏覽器不支持自動複製，則顯示提示框讓用戶手動複製
-            prompt("複製失敗，請手動複製以下內容：", msg);
-        });
+        // 1. 嘗試複製到剪貼簿 (當作備用，不阻塞流程)
+        navigator.clipboard.writeText(msg).catch(() => {});
+
+        // 2. 直接打開 WhatsApp
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function getColor(code) {
