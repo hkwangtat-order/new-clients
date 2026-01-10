@@ -559,9 +559,7 @@
         const dateStr = getDeliveryDate();
         let msg=`${customerCode} ${customerName}\n日期：${dateStr}\n訂貨單：\n\n`;
         
-        // === 👇👇👇 核心修改開始：加入「箱」單位識別 👇👇👇 ===
-        
-        // 1. 獲取當前客戶的詳細設定 (為了讀取 box_items)
+        // 1. 獲取當前客戶資料
         const urlParams = new URLSearchParams(window.location.search);
         const clientID = urlParams.get('id');
         const currentClient = (typeof clientDB !== 'undefined' && clientID) ? clientDB[clientID] : null;
@@ -571,22 +569,28 @@
             const n = p ? p.name : c;
             let q = cart[c].toString();
 
-            // 2. 單位判斷邏輯 (優先級：KG > B01隻 > 箱 > 默認)
+            // 2. 單位判斷邏輯
             if(cartUnits[c] === 'kg') { 
-                q += 'K';  // 優先顯示稱重單位
+                q += 'K';
             } 
             else if(cartUnits[c] === 'piece' && c === 'B01') { 
-                q += '隻'; // 保留 B01 的特殊單位
+                q += '隻';
             } 
             else if (currentClient && currentClient.box_items && currentClient.box_items.includes(c)) {
-                q += '箱'; // 【新功能】如果在客戶的「箱貨名單」裡，自動加「箱」
+                q += '箱'; 
             }
-            // 其他情況默認不加單位 (顯示為包/件)
 
-            // 保持原本的對齊格式
-            return ` ${q.padEnd(5,' ')} ${n} (${c})\n`;
+            // 3. 【新功能】代碼轉換邏輯 (Alias Code)
+            // 默認使用原代碼 c
+            let displayCode = c;
+            // 如果客戶設定了 alias_codes，且當前產品在轉換名單內，就換成新代碼
+            if (currentClient && currentClient.alias_codes && currentClient.alias_codes[c]) {
+                displayCode = currentClient.alias_codes[c];
+            }
+
+            // 4. 組合訊息 (注意這裡用的是 displayCode)
+            return ` ${q.padEnd(5,' ')} ${n} (${displayCode})\n`;
         };
-        // === 👆👆👆 核心修改結束 👆👆👆 ===
         
         let codes = Object.keys(cart).sort(); 
         let hasNewItems = false;
