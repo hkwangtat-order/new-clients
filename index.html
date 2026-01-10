@@ -187,6 +187,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // 2. 初始化核心變數
+    let currentClientBoxItems = []; // 👈 新增：用來存當前客戶的箱貨清單
     let currentSalesPhone = ""; 
     let salesID = "A"; // 默認值
     let customerName = ""; 
@@ -273,6 +274,12 @@
             // === 老客戶模式 ===
             const client = clientDB[clientID];
             customerName = client.name;
+            // 👇 讀取箱貨名單，如果沒有就給個空數組
+        if (client.box_items) {
+            currentClientBoxItems = client.box_items;
+        } else {
+            currentClientBoxItems = [];
+        }
             customerCode = client.realID || clientID;
             salesID = client.sales || "A"; 
             presetFrequent = client.list || []; 
@@ -468,10 +475,23 @@
     function renderAll(f=''){const c=document.getElementById('tab-all');let h='';const t=f.toUpperCase().split('');fullCatalog.forEach(cat=>{const items=cat.items.filter(i=>{if(!f)return true;const u=i.toUpperCase();return t.every(x=>u.includes(x))});if(items.length>0){if(!f)h+=`<div class="cat-header">${cat.cat}</div>`;items.forEach(i=>h+=createProductRow(i))}});if(h==='')h='<div class="text-center p-5 text-muted">找不到相關產品</div>';c.innerHTML=h}
     
     function createProductRow(s){
-        let n=s,c='UNKNOWN';const m=s.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);if(m){n=m[1];c=m[2]}else{c=s.replace(/[^a-zA-Z0-9]/g,'')}
+        let n=s,c='UNKNOWN';
+        const m=s.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);
+        if(m){n=m[1];c=m[2]}else{c=s.replace(/[^a-zA-Z0-9]/g,'')}
+
+        // === 👇 新增邏輯：如果是箱貨，給名字加個漂亮標籤 👇 ===
+        if (currentClientBoxItems.includes(c)) {
+            // 加上黃色背景的「原箱」標籤
+            n += ' <span style="background-color:#ffc107; color:#000; padding:1px 5px; border-radius:4px; font-size:0.8rem; font-weight:bold; margin-left:5px;">📦 原箱</span>';
+        }
+        // === 👆 新增結束 👆 ===
+
         if (outOfStockCodes.includes(c)) return `<div class="product-row oos" id="row-${c}"><div class="p-info"><div class="p-name">${n} <span class="oos-badge">🚫 缺貨</span></div><div class="p-code">${c}</div></div><div class="qty-control disabled"><div class="qty-btn disabled">-</div><input type="text" class="qty-input" value="0" readonly disabled><div class="qty-btn disabled">+</div></div></div>`;
+        
         const q=cart[c]||0; let val=q, cls='qty-input'; if(q>0&&cartUnits[c]==='kg'){val+=' K';cls+=' unit-kg'}
         const sel=q>0?'selected':'';
+        
+        // 注意：這裡的 ${n} 現在已經包含了我們的標籤 HTML
         return `<div class="product-row ${sel}" id="row-${c}"><div class="p-info"><div class="p-name">${n}</div><div class="p-code">${c}</div></div><div class="qty-control"><div class="qty-btn" onclick="updateQty('${c}',-1)">-</div><input type="text" class="${cls}" id="qty-${c}" value="${val}" readonly><div class="qty-btn" onclick="updateQty('${c}',1)">+</div></div></div>`
     }
     
