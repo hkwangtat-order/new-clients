@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宏達內部 - 客戶鏈接總控台</title>
+    
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#ffc107">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
@@ -25,7 +27,7 @@
         .client-card { 
             background: white; 
             border-radius: 10px; 
-            padding: 16px 15px; /* 高度舒適 */
+            padding: 16px 15px; 
             margin-bottom: 15px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             display: flex; 
@@ -43,7 +45,7 @@
             margin-right: 5px;
         }
         .c-name { 
-            font-size: 1.1rem; /* 字體大 */
+            font-size: 1.1rem; 
             font-weight: bold; 
             color: #333; 
             white-space: nowrap; 
@@ -80,13 +82,14 @@
             gap: 5px;
             white-space: nowrap;
             transition: opacity 0.2s;
+            cursor: pointer; /* 鼠標手勢 */
         }
         .btn-action:hover { color: white; opacity: 0.9; }
         .btn-action:active { transform: scale(0.96); }
 
         .btn-blue { background-color: #0d6efd; }
         .btn-green { background-color: #198754; }
-        .btn-dark { background-color: #212529; } /* 新客戶標籤用深色 */
+        .btn-dark { background-color: #212529; } 
         
     </style>
 </head>
@@ -114,6 +117,7 @@
 
 <script src="customers.js"></script>
 <script>
+    // ⚠️ 確保這裡的網址是您最終上線的網址
     const baseUrl = "https://hkwangtat-order.github.io/new-clients/index.html";
 
     function init() {
@@ -124,7 +128,6 @@
         // 1. 更新按鈕狀態
         document.querySelectorAll('.nav-link').forEach(btn => {
             btn.classList.remove('active');
-            // 判斷按鈕文字是否包含銷售代碼，或者特殊處理 NEW
             if(salesCode === 'NEW' && btn.innerText.includes('新客戶')) {
                 btn.classList.add('active');
             } else if (salesCode !== 'NEW' && btn.innerText.includes(`(${salesCode})`)) {
@@ -135,7 +138,7 @@
         const container = document.getElementById('clientListArea');
         container.innerHTML = ''; 
 
-        // === 分支 1：如果是點擊「新客戶專用」 ===
+        // === 分支 1：新客戶專用 (簡單直接，不彈窗) ===
         if (salesCode === 'NEW') {
             const salesTeam = [
                 { name: "志哥 (A)", code: "A" },
@@ -147,9 +150,8 @@
 
             let html = '';
             salesTeam.forEach(s => {
-                // ⚠️ 注意：新客戶用的是 ?sales=X 參數
                 const link = `${baseUrl}?sales=${s.code}`;
-                // 通用問候語
+                // 新客戶簡單話術
                 const msg = `你好，這是宏達為您準備的電子落單鏈接，請點擊下單：\n${link}`;
                 const waLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
 
@@ -172,10 +174,10 @@
                 `;
             });
             container.innerHTML = html;
-            return; // 結束函數
+            return;
         }
 
-        // === 分支 2：如果是點擊具體銷售 (舊客戶) ===
+        // === 分支 2：老客戶 (使用彈窗選擇話術) ===
         // 倒序排列
         let clientArray = Object.entries(clientDB).reverse();
 
@@ -185,12 +187,7 @@
         for (const [id, data] of clientArray) {
             if (data.sales === salesCode) {
                 found = true;
-                
-                // ⚠️ 注意：老客戶用的是 ?id=X 參數
                 const link = `${baseUrl}?id=${id}`;
-                // 專屬問候語
-                const msg = `你好 ${data.name}，這是宏達為您準備的專屬電子落單鏈接，請保存：\n${link}`;
-                const waLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
 
                 html += `
                     <div class="client-card" style="border-left-color: ${getColor(salesCode)}">
@@ -203,9 +200,9 @@
                             <a href="${link}" target="_blank" class="btn-action btn-blue">
                                 <i class="bi bi-search"></i> 檢查
                             </a>
-                            <a href="${waLink}" target="_blank" class="btn-action btn-green">
+                            <div onclick="copyLink('${id}', '${data.name}')" class="btn-action btn-green">
                                 <i class="bi bi-whatsapp"></i> 轉發
-                            </a>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -219,6 +216,53 @@
         }
     }
 
+    // === 核心功能：老客戶話術選擇系統 (港式無折扣版) ===
+    function copyLink(id, name) {
+        const link = `${baseUrl}?id=${id}`;
+        
+        // 讓銷售選擇語氣
+        const choice = prompt(
+            `請選擇發送給【${name}】的話術類型 (輸入數字)：\n\n` +
+            `1. ✨ 貼心鋪排 (幫你 Set 好晒、一撳即落)\n` +
+            `2. 🛡️ 防錯穩陣 (驚漏單、直接入 System)\n` +
+            `3. 📦 即時庫存 (唔使問有無貨、一睇就知)\n` +
+            `4. ⚡ 系統升級 (統一流程、快靚正)\n` +
+            `5. 🔗 僅複製鏈接`, 
+            "1"
+        );
+
+        if (choice === null) return; // 如果按取消，什麼都不做
+
+        let msg = "";
+
+        if (choice === "1") {
+            // 貼心版
+            msg = `XX，幫你整咗條【專屬落單 Link】喇，我已經將你平時叫開嗰啲貨 Set 好晒喺「常用清單」度。以後唔使打字咁煩，入去撳個掣就搞掂，快好多㗎！記得 Save 低佢：\n${link}`;
+        } else if (choice === "2") {
+            // 防錯版
+            msg = `XX，因為 WhatsApp 太多單驚有時睇漏眼或者入錯單。以後麻煩用呢條 Link 落單，直接連入公司 System，準確好多又唔會漏！幫幫手配合下，Thank you！\n${link}`;
+        } else if (choice === "3") {
+            // 庫存版
+            msg = `XX，公司 System Update 咗，以後用呢條 Link 可以直接睇到即時貨存 (有冇貨/缺貨)。唔使等我覆咁慢嘛，你自己睇完直接落單就得，方便好多！\n${link}`;
+        } else if (choice === "4") {
+            // 升級版
+            msg = `【宏達通知】XX 你好，為咗加快出貨流程，公司全面推行自助落單。以後麻煩盡量用呢條專屬 Link，一撳就係，唔使打字錄音咁費神，多謝合作！\n${link}`;
+        } else {
+            // 僅複製鏈接
+            msg = link;
+        }
+
+        // 把名字替換進去
+        msg = msg.replace("XX", name);
+
+        // 複製到剪貼簿並提示
+        navigator.clipboard.writeText(msg).then(() => {
+            alert(`✅ 複製成功！\n\n對象：${name}\n模式：${choice}\n\n請直接去 WhatsApp 貼上即可！`);
+        }).catch(err => {
+            prompt("複製失敗，請手動複製以下內容：", msg);
+        });
+    }
+
     function getColor(code) {
         const colors = { 'A': '#0d6efd', 'E': '#198754', 'B': '#dc3545', 'C': '#ffc107', 'D': '#6f42c1' };
         return colors[code] || '#ccc';
@@ -229,4 +273,3 @@
 
 </body>
 </html>
-
