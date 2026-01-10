@@ -539,14 +539,34 @@
         const dateStr = getDeliveryDate();
         let msg=`${customerCode} ${customerName}\n日期：${dateStr}\n訂貨單：\n\n`;
         
+        // === 👇👇👇 核心修改開始：加入「箱」單位識別 👇👇👇 ===
+        
+        // 1. 獲取當前客戶的詳細設定 (為了讀取 box_items)
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientID = urlParams.get('id');
+        const currentClient = (typeof clientDB !== 'undefined' && clientID) ? clientDB[clientID] : null;
+
         const fmt = c => {
             const p = productMap[c];
             const n = p ? p.name : c;
             let q = cart[c].toString();
-            if(cartUnits[c] === 'kg') { q += 'K'; } 
-            else if(cartUnits[c] === 'piece' && c === 'B01') { q += '隻'; }
+
+            // 2. 單位判斷邏輯 (優先級：KG > B01隻 > 箱 > 默認)
+            if(cartUnits[c] === 'kg') { 
+                q += 'K';  // 優先顯示稱重單位
+            } 
+            else if(cartUnits[c] === 'piece' && c === 'B01') { 
+                q += '隻'; // 保留 B01 的特殊單位
+            } 
+            else if (currentClient && currentClient.box_items && currentClient.box_items.includes(c)) {
+                q += '箱'; // 【新功能】如果在客戶的「箱貨名單」裡，自動加「箱」
+            }
+            // 其他情況默認不加單位 (顯示為包/件)
+
+            // 保持原本的對齊格式
             return ` ${q.padEnd(5,' ')} ${n} (${c})\n`;
         };
+        // === 👆👆👆 核心修改結束 👆👆👆 ===
         
         let codes = Object.keys(cart).sort(); 
         let hasNewItems = false;
@@ -559,7 +579,6 @@
         
         if(hasNewItems){
             localStorage.setItem(storageKey + '_stats', JSON.stringify(itemCounts));
-            // 這裡不需要重新 renderFrequent，因為發完就跳轉了，或者清空了
         }
 
         if (mode === 'direct') {
