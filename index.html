@@ -18,12 +18,21 @@
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f8f9fa; padding-bottom: 160px; }
         .sticky-header-container { 
     position: sticky; 
+    position: -webkit-sticky; /* 兼容 Safari */
     top: 0; 
-    z-index: 9999; /* 層級拉到最高，誰都別想擋我 */
-    background-color: #212529; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
-    padding-top: env(safe-area-inset-top); /* 避開 iPhone 劉海 */
-    margin-top: -1px; 
+    z-index: 10000; /* 層級開到最大 */
+    background-color: #212529; /* 確保背景是深色不透明 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* 陰影加深，遮擋感更強 */
+    padding-top: env(safe-area-inset-top); 
+    margin-top: -1px;
+    width: 100%; /* 撐滿寬度 */
+}
+
+/* 確保下面的標籤欄也是不透明的 */
+.nav-tabs {
+    background-color: #212529; /* 與頂部一致的底色 */
+    position: relative;
+    z-index: 10001;
 }
         .top-info { padding: 12px 15px 5px 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
         .client-name { font-size: 1.3rem; font-weight: 800; color: #ffc107; cursor: pointer; }
@@ -98,13 +107,15 @@
 
 <div class="sticky-header-container">
     <div class="top-info">
-    <div id="backToAdminBtn" style="display:none; margin-right: 15px; cursor: pointer;" onclick="window.location.href='admin.html'">
+    <div id="backToAdminBtn" style="display:none; margin-right: 15px; cursor: pointer;">
         <i class="bi bi-arrow-left-circle-fill" style="font-size: 1.8rem; color: #ffc107;"></i>
     </div>
-    <div onclick="openSetupModal()" style="flex: 1;">
+
+    <div id="clientInfoWrapper" onclick="openSetupModal()" style="flex: 1;">
         <div class="client-name" id="displayClientName">設定客戶 <i class="bi bi-pencil-square" style="font-size:0.8em"></i></div>
         <div style="font-size: 0.8rem; color: #ccc;" id="displayClientCode">點擊此處設定</div>
     </div>
+    
     <div style="text-align: right; font-size: 0.8rem; color: #ccc;">
         <span id="displaySalesName">宏達批發</span><br>Tel: <span id="displayPhone"></span>
     </div>
@@ -259,13 +270,21 @@
     // 或者您確認 fullCatalog 變數還在您的文件裡
     
     function init() {
-        // === 👇 新增：如果有暗號，就顯示返回按鈕 👇 ===
+        // ... (其他代碼) ...
+
+        // === 👇 返回按鈕邏輯 👇 ===
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('source') === 'admin') {
             const btn = document.getElementById('backToAdminBtn');
-            if(btn) btn.style.display = 'block';
+            if(btn) {
+                btn.style.display = 'block';
+                // 明確綁定點擊事件，確保 100% 能跳轉
+                btn.onclick = function() {
+                    window.location.href = 'admin.html';
+                };
+            }
         }
-        // === 👆 新增結束 👆 ===
+        // === 👆 修改結束 👆 ===
 
         productMap = {}; 
         // 這裡依賴上面的 fullCatalog，請確保它存在
@@ -295,23 +314,39 @@
         // 控制「登出」按鈕的顯示
         const logoutBtn = document.querySelector('.btn-logout');
         
+        // 獲取客戶名稱的容器
+        const clientWrapper = document.getElementById('clientInfoWrapper');
+
         if (clientID && typeof clientDB !== 'undefined' && clientDB[clientID]) {
             // === 老客戶模式 ===
             const client = clientDB[clientID];
             customerName = client.name;
-            // 👇 讀取箱貨名單，如果沒有就給個空數組
-        if (client.box_items) {
-            currentClientBoxItems = client.box_items;
-        } else {
-            currentClientBoxItems = [];
-        }
             customerCode = client.realID || clientID;
             salesID = client.sales || "A"; 
             presetFrequent = client.list || []; 
+
+            // 處理箱貨名單
+            if (client.box_items) {
+                currentClientBoxItems = client.box_items;
+            } else {
+                currentClientBoxItems = [];
+            }
+            
+            // 處理代碼轉換 (Alias)
+            if (client.alias_codes) {
+                currentClientAliasCodes = client.alias_codes;
+            } else {
+                currentClientAliasCodes = {};
+            }
             
             document.getElementById('displayClientName').innerHTML = customerName;
             document.getElementById('displayClientCode').innerText = customerCode;
-            document.querySelector('.top-info > div:first-child').onclick = null;
+            
+            // 👇【修復點 1】精確鎖定老客戶，禁止點擊修改資料，但不會影響返回按鈕
+            if(clientWrapper) {
+                clientWrapper.onclick = null; 
+                clientWrapper.style.pointerEvents = 'none'; // 讓滑鼠點擊無效化
+            }
             
             // 老客戶隱藏登出按鈕
             if(logoutBtn) logoutBtn.style.display = 'none';
@@ -323,6 +358,12 @@
             customerName = localStorage.getItem(profileKey + "_name") || "";
             customerCode = localStorage.getItem(profileKey + "_code") || "";
             updateClientInfoUI(); 
+            
+            // 👇【修復點 2】新客戶允許點擊修改
+            if(clientWrapper) {
+                clientWrapper.onclick = openSetupModal;
+                clientWrapper.style.pointerEvents = 'auto';
+            }
             
             // 新客戶顯示登出按鈕
             if(logoutBtn) logoutBtn.style.display = 'inline-block';
