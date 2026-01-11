@@ -14,34 +14,27 @@
     <meta name="theme-color" content="#212529">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
-    /* === 🔥 重點 1：底色保險 🔥 === */
-    html {
-        background-color: #212529; /* 讓橡皮筋效果露出的底色也是黑的 */
-    }
-
+<style>
+    /* === 恢復正常設置 === */
     body { 
         font-family: "Microsoft JhengHei", sans-serif; 
         background-color: #f8f9fa; 
         padding-bottom: 160px; 
-        overscroll-behavior-y: none; 
-        /* 注意：這裡去掉了 padding-top，我們用 JS 動態加 */
     }
 
-    /* === 🔥 重點 2：改為 Fixed 固定定位 🔥 === */
+    /* === 改回 Sticky (黏性定位) === */
     .sticky-header-container { 
-        position: fixed; /* 釘死在螢幕上，不隨頁面滾動 */
+        position: sticky; 
+        position: -webkit-sticky; /* 兼容 Safari */
         top: 0; 
-        left: 0;
-        z-index: 99999; 
+        z-index: 10000; 
         background-color: #212529; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
-        width: 100%;
-        /* 讓 Header 往上延伸，填滿劉海區 */
-        padding-top: env(safe-area-inset-top); 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+        padding-top: env(safe-area-inset-top); /* 恢復劉海避讓 */
+        margin-top: -1px;
+        width: 100%; 
     }
 
-    /* === 頂部資訊欄 (微調) === */
     .top-info { 
         padding: 10px 15px 5px 15px; 
         color: white; 
@@ -54,7 +47,6 @@
 
     .client-name { font-size: 1.3rem; font-weight: 800; color: #ffc107; cursor: pointer; }
     
-    /* === 導航欄 === */
     .nav-tabs { 
         border-bottom: none; 
         padding: 0 10px; 
@@ -65,13 +57,11 @@
     .nav-link { color: #aaa; font-weight: bold; border: none; border-radius: 10px 10px 0 0; padding: 10px 15px; font-size: 1rem; background: transparent; }
     .nav-link.active { background-color: #f8f9fa; color: #000; border-bottom: 4px solid #ffc107; }
     
-    /* === 搜索框 === */
     .search-section { background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; display: none; }
     .search-wrapper { position: relative; }
     .search-input { border-radius: 20px; border: 1px solid #ccc; padding: 8px 35px 8px 15px; width: 100%; }
     .btn-clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #adb5bd; cursor: pointer; font-size: 1.1rem; display: none; z-index: 10; }
     
-    /* === 分類標題 === */
     .cat-header { 
         background-color: #ffc107; 
         color: #000; 
@@ -84,7 +74,6 @@
         z-index: 1;
     }
 
-    /* === 產品列表 === */
     .product-row { background: white; border-bottom: 1px solid #eee; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
     .product-row.oos { background-color: #f8f9fa; opacity: 0.8; }
     .p-info { flex: 1; padding-right: 10px; overflow: hidden; }
@@ -92,7 +81,6 @@
     .p-code { font-size: 0.85rem; color: #888; font-weight: normal; font-family: Arial, sans-serif; }
     .oos-badge { font-size: 0.8rem; background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
     
-    /* === 數量控制 === */
     .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ced4da; border-radius: 8px; width: 120px; justify-content: space-between; height: 38px; flex-shrink: 0; overflow: hidden; }
     .qty-control.disabled { background: #e9ecef; border-color: #dee2e6; }
     .qty-btn { width: 35px; height: 100%; border-radius: 0; background: #f8f9fa; color: #212529; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; user-select: none; border: none; }
@@ -102,7 +90,6 @@
     .qty-input.unit-kg { color: #d63384; font-size: 1rem; }
     .product-row.selected { background-color: #fff9db; border-left: 5px solid #ffc107; }
     
-    /* === 底部購物車欄 === */
     .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); padding: 10px 15px; z-index: 1030; display: flex; flex-direction: column; gap: 8px; }
     .bottom-info-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; }
     .bottom-btn-row { display: flex; gap: 8px; width: 100%; }
@@ -115,7 +102,6 @@
     .btn-sales { background-color: #25D366; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); } 
     .btn-group { background-color: #0d6efd; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
     
-    /* === 彈窗與其他 === */
     .modal-footer { display: flex; gap: 8px; padding: 15px; justify-content: space-between; flex-wrap: wrap; }
     .modal-footer .btn { flex: 1; min-width: 100px; }
     .modal-footer .btn-outline-danger { flex: 0 0 auto; min-width: auto; border-radius: 50px; padding: 8px 15px; } 
@@ -349,17 +335,7 @@
         renderFrequent();
         calcTotal();
 
-        // === 🔥 4. (新增) 自動計算高度並往下推 🔥 ===
-        // 因為 Header 改成了 fixed (懸浮)，它不佔位置，內容會鑽到它後面。
-        // 所以我們用 JS 算出 Header 有多高，然後把 Body 往下推同樣的高度。
-        setTimeout(() => {
-            const header = document.querySelector('.sticky-header-container');
-            if (header) {
-                const h = header.offsetHeight;
-                // 給 body 加 padding-top，把內容推出來
-                document.body.style.paddingTop = h + 'px';
-            }
-        }, 100); // 延遲 0.1 秒執行，確保畫面已經畫好了
+        // ❌ 這裡已經刪掉了那個害人的 setTimeout (自動推高度) 代碼 ❌
     }
     
     function identifyUser() {
