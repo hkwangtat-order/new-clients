@@ -15,45 +15,34 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
+    /* === 🔥 重點 1：底色保險 🔥 === */
+    html {
+        background-color: #212529; /* 讓橡皮筋效果露出的底色也是黑的 */
+    }
+
     body { 
         font-family: "Microsoft JhengHei", sans-serif; 
         background-color: #f8f9fa; 
         padding-bottom: 160px; 
-        /* 防止 iOS 拉過頭露出底色 */
         overscroll-behavior-y: none; 
+        /* 注意：這裡去掉了 padding-top，我們用 JS 動態加 */
     }
 
-    /* === 🔥【核心修復】物理外掛擋板樣式 🔥 === */
-    #status-bar-blocker {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        /* 高度自動適配劉海，不支持則為 0 */
-        height: 0;
-        height: env(safe-area-inset-top); 
-        background-color: #212529; /* 必須跟 Header 同色 */
-        z-index: 2147483647; /* 層級無限大，壓死所有內容 */
-        pointer-events: none; /* 讓點擊穿透，不影響操作 */
-    }
-
-    /* === Header 容器 === */
+    /* === 🔥 重點 2：改為 Fixed 固定定位 🔥 === */
     .sticky-header-container { 
-        position: sticky; 
-        position: -webkit-sticky; 
-        /* 讓它貼在劉海擋板的下面 */
-        top: 0;
-        top: env(safe-area-inset-top); 
+        position: fixed; /* 釘死在螢幕上，不隨頁面滾動 */
+        top: 0; 
+        left: 0;
         z-index: 99999; 
         background-color: #212529; 
         box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
         width: 100%;
-        margin-top: -1px; /* 微調縫隙 */
+        /* 讓 Header 往上延伸，填滿劉海區 */
+        padding-top: env(safe-area-inset-top); 
     }
 
-    /* === 頂部資訊欄 === */
+    /* === 頂部資訊欄 (微調) === */
     .top-info { 
-        /* 因為有了擋板，這裡不需要太大的上邊距，只需要一點呼吸空間 */
         padding: 10px 15px 5px 15px; 
         color: white; 
         display: flex; 
@@ -161,7 +150,7 @@
 </style>
 </head>
 <body>
-    <div id="status-bar-blocker"></div>
+    
     
     <div class="sticky-header-container">
 
@@ -333,9 +322,7 @@
     // 或者您確認 fullCatalog 變數還在您的文件裡
     
     function init() {
-        // ... (其他代碼) ...
-
-        // === 👇 返回按鈕邏輯 👇 ===
+        // === 1. 返回按鈕邏輯 ===
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('source') === 'admin') {
             const btn = document.getElementById('backToAdminBtn');
@@ -347,27 +334,32 @@
                 };
             }
         }
-        // === 👆 修改結束 👆 ===
 
-        productMap = {}; 
-        // 這裡依賴上面的 fullCatalog，請確保它存在
-        if(typeof fullCatalog !== 'undefined') {
-            fullCatalog.forEach(c=>{c.items.forEach(i=>{const m=i.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);if(m)productMap[m[2]]={fullName:i,name:m[1],code:m[2]}})});
+        // === 2. 初始化產品資料 ===
+        productMap = {};
+        if (typeof products !== 'undefined') {
+            for(let p of products){
+                productMap[p.code] = p;
+            }
         }
 
-        // 3. 識別身份系統
+        // === 3. 識別用戶與渲染頁面 ===
         identifyUser();
-        
-        loadCart(); renderFrequent(); renderAll();
-        
-        cartModal=new bootstrap.Modal(document.getElementById('cartModal')); 
-        unitModal=new bootstrap.Modal(document.getElementById('unitSelectionModal'));
-        setupModal=new bootstrap.Modal(document.getElementById('setupModal'));
+        renderAll();
+        renderFrequent();
+        calcTotal();
 
-        // 如果是新客戶且未設定過，才彈窗
-        if(presetFrequent.length === 0 && (!customerName || !customerCode)){
-            openSetupModal(false);
-        }
+        // === 🔥 4. (新增) 自動計算高度並往下推 🔥 ===
+        // 因為 Header 改成了 fixed (懸浮)，它不佔位置，內容會鑽到它後面。
+        // 所以我們用 JS 算出 Header 有多高，然後把 Body 往下推同樣的高度。
+        setTimeout(() => {
+            const header = document.querySelector('.sticky-header-container');
+            if (header) {
+                const h = header.offsetHeight;
+                // 給 body 加 padding-top，把內容推出來
+                document.body.style.paddingTop = h + 'px';
+            }
+        }, 100); // 延遲 0.1 秒執行，確保畫面已經畫好了
     }
     
     function identifyUser() {
