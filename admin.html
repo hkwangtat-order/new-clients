@@ -149,7 +149,7 @@
 
             let html = '';
             salesTeam.forEach(s => {
-                const link = `${baseUrl}?sales=${s.code}`;
+                const link = `${baseUrl}?sales=${s.code}&source=admin`;
                 // 新客戶極簡話術
                 const msg = `你好，這是宏達為您準備的電子落單鏈接，請點擊下單：\n${link}`;
                 // 直接生成 WhatsApp 鏈接
@@ -186,7 +186,7 @@
         for (const [id, data] of clientArray) {
             if (data.sales === salesCode) {
                 found = true;
-                const link = `${baseUrl}?id=${id}`;
+                const link = `${baseUrl}?id=${id}&source=admin`;
 
                 html += `
                     <div class="client-card" style="border-left-color: ${getColor(salesCode)}">
@@ -239,3 +239,4 @@
 
 </body>
 </html>
+
