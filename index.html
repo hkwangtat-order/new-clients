@@ -18,30 +18,28 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     
     <style>
-        /* 確保底色一致，防止橡皮筋效果露白 */
-        html { background-color: #212529; }
-
         body { 
             font-family: "Microsoft JhengHei", sans-serif; 
             background-color: #f8f9fa; 
-            padding-bottom: 160px; 
-            -webkit-overflow-scrolling: touch; 
+            padding-bottom: 160px; /* 底部預留空間給購物車欄 */
+            -webkit-overflow-scrolling: touch; /* 確保滑動流暢 */
         }
 
-        /* === 頂部容器 (Sticky 模式 - 最穩定) === */
+        /* === 頂部容器 (恢復為 Sticky，最安全) === */
         .sticky-header-container { 
             position: sticky; 
-            position: -webkit-sticky; 
+            position: -webkit-sticky; /* 兼容 Safari */
             top: 0; 
             z-index: 1020; 
             background-color: #212529; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
             width: 100%;
-            /* 避開劉海屏 */
+            /* 適配劉海屏，但不強制遮擋 */
             padding-top: env(safe-area-inset-top); 
             margin-top: -1px;
         }
 
+        /* 頂部資訊欄 */
         .top-info { 
             padding: 10px 15px 5px 15px; 
             color: white; 
@@ -54,6 +52,7 @@
 
         .client-name { font-size: 1.3rem; font-weight: 800; color: #ffc107; cursor: pointer; }
 
+        /* 導航標籤 */
         .nav-tabs { 
             border-bottom: none; 
             padding: 0 10px; 
@@ -64,11 +63,13 @@
         .nav-link { color: #aaa; font-weight: bold; border: none; border-radius: 10px 10px 0 0; padding: 10px 15px; font-size: 1rem; background: transparent; }
         .nav-link.active { background-color: #f8f9fa; color: #000; border-bottom: 4px solid #ffc107; }
 
+        /* 搜索欄 */
         .search-section { background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; display: none; }
         .search-wrapper { position: relative; }
         .search-input { border-radius: 20px; border: 1px solid #ccc; padding: 8px 35px 8px 15px; width: 100%; }
         .btn-clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #adb5bd; cursor: pointer; font-size: 1.1rem; display: none; z-index: 10; }
 
+        /* 分類標題 */
         .cat-header { 
             background-color: #ffc107; 
             color: #000; 
@@ -81,6 +82,7 @@
             z-index: 1;
         }
 
+        /* 產品列表樣式 */
         .product-row { background: white; border-bottom: 1px solid #eee; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
         .product-row.oos { background-color: #f8f9fa; opacity: 0.8; }
         .p-info { flex: 1; padding-right: 10px; overflow: hidden; }
@@ -88,6 +90,7 @@
         .p-code { font-size: 0.85rem; color: #888; font-weight: normal; font-family: Arial, sans-serif; }
         .oos-badge { font-size: 0.8rem; background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
 
+        /* 數量控制器 */
         .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ced4da; border-radius: 8px; width: 120px; justify-content: space-between; height: 38px; flex-shrink: 0; overflow: hidden; }
         .qty-control.disabled { background: #e9ecef; border-color: #dee2e6; }
         .qty-btn { width: 35px; height: 100%; border-radius: 0; background: #f8f9fa; color: #212529; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; user-select: none; border: none; }
@@ -97,6 +100,7 @@
         .qty-input.unit-kg { color: #d63384; font-size: 1rem; }
         .product-row.selected { background-color: #fff9db; border-left: 5px solid #ffc107; }
 
+        /* 底部購物車 */
         .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); padding: 10px 15px; z-index: 1030; display: flex; flex-direction: column; gap: 8px; }
         .bottom-info-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; }
         .bottom-btn-row { display: flex; gap: 8px; width: 100%; }
@@ -109,6 +113,7 @@
         .btn-sales { background-color: #25D366; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); } 
         .btn-group { background-color: #0d6efd; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
 
+        /* 彈窗與設定 */
         .modal-footer { display: flex; gap: 8px; padding: 15px; justify-content: space-between; flex-wrap: wrap; }
         .modal-footer .btn { flex: 1; min-width: 100px; }
         .modal-footer .btn-outline-danger { flex: 0 0 auto; min-width: auto; border-radius: 50px; padding: 8px 15px; } 
@@ -177,22 +182,7 @@
         </div>
     </div>
 
-    <div id="freq-list" class="tab-content active">
-        <div class="text-center p-5 text-muted" id="emptyFrequentMsg">
-            <i class="bi bi-basket3" style="font-size: 2rem;"></i><br><br>
-            您的常用清單目前是空的。<br>
-            請到「全部產品」頁面選購，<br>系統會自動記憶您的選擇！
-        </div>
-        <div id="frequentListContent"></div>
-        <div class="admin-controls" id="adminControls">
-            <button class="btn-reset btn-reset-freq" onclick="resetFrequent()" id="btnResetFreq" style="display:none;">
-                <i class="bi bi-arrow-counterclockwise"></i> 重置常用清單
-            </button>
-            <button class="btn-reset btn-logout" onclick="logoutProfile()">
-                <i class="bi bi-box-arrow-right"></i> 登出 / 重置身份
-            </button>
-        </div>
-    </div>
+    <div id="freq-list" class="tab-content active"></div>
     <div id="all-list" class="tab-content"></div>
 
     <div class="bottom-bar">
@@ -245,6 +235,15 @@
                         <input type="text" id="setupCode" class="setup-input" placeholder="例如：W1234">
                     </div>
                     <button class="btn-setup-save" onclick="saveProfile()">💾 保存設定</button>
+                    
+                    <div class="admin-controls">
+                        <div class="btn-reset btn-reset-freq" onclick="resetFrequent()">
+                            <i class="bi bi-arrow-counterclockwise"></i> 重置常用清單
+                        </div>
+                        <div class="btn-reset btn-logout" onclick="logoutProfile()">
+                            <i class="bi bi-box-arrow-right"></i> 登出 / 切換帳號
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -271,7 +270,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="products.js"></script>
     <script src="customers.js"></script>
     <script src="sales_config.js"></script> 
@@ -283,6 +281,7 @@
         let itemCounts = {}; 
         let productMap = {};
         
+        // 客戶狀態
         let customerName = "";
         let customerCode = "";
         let salesID = "A"; 
@@ -291,12 +290,13 @@
         let profileKey = ""; 
         let presetFrequent = []; 
         let learnedFrequent = [];
-        let currentClientBoxItems = []; 
-        let currentClientAliasCodes = {}; 
+        let currentClientBoxItems = []; // 當前客戶的箱貨名單
+        let currentClientAliasCodes = {}; // 當前客戶的代碼轉換表
 
         let currentTab = 'freq';
         let tempUnitCode = null;
 
+        // 初始化
         function init() {
             // 1. 返回按鈕邏輯
             const urlParams = new URLSearchParams(window.location.search);
@@ -324,7 +324,7 @@
             renderFrequent();
             calcTotal();
             
-            // 監聽滾動優化搜索欄
+            // 監聽滾動優化
             window.addEventListener('scroll', function() {
                 const s = document.getElementById('searchSection');
                 if(window.scrollY > 50) s.style.display = 'block';
@@ -346,16 +346,24 @@
                 salesID = client.sales || "A"; 
                 presetFrequent = client.list || []; 
                 
-                if (client.box_items) currentClientBoxItems = client.box_items;
-                else currentClientBoxItems = [];
+                // 讀取箱貨設置
+                if (client.box_items) {
+                    currentClientBoxItems = client.box_items;
+                } else {
+                    currentClientBoxItems = [];
+                }
 
-                if (client.alias_codes) currentClientAliasCodes = client.alias_codes;
-                else currentClientAliasCodes = {};
+                // 讀取代碼轉換設置
+                if (client.alias_codes) {
+                    currentClientAliasCodes = client.alias_codes;
+                } else {
+                    currentClientAliasCodes = {};
+                }
 
                 document.getElementById('displayClientName').innerHTML = customerName;
                 document.getElementById('displayClientCode').innerText = customerCode;
                 
-                // 鎖定老客戶
+                // 鎖定老客戶點擊
                 if(clientWrapper) {
                     clientWrapper.onclick = null; 
                     clientWrapper.style.pointerEvents = 'none';
@@ -382,6 +390,7 @@
                 if(logoutBtn) logoutBtn.style.display = 'inline-block';
             }
             
+            // 讀取銷售電話
             if (typeof salesTeam !== 'undefined' && salesTeam[salesID]) {
                 currentSalesPhone = salesTeam[salesID].phone;
                 document.getElementById('displaySalesName').innerText = "宏達 (" + salesTeam[salesID].name + ")";
@@ -390,6 +399,7 @@
             }
             document.getElementById('displayPhone').innerText = currentSalesPhone;
 
+            // 讀取購物車和統計
             const savedCart = localStorage.getItem(storageKey + '_cart');
             if(savedCart) { try { cart = JSON.parse(savedCart); } catch(e) {} }
 
@@ -401,19 +411,14 @@
             learnedFrequent = Object.keys(itemCounts);
         }
 
+        // ... (中間省略 UI 切換、搜索等基礎函數，保持原樣即可) ...
+        
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
             document.getElementById(tab + '-list').classList.add('active');
-            
-            // 處理搜索欄顯示
-            if(tab === 'all') {
-                document.getElementById('searchSection').style.display = 'block';
-            } else {
-                document.getElementById('searchSection').style.display = 'none';
-            }
             window.scrollTo(0,0);
         }
 
@@ -464,12 +469,7 @@
         }
 
         function resetFrequent() {
-            const isOldClient = presetFrequent.length > 0;
-            const msg = isOldClient 
-                ? "確定要清除「最近新增」的產品記錄嗎？\n(原本的固定清單不會受影響)" 
-                : "確定要重置常用清單嗎？\n這將清空所有自動記憶的產品。";
-
-            if(confirm(msg)) {
+            if(confirm("確定要重置常用清單統計嗎？")) {
                 localStorage.removeItem(storageKey + "_stats");
                 itemCounts = {};
                 learnedFrequent = [];
@@ -478,6 +478,7 @@
             }
         }
 
+        // 核心渲染函數
         function createRow(code) {
             const p = productMap[code];
             if(!p) return "";
@@ -486,6 +487,7 @@
             const rowClass = q > 0 ? "product-row selected" : (isOOS ? "product-row oos" : "product-row");
             const btnClass = isOOS ? "qty-btn disabled" : "qty-btn";
             
+            // 單位處理
             let unitLabel = "";
             let unitClass = "qty-input";
             if (cartUnits[code] === 'kg') {
@@ -494,21 +496,15 @@
             } else if (cartUnits[code] === 'piece' && code === 'B01') {
                 unitLabel = "隻";
             } else if (currentClientBoxItems.includes(code)) {
-                unitLabel = "箱"; 
+                unitLabel = "箱"; // 原箱顯示
             }
 
             const oosLabel = isOOS ? '<span class="oos-badge">缺貨</span>' : '';
             
-            // 處理「原箱」標籤
-            let nameHtml = p.name;
-            if (currentClientBoxItems.includes(code)) {
-                nameHtml += ' <span style="background-color:#ffc107; color:#000; padding:1px 5px; border-radius:4px; font-size:0.8rem; font-weight:bold; margin-left:5px;">📦 原箱</span>';
-            }
-
             return `
             <div class="${rowClass}" id="row-${code}">
                 <div class="p-info">
-                    <div class="p-name">${nameHtml}${oosLabel}</div>
+                    <div class="p-name">${p.name}${oosLabel}</div>
                     <div class="p-code">${code} ${p.desc||""}</div>
                 </div>
                 <div class="qty-control ${isOOS?'disabled':''}">
@@ -526,6 +522,7 @@
             let html = "";
             
             for(let cat of categories) {
+                // 過濾該分類下的產品
                 let catProds = products.filter(p => p.cat === cat).map(p => p.code);
                 if(catProds.length === 0) continue;
                 
@@ -538,27 +535,19 @@
         }
 
         function renderFrequent() {
-            const container = document.getElementById('frequentListContent');
-            const emptyMsg = document.getElementById('emptyFrequentMsg');
-            const resetBtn = document.getElementById('btnResetFreq');
-
+            const container = document.getElementById('freq-list');
+            // 合併 預設清單 + 學習清單，去重
             let set = new Set([...presetFrequent, ...learnedFrequent]);
             let list = Array.from(set);
             
             // 如果列表為空
             if(list.length === 0) {
-                emptyMsg.style.display = 'block';
-                resetBtn.style.display = 'none';
-                container.innerHTML = '';
+                container.innerHTML = '<div class="text-center mt-5 text-muted">暫無常用清單<br>請在「全部產品」中選擇</div>';
                 return;
             }
 
-            emptyMsg.style.display = 'none';
-            // 老客戶顯示清除新增，新客戶顯示重置
-            resetBtn.style.display = 'inline-block';
-            resetBtn.innerHTML = (presetFrequent.length > 0) ? '<i class="bi bi-trash"></i> 清除最近新增' : '<i class="bi bi-arrow-counterclockwise"></i> 重置常用清單';
-
             let html = "";
+            // 按分類排序展示
             if (typeof categories !== 'undefined') {
                 for(let cat of categories) {
                     let catProds = list.filter(c => productMap[c] && productMap[c].cat === cat);
@@ -570,20 +559,24 @@
                     }
                 }
             }
+            // 處理未分類或找不到分類的
             let otherProds = list.filter(c => productMap[c] && !categories.includes(productMap[c].cat));
             if(otherProds.length > 0) {
                 html += `<div class="cat-header">其他</div>`;
                 for(let code of otherProds) html += createRow(code);
             }
 
-            if(presetFrequent.length > 0 && learnedFrequent.length > 0) {
-                 html += `<div class="freq-divider">👇 最近新增產品 👇</div>`;
+            // 常用清單底部提示
+            if(presetFrequent.length > 0 || learnedFrequent.length > 0) {
+                 html += `<div class="freq-divider">以上是您的常用清單</div>`;
             }
 
             container.innerHTML = html + '<div style="height:80px"></div>';
         }
 
+        // 購物車邏輯
         function checkUnit(code) {
+            // 只有 B01 和 D19EK 這種特殊才彈窗，原箱的不彈
             if (code === 'B01' || code === 'D19EK') {
                 tempUnitCode = code;
                 new bootstrap.Modal(document.getElementById('unitModal')).show();
@@ -604,6 +597,7 @@
             if(productMap[code].oos) return;
             if(!cart[code]) cart[code] = 0;
             
+            // 特殊邏輯：如果是 B01 且第一次加，默認設為 KG
             if (code === 'B01' && cart[code] === 0 && delta > 0 && !cartUnits[code]) {
                 cartUnits[code] = 'kg'; 
             }
@@ -621,33 +615,26 @@
         }
 
         function refreshRow(code) {
+            // 同時更新常用和全部列表裡的該行
             const row1 = document.querySelector(`#freq-list #row-${code}`);
             const row2 = document.querySelector(`#all-list #row-${code}`);
             const newHTML = createRow(code);
-            
-            // 提取內容替換，防止替換失敗
+            // 提取新 HTML 的內部內容替換
             const temp = document.createElement('div');
             temp.innerHTML = newHTML;
-            // 必須判斷是否有生成內容
-            if (temp.firstElementChild) {
-                const content = temp.firstElementChild.innerHTML;
-                const className = temp.firstElementChild.className;
-                if(row1) { row1.className = className; row1.innerHTML = content; }
-                if(row2) { row2.className = className; row2.innerHTML = content; }
-            }
+            const content = temp.firstElementChild.innerHTML;
+            const className = temp.firstElementChild.className;
+
+            if(row1) { row1.className = className; row1.innerHTML = content; }
+            if(row2) { row2.className = className; row2.innerHTML = content; }
         }
 
         function calcTotal() {
             const count = Object.keys(cart).length;
             document.getElementById('totalCount').innerText = count;
             const btn = document.getElementById('viewCartBtn');
-            if(count > 0) {
-                btn.classList.add('active');
-                btn.disabled = false;
-            } else {
-                btn.classList.remove('active');
-                btn.disabled = true;
-            }
+            if(count > 0) btn.classList.add('active');
+            else btn.classList.remove('active');
         }
 
         function saveCart() {
@@ -660,7 +647,7 @@
             const list = document.getElementById('cartListBody');
             let html = "";
             for(let c in cart) {
-                html += createRow(c);
+                html += createRow(c); // 復用 createRow
             }
             list.innerHTML = html;
             new bootstrap.Modal(document.getElementById('cartModal')).show();
@@ -679,13 +666,20 @@
             const term = document.getElementById('searchInput').value.toUpperCase();
             document.getElementById('clearSearchBtn').style.display = term ? 'block' : 'none';
             
+            // 切換到全部產品頁籤
             if(currentTab !== 'all') switchTab('all');
 
             const rows = document.querySelectorAll('#all-list .product-row');
+            const headers = document.querySelectorAll('#all-list .cat-header');
+
             rows.forEach(row => {
                 const text = row.innerText.toUpperCase();
                 row.style.display = text.includes(term) ? 'flex' : 'none';
             });
+            
+            // 隱藏空分類標題 (簡單處理：如果還在搜索就不隱藏標題了，或者你可以優化)
+            // 這裡簡單處理：搜索時標題也顯示，或者全部隱藏。
+            // 為了不復雜，搜索時暫時不隱藏分類標題
         }
 
         function clearSearch() {
@@ -694,10 +688,12 @@
             document.getElementById('searchSection').style.display = 'none';
         }
 
+        // === 發送訂單邏輯 (含 alias 轉換) ===
         function sendWhatsApp(mode){
             if(!customerName || !customerCode) { alert("請先設定客戶資料！"); openSetupModal(); return; }
             if(Object.keys(cart).length===0){alert("請先選擇產品！");return}
             
+            // 計算送貨日期 (明天)
             const today = new Date();
             const tomorrow = new Date(today);
             tomorrow.setDate(today.getDate() + 1);
@@ -705,11 +701,13 @@
             
             let msg=`${customerCode} ${customerName}\n日期：${dateStr}\n訂貨單：\n\n`;
             
+            // 格式化函數
             const fmt = c => {
                 const p = productMap[c];
                 const n = p ? p.name : c;
                 let q = cart[c].toString();
 
+                // 單位判斷
                 if(cartUnits[c] === 'kg') { 
                     q += 'K';
                 } 
@@ -720,6 +718,7 @@
                     q += '箱'; 
                 }
 
+                // 代碼轉換 (Alias Code)
                 let displayCode = c;
                 if (currentClientAliasCodes[c]) {
                     displayCode = currentClientAliasCodes[c];
@@ -732,6 +731,7 @@
             let hasNewItems = false;
             for(let c of codes){
                 msg+=fmt(c);
+                // 統計常用
                 if(itemCounts[c]) itemCounts[c]++;
                 else itemCounts[c] = 1;
                 hasNewItems = true;
@@ -747,6 +747,7 @@
                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`,'_blank');
             }
             
+            // 清空並刷新
             setTimeout(() => {
                 cart = {}; cartUnits = {};
                 saveCart();
