@@ -15,90 +15,137 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f8f9fa; padding-bottom: 160px; }
-        .sticky-header-container { 
-    position: sticky; 
-    position: -webkit-sticky; /* 兼容 Safari */
-    top: 0; 
-    z-index: 10000; /* 層級開到最大 */
-    background-color: #212529; /* 確保背景是深色不透明 */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* 陰影加深，遮擋感更強 */
-    padding-top: env(safe-area-inset-top); 
-    margin-top: -1px;
-    width: 100%; /* 撐滿寬度 */
-}
+    body { 
+        font-family: "Microsoft JhengHei", sans-serif; 
+        background-color: #f8f9fa; 
+        padding-bottom: 160px; 
+        /* 防止在 iOS 上過度拉動時露出底色 */
+        overscroll-behavior-y: none; 
+    }
 
-/* 確保下面的標籤欄也是不透明的 */
-.nav-tabs {
-    background-color: #212529; /* 與頂部一致的底色 */
-    position: relative;
-    z-index: 10001;
-}
-        .top-info { padding: 12px 15px 5px 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
-        .client-name { font-size: 1.3rem; font-weight: 800; color: #ffc107; cursor: pointer; }
-        .nav-tabs { border-bottom: none; padding: 0 10px; }
-        .nav-link { color: #aaa; font-weight: bold; border: none; border-radius: 10px 10px 0 0; padding: 10px 15px; font-size: 1rem; background: transparent; }
-        .nav-link.active { background-color: #f8f9fa; color: #000; border-bottom: 4px solid #ffc107; }
-        .search-section { background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; display: none; }
-        .search-wrapper { position: relative; }
-        .search-input { border-radius: 20px; border: 1px solid #ccc; padding: 8px 35px 8px 15px; width: 100%; }
-        .btn-clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #adb5bd; cursor: pointer; font-size: 1.1rem; display: none; z-index: 10; }
-        .cat-header { background-color: #ffc107; color: #000; font-weight: 800; padding: 8px 15px; margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid #e0a800; }
-        .product-row { background: white; border-bottom: 1px solid #eee; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .product-row.oos { background-color: #f8f9fa; opacity: 0.8; }
-        .p-info { flex: 1; padding-right: 10px; overflow: hidden; }
-        .p-name { font-size: 1.1rem; font-weight: 700; color: #000; line-height: 1.3; margin-bottom: 2px; }
-        .p-code { font-size: 0.85rem; color: #888; font-weight: normal; font-family: Arial, sans-serif; }
-        .oos-badge { font-size: 0.8rem; background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
-        .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ced4da; border-radius: 8px; width: 120px; justify-content: space-between; height: 38px; flex-shrink: 0; overflow: hidden; }
-        .qty-control.disabled { background: #e9ecef; border-color: #dee2e6; }
-        .qty-btn { width: 35px; height: 100%; border-radius: 0; background: #f8f9fa; color: #212529; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; user-select: none; border: none; }
-        .qty-btn:active { background: #ffc107; }
-        .qty-btn.disabled { color: #adb5bd; cursor: not-allowed; background: #e9ecef; }
-        .qty-input { width: 50px; text-align: center; border: none; font-weight: bold; font-size: 1.1rem; color: #333; background: transparent; padding: 0; }
-        .qty-input.unit-kg { color: #d63384; font-size: 1rem; }
-        .product-row.selected { background-color: #fff9db; border-left: 5px solid #ffc107; }
-        .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); padding: 10px 15px; z-index: 1030; display: flex; flex-direction: column; gap: 8px; }
-        .bottom-info-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; }
-        .bottom-btn-row { display: flex; gap: 8px; width: 100%; }
-        .total-box { font-size: 1.1rem; font-weight: bold; color: #333; }
-        .total-num { color: #d32f2f; font-size: 1.4rem; padding: 0 3px; }
-        .btn-view-cart { background-color: #6c757d; color: white; border: none; padding: 6px 15px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; transition: all 0.3s ease; }
-        .btn-view-cart.active { background: linear-gradient(45deg, #ff9800, #ff5722); box-shadow: 0 2px 8px rgba(255, 87, 34, 0.4); }
-        .btn-send { border: none; padding: 12px 5px; border-radius: 10px; font-weight: bold; font-size: 1rem; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; color: white; transition: transform 0.1s; }
-        .btn-send:active { transform: scale(0.98); }
-        .btn-sales { background-color: #25D366; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); } 
-        .btn-group { background-color: #0d6efd; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
-        .modal-footer { display: flex; gap: 8px; padding: 15px; justify-content: space-between; flex-wrap: wrap; }
-        .modal-footer .btn { flex: 1; min-width: 100px; }
-        .modal-footer .btn-outline-danger { flex: 0 0 auto; min-width: auto; border-radius: 50px; padding: 8px 15px; } 
-        .modal-footer .btn-secondary { display: none; }
-        .tab-content { display: none; padding-top: 10px; }
-        .tab-content.active { display: block; }
-        .modal-header { background-color: #212529; color: white; }
-        .modal-title { font-weight: bold; color: #ffc107; }
-        .unit-btn-group { display: flex; gap: 15px; justify-content: center; padding: 20px; }
-        .btn-unit-select { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .btn-unit-select:hover { background-color: #f8f9fa; }
-        .btn-unit-select.piece { border-color: #212529; color: #212529; }
-        .btn-unit-select.kg { border-color: #d63384; color: #d63384; }
-        .freq-divider { text-align: center; margin: 20px 0; font-size: 0.85rem; color: #aaa; position: relative; }
-        .freq-divider:before { content: ""; position: absolute; top: 50%; left: 15%; width: 25%; height: 1px; background: #ddd; }
-        .freq-divider:after { content: ""; position: absolute; top: 50%; right: 15%; width: 25%; height: 1px; background: #ddd; }
-        
-        .setup-input-group { margin-bottom: 15px; text-align: left; }
-        .setup-label { font-weight: bold; margin-bottom: 5px; display: block; color: #333; }
-        .setup-input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        .setup-input:focus { border-color: #ffc107; outline: none; }
-        .btn-setup-save { width: 100%; background-color: #ffc107; color: black; font-weight: bold; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; margin-top: 10px; }
-        
-        .admin-controls { text-align: center; margin: 40px 0 20px 0; padding-top: 20px; border-top: 1px dashed #ddd; display: flex; flex-direction: column; gap: 10px; align-items: center; }
-        .btn-reset { padding: 8px 20px; border-radius: 50px; font-size: 0.9rem; transition: all 0.2s; cursor: pointer; border: 1px solid; background: white; width: fit-content; }
-        .btn-reset-freq { color: #6c757d; border-color: #ced4da; }
-        .btn-reset-freq:hover { background: #f8f9fa; color: #495057; border-color: #adb5bd; }
-        .btn-logout { color: #d32f2f; border-color: #f5c6cb; }
-        .btn-logout:hover { background: #fff5f5; color: #a50e0e; border-color: #d32f2f; }
-    </style>
+    /* === 👇👇👇 核心修復重點 👇👇👇 === */
+    .sticky-header-container { 
+        position: sticky; 
+        top: 0; 
+        z-index: 99999; /* 層級拉到無敵高 */
+        background-color: #212529; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4); /* 加深陰影 */
+        width: 100%;
+        /* 注意：這裡去掉了原本的 padding-top，移到下面的 .top-info 處理 */
+    }
+
+    /* 🔥【關鍵大招】強行加一個黑色蓋子擋住劉海區域 🔥 */
+    .sticky-header-container::before {
+        content: "";
+        position: absolute;
+        top: -500px; /* 往上延伸 500px，確保蓋住任何尺寸的劉海 */
+        left: 0;
+        width: 100%;
+        height: 500px; /* 高度 500px */
+        background-color: #212529; /* 必須和 header 顏色一樣 */
+        z-index: -1; /* 放在內容背後 */
+        pointer-events: none; /* 不影響點擊 */
+    }
+    /* === 👆👆👆 核心修復結束 👆👆👆 === */
+
+    .top-info { 
+        /* 這裡重新加上 padding，並適配劉海高度 */
+        padding: calc(12px + env(safe-area-inset-top)) 15px 5px 15px; 
+        color: white; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        position: relative; /* 確保層級正確 */
+        z-index: 2;
+    }
+
+    .client-name { font-size: 1.3rem; font-weight: 800; color: #ffc107; cursor: pointer; }
+    
+    /* 確保導航欄背景也是實心的 */
+    .nav-tabs { 
+        border-bottom: none; 
+        padding: 0 10px; 
+        background-color: #212529; 
+        position: relative;
+        z-index: 2;
+    }
+    .nav-link { color: #aaa; font-weight: bold; border: none; border-radius: 10px 10px 0 0; padding: 10px 15px; font-size: 1rem; background: transparent; }
+    .nav-link.active { background-color: #f8f9fa; color: #000; border-bottom: 4px solid #ffc107; }
+    
+    .search-section { background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; display: none; }
+    .search-wrapper { position: relative; }
+    .search-input { border-radius: 20px; border: 1px solid #ccc; padding: 8px 35px 8px 15px; width: 100%; }
+    .btn-clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #adb5bd; cursor: pointer; font-size: 1.1rem; display: none; z-index: 10; }
+    
+    /* 確保分類標題不會透 */
+    .cat-header { 
+        background-color: #ffc107; 
+        color: #000; 
+        font-weight: 800; 
+        padding: 8px 15px; 
+        margin-top: 0; 
+        font-size: 1.1rem; 
+        border-bottom: 1px solid #e0a800;
+        position: relative; 
+        z-index: 1;
+    }
+
+    /* 其他樣式保持不變 */
+    .product-row { background: white; border-bottom: 1px solid #eee; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+    .product-row.oos { background-color: #f8f9fa; opacity: 0.8; }
+    .p-info { flex: 1; padding-right: 10px; overflow: hidden; }
+    .p-name { font-size: 1.1rem; font-weight: 700; color: #000; line-height: 1.3; margin-bottom: 2px; }
+    .p-code { font-size: 0.85rem; color: #888; font-weight: normal; font-family: Arial, sans-serif; }
+    .oos-badge { font-size: 0.8rem; background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
+    .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ced4da; border-radius: 8px; width: 120px; justify-content: space-between; height: 38px; flex-shrink: 0; overflow: hidden; }
+    .qty-control.disabled { background: #e9ecef; border-color: #dee2e6; }
+    .qty-btn { width: 35px; height: 100%; border-radius: 0; background: #f8f9fa; color: #212529; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; user-select: none; border: none; }
+    .qty-btn:active { background: #ffc107; }
+    .qty-btn.disabled { color: #adb5bd; cursor: not-allowed; background: #e9ecef; }
+    .qty-input { width: 50px; text-align: center; border: none; font-weight: bold; font-size: 1.1rem; color: #333; background: transparent; padding: 0; }
+    .qty-input.unit-kg { color: #d63384; font-size: 1rem; }
+    .product-row.selected { background-color: #fff9db; border-left: 5px solid #ffc107; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); padding: 10px 15px; z-index: 1030; display: flex; flex-direction: column; gap: 8px; }
+    .bottom-info-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; }
+    .bottom-btn-row { display: flex; gap: 8px; width: 100%; }
+    .total-box { font-size: 1.1rem; font-weight: bold; color: #333; }
+    .total-num { color: #d32f2f; font-size: 1.4rem; padding: 0 3px; }
+    .btn-view-cart { background-color: #6c757d; color: white; border: none; padding: 6px 15px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; transition: all 0.3s ease; }
+    .btn-view-cart.active { background: linear-gradient(45deg, #ff9800, #ff5722); box-shadow: 0 2px 8px rgba(255, 87, 34, 0.4); }
+    .btn-send { border: none; padding: 12px 5px; border-radius: 10px; font-weight: bold; font-size: 1rem; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; color: white; transition: transform 0.1s; }
+    .btn-send:active { transform: scale(0.98); }
+    .btn-sales { background-color: #25D366; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); } 
+    .btn-group { background-color: #0d6efd; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
+    .modal-footer { display: flex; gap: 8px; padding: 15px; justify-content: space-between; flex-wrap: wrap; }
+    .modal-footer .btn { flex: 1; min-width: 100px; }
+    .modal-footer .btn-outline-danger { flex: 0 0 auto; min-width: auto; border-radius: 50px; padding: 8px 15px; } 
+    .modal-footer .btn-secondary { display: none; }
+    .tab-content { display: none; padding-top: 10px; }
+    .tab-content.active { display: block; }
+    .modal-header { background-color: #212529; color: white; }
+    .modal-title { font-weight: bold; color: #ffc107; }
+    .unit-btn-group { display: flex; gap: 15px; justify-content: center; padding: 20px; }
+    .btn-unit-select { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .btn-unit-select:hover { background-color: #f8f9fa; }
+    .btn-unit-select.piece { border-color: #212529; color: #212529; }
+    .btn-unit-select.kg { border-color: #d63384; color: #d63384; }
+    .freq-divider { text-align: center; margin: 20px 0; font-size: 0.85rem; color: #aaa; position: relative; }
+    .freq-divider:before { content: ""; position: absolute; top: 50%; left: 15%; width: 25%; height: 1px; background: #ddd; }
+    .freq-divider:after { content: ""; position: absolute; top: 50%; right: 15%; width: 25%; height: 1px; background: #ddd; }
+    
+    .setup-input-group { margin-bottom: 15px; text-align: left; }
+    .setup-label { font-weight: bold; margin-bottom: 5px; display: block; color: #333; }
+    .setup-input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+    .setup-input:focus { border-color: #ffc107; outline: none; }
+    .btn-setup-save { width: 100%; background-color: #ffc107; color: black; font-weight: bold; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; margin-top: 10px; }
+    
+    .admin-controls { text-align: center; margin: 40px 0 20px 0; padding-top: 20px; border-top: 1px dashed #ddd; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    .btn-reset { padding: 8px 20px; border-radius: 50px; font-size: 0.9rem; transition: all 0.2s; cursor: pointer; border: 1px solid; background: white; width: fit-content; }
+    .btn-reset-freq { color: #6c757d; border-color: #ced4da; }
+    .btn-reset-freq:hover { background: #f8f9fa; color: #495057; border-color: #adb5bd; }
+    .btn-logout { color: #d32f2f; border-color: #f5c6cb; }
+    .btn-logout:hover { background: #fff5f5; color: #a50e0e; border-color: #d32f2f; }
+</style>
 </head>
 <body>
 
