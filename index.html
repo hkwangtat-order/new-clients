@@ -19,49 +19,53 @@
         font-family: "Microsoft JhengHei", sans-serif; 
         background-color: #f8f9fa; 
         padding-bottom: 160px; 
-        /* 防止在 iOS 上過度拉動時露出底色 */
+        /* 防止 iOS 拉過頭露出底色 */
         overscroll-behavior-y: none; 
     }
 
-    /* === 👇👇👇 核心修復重點 👇👇👇 === */
-    .sticky-header-container { 
-        position: sticky; 
-        top: 0; 
-        z-index: 99999; /* 層級拉到無敵高 */
-        background-color: #212529; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4); /* 加深陰影 */
-        width: 100%;
-        /* 注意：這裡去掉了原本的 padding-top，移到下面的 .top-info 處理 */
-    }
-
-    /* 🔥【關鍵大招】強行加一個黑色蓋子擋住劉海區域 🔥 */
-    .sticky-header-container::before {
-        content: "";
-        position: absolute;
-        top: -500px; /* 往上延伸 500px，確保蓋住任何尺寸的劉海 */
+    /* === 🔥【核心修復】物理外掛擋板樣式 🔥 === */
+    #status-bar-blocker {
+        position: fixed;
+        top: 0;
         left: 0;
         width: 100%;
-        height: 500px; /* 高度 500px */
-        background-color: #212529; /* 必須和 header 顏色一樣 */
-        z-index: -1; /* 放在內容背後 */
-        pointer-events: none; /* 不影響點擊 */
+        /* 高度自動適配劉海，不支持則為 0 */
+        height: 0;
+        height: env(safe-area-inset-top); 
+        background-color: #212529; /* 必須跟 Header 同色 */
+        z-index: 2147483647; /* 層級無限大，壓死所有內容 */
+        pointer-events: none; /* 讓點擊穿透，不影響操作 */
     }
-    /* === 👆👆👆 核心修復結束 👆👆👆 === */
 
+    /* === Header 容器 === */
+    .sticky-header-container { 
+        position: sticky; 
+        position: -webkit-sticky; 
+        /* 讓它貼在劉海擋板的下面 */
+        top: 0;
+        top: env(safe-area-inset-top); 
+        z-index: 99999; 
+        background-color: #212529; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4); 
+        width: 100%;
+        margin-top: -1px; /* 微調縫隙 */
+    }
+
+    /* === 頂部資訊欄 === */
     .top-info { 
-        /* 這裡重新加上 padding，並適配劉海高度 */
-        padding: calc(12px + env(safe-area-inset-top)) 15px 5px 15px; 
+        /* 因為有了擋板，這裡不需要太大的上邊距，只需要一點呼吸空間 */
+        padding: 10px 15px 5px 15px; 
         color: white; 
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
-        position: relative; /* 確保層級正確 */
+        position: relative;
         z-index: 2;
     }
 
     .client-name { font-size: 1.3rem; font-weight: 800; color: #ffc107; cursor: pointer; }
     
-    /* 確保導航欄背景也是實心的 */
+    /* === 導航欄 === */
     .nav-tabs { 
         border-bottom: none; 
         padding: 0 10px; 
@@ -72,12 +76,13 @@
     .nav-link { color: #aaa; font-weight: bold; border: none; border-radius: 10px 10px 0 0; padding: 10px 15px; font-size: 1rem; background: transparent; }
     .nav-link.active { background-color: #f8f9fa; color: #000; border-bottom: 4px solid #ffc107; }
     
+    /* === 搜索框 === */
     .search-section { background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; display: none; }
     .search-wrapper { position: relative; }
     .search-input { border-radius: 20px; border: 1px solid #ccc; padding: 8px 35px 8px 15px; width: 100%; }
     .btn-clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #adb5bd; cursor: pointer; font-size: 1.1rem; display: none; z-index: 10; }
     
-    /* 確保分類標題不會透 */
+    /* === 分類標題 === */
     .cat-header { 
         background-color: #ffc107; 
         color: #000; 
@@ -90,13 +95,15 @@
         z-index: 1;
     }
 
-    /* 其他樣式保持不變 */
+    /* === 產品列表 === */
     .product-row { background: white; border-bottom: 1px solid #eee; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
     .product-row.oos { background-color: #f8f9fa; opacity: 0.8; }
     .p-info { flex: 1; padding-right: 10px; overflow: hidden; }
     .p-name { font-size: 1.1rem; font-weight: 700; color: #000; line-height: 1.3; margin-bottom: 2px; }
     .p-code { font-size: 0.85rem; color: #888; font-weight: normal; font-family: Arial, sans-serif; }
     .oos-badge { font-size: 0.8rem; background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
+    
+    /* === 數量控制 === */
     .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ced4da; border-radius: 8px; width: 120px; justify-content: space-between; height: 38px; flex-shrink: 0; overflow: hidden; }
     .qty-control.disabled { background: #e9ecef; border-color: #dee2e6; }
     .qty-btn { width: 35px; height: 100%; border-radius: 0; background: #f8f9fa; color: #212529; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; user-select: none; border: none; }
@@ -105,6 +112,8 @@
     .qty-input { width: 50px; text-align: center; border: none; font-weight: bold; font-size: 1.1rem; color: #333; background: transparent; padding: 0; }
     .qty-input.unit-kg { color: #d63384; font-size: 1rem; }
     .product-row.selected { background-color: #fff9db; border-left: 5px solid #ffc107; }
+    
+    /* === 底部購物車欄 === */
     .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); padding: 10px 15px; z-index: 1030; display: flex; flex-direction: column; gap: 8px; }
     .bottom-info-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; }
     .bottom-btn-row { display: flex; gap: 8px; width: 100%; }
@@ -116,6 +125,8 @@
     .btn-send:active { transform: scale(0.98); }
     .btn-sales { background-color: #25D366; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); } 
     .btn-group { background-color: #0d6efd; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
+    
+    /* === 彈窗與其他 === */
     .modal-footer { display: flex; gap: 8px; padding: 15px; justify-content: space-between; flex-wrap: wrap; }
     .modal-footer .btn { flex: 1; min-width: 100px; }
     .modal-footer .btn-outline-danger { flex: 0 0 auto; min-width: auto; border-radius: 50px; padding: 8px 15px; } 
@@ -124,11 +135,13 @@
     .tab-content.active { display: block; }
     .modal-header { background-color: #212529; color: white; }
     .modal-title { font-weight: bold; color: #ffc107; }
+    
     .unit-btn-group { display: flex; gap: 15px; justify-content: center; padding: 20px; }
     .btn-unit-select { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
     .btn-unit-select:hover { background-color: #f8f9fa; }
     .btn-unit-select.piece { border-color: #212529; color: #212529; }
     .btn-unit-select.kg { border-color: #d63384; color: #d63384; }
+    
     .freq-divider { text-align: center; margin: 20px 0; font-size: 0.85rem; color: #aaa; position: relative; }
     .freq-divider:before { content: ""; position: absolute; top: 50%; left: 15%; width: 25%; height: 1px; background: #ddd; }
     .freq-divider:after { content: ""; position: absolute; top: 50%; right: 15%; width: 25%; height: 1px; background: #ddd; }
@@ -148,6 +161,9 @@
 </style>
 </head>
 <body>
+    <div id="status-bar-blocker"></div>
+    
+    <div class="sticky-header-container">
 
 <script src="sales_config.js"></script>
 <script src="customers.js"></script>
