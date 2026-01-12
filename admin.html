@@ -10,161 +10,152 @@
 
     <style>
         body { 
-            background-color: #f0f2f5; 
+            background-color: #f8f9fa; 
             font-family: "Microsoft JhengHei", sans-serif; 
             padding-bottom: 50px;
         }
 
-        /* === 頂部固定區域 === */
-        .sticky-top-area {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background-color: #f0f2f5;
-            padding-bottom: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-
-        .header-title {
-            background-color: #212529;
-            color: #ffc107;
+        /* === 1. 頂部黑條 (還原舊版設計) === */
+        .top-header {
+            background-color: #212529; /* 黑色背景 */
+            color: #ffc107; /* 黃色文字 */
             padding: 15px;
             text-align: center;
             font-weight: 800;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
+            font-size: 1.3rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* === 銷售按鈕組 === */
+        /* === 2. 懸浮控制區 (包含按鈕和搜索框) === */
+        .sticky-controls {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #f8f9fa; /* 跟背景一樣顏色 */
+            padding-top: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* === 3. 銷售按鈕組 === */
         .sales-btn-group {
             display: flex;
+            justify-content: center; /* 居中顯示 */
+            flex-wrap: wrap;
             gap: 8px;
-            overflow-x: auto;
+            margin-bottom: 15px;
             padding: 0 10px;
-            margin-bottom: 10px;
-            -webkit-overflow-scrolling: touch; /* 讓滑動更順暢 */
         }
-        
-        .sales-btn-group::-webkit-scrollbar { display: none; } /* 隱藏滾動條 */
 
         .btn-sales {
-            white-space: nowrap;
             border-radius: 50px;
-            padding: 8px 16px;
+            padding: 8px 20px;
             font-weight: bold;
             border: 1px solid #ddd;
             background: white;
             color: #555;
             transition: all 0.2s;
+            font-size: 0.95rem;
         }
 
+        .btn-sales:hover { background-color: #eee; }
+
+        /* 選中狀態：黃底黑字 */
         .btn-sales.active {
             background-color: #ffc107;
             color: #000;
             border-color: #ffc107;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
             transform: scale(1.05);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* === 搜索欄樣式 === */
-        .search-wrapper {
+        /* === 4. 搜索框 (新增功能) === */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
             padding: 0 15px;
             position: relative;
         }
         .search-input {
-            width: 100%;
-            padding: 10px 40px 10px 15px;
             border-radius: 20px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .search-input:focus {
-            outline: none;
-            border-color: #ffc107;
-            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+            padding-left: 40px; /* 留位置給圖標 */
+            border: 1px solid #ced4da;
         }
         .search-icon {
             position: absolute;
-            right: 25px;
+            left: 25px;
             top: 50%;
             transform: translateY(-50%);
-            color: #999;
+            color: #adb5bd;
         }
 
-        /* === 客戶列表 === */
-        .client-list {
-            padding: 10px 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        /* === 5. 客戶列表 (簡潔列表樣式) === */
+        .client-list-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
         }
 
-        .btn-client {
-            background: white;
+        .list-group-item {
             border: none;
+            border-bottom: 1px solid #eee;
             padding: 15px;
-            border-radius: 12px;
-            text-align: left;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: background 0.2s;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            text-decoration: none;
-            color: #333;
-            transition: transform 0.1s;
+        }
+        
+        .list-group-item:first-child { border-top-left-radius: 10px; border-top-right-radius: 10px; }
+        .list-group-item:last-child { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; border-bottom: none; }
+
+        .list-group-item:hover {
+            background-color: #fff3cd; /* 滑鼠懸停變淡黃 */
         }
 
-        .btn-client:active {
-            transform: scale(0.98);
-            background-color: #fff9db;
-        }
+        .c-name { font-size: 1.1rem; font-weight: bold; color: #333; }
+        .c-code { font-size: 0.9rem; color: #888; font-family: Arial; }
+        
+        /* 鏈接樣式 */
+        a.client-link { text-decoration: none; display: block; width: 100%; }
 
-        .client-info { display: flex; flex-direction: column; }
-        .c-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 2px; }
-        .c-code { color: #888; font-size: 0.9rem; font-family: Arial; }
-        .c-icon { font-size: 1.2rem; color: #ccc; }
-
-        .no-result {
-            text-align: center;
-            color: #999;
-            padding: 30px;
-            display: none;
-        }
+        .no-result { text-align: center; color: #999; margin-top: 30px; display: none; }
     </style>
 </head>
 <body onload="initAdmin()">
 
-    <div class="sticky-top-area">
-        <div class="header-title">🎯 宏達客戶鏈接分發中心</div>
-        
+    <div class="top-header">
+        🎯 宏達客戶鏈接分發中心
+    </div>
+
+    <div class="sticky-controls">
         <div class="sales-btn-group" id="salesBtnContainer">
             </div>
 
-        <div class="search-wrapper">
-            <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜尋客戶名稱或編號..." oninput="filterClients()">
+        <div class="search-container">
             <i class="bi bi-search search-icon"></i>
+            <input type="text" id="searchInput" class="form-control search-input" placeholder="🔍 輸入店名或編號快速查找..." oninput="filterClients()">
         </div>
     </div>
 
-    <div id="clientList" class="client-list"></div>
-    
-    <div id="noResult" class="no-result">
-        <i class="bi bi-emoji-frown"></i> 找不到相關客戶
+    <div class="client-list-container">
+        <div id="countDisplay" class="text-center text-muted mb-2" style="font-size: 0.85rem;"></div>
+        <div class="list-group shadow-sm" id="clientList"></div>
+        <div id="noResult" class="no-result">找不到相關客戶 😅</div>
     </div>
 
     <script src="sales_config.js"></script>
     <script src="customers.js"></script>
 
     <script>
-        let currentSales = "A"; // 默認志哥
+        let currentSales = "A"; // 默認顯示志哥
 
         function initAdmin() {
             renderSalesButtons();
-            renderClients("A"); // 默認顯示志哥
+            renderClients("A"); // 初始加載志哥
         }
 
-        // 1. 渲染銷售按鈕
+        // 渲染銷售按鈕
         function renderSalesButtons() {
             const container = document.getElementById('salesBtnContainer');
             let html = `
@@ -173,18 +164,17 @@
                 </button>
             `;
 
-            // 從 sales_config.js 讀取銷售名單
             if (typeof salesTeam !== 'undefined') {
                 for (let id in salesTeam) {
                     const s = salesTeam[id];
-                    const activeClass = (id === "A") ? "active" : "";
+                    const activeClass = (id === "A") ? "active" : ""; // 默認選中 A
                     html += `<button class="btn-sales ${activeClass}" id="btn-${id}" onclick="switchSales('${id}')">${s.name} (${id})</button>`;
                 }
             }
             container.innerHTML = html;
         }
 
-        // 2. 切換銷售
+        // 切換銷售
         function switchSales(id) {
             currentSales = id;
             
@@ -193,7 +183,7 @@
             const btn = document.getElementById('btn-' + id);
             if(btn) btn.classList.add('active');
 
-            // 清空搜索框 (這很重要，換人要重置搜索)
+            // 清空搜索欄 (換人時重置搜索)
             document.getElementById('searchInput').value = '';
             document.getElementById('noResult').style.display = 'none';
 
@@ -201,73 +191,72 @@
             window.scrollTo(0,0);
         }
 
-        // 3. 渲染客戶列表
+        // 渲染客戶列表
         function renderClients(salesId) {
             const list = document.getElementById('clientList');
+            const countDiv = document.getElementById('countDisplay');
             list.innerHTML = "";
 
             if (typeof clientDB === 'undefined') {
-                list.innerHTML = "<div class='text-center p-3'>找不到客戶數據庫 (customers.js)</div>";
+                list.innerHTML = "<div class='p-3 text-center'>找不到資料庫 (customers.js)</div>";
                 return;
             }
 
-            // 將客戶轉為數組並排序 (按編號或名稱)
+            // 獲取該銷售的所有客戶
             let clients = [];
             for (let code in clientDB) {
                 let c = clientDB[code];
                 if (c.sales === salesId) {
-                    clients.push({ code: code, ...c }); // 展開屬性
+                    clients.push({ code: code, ...c });
                 }
             }
 
-            // 簡單排序：把數字編號的放前面，W/A開頭的放後面 (可選)
+            // 排序：數字編號在前，字母在後 (可選，這裡簡單用編號排)
             clients.sort((a, b) => a.code.localeCompare(b.code));
 
-            // 生成 HTML
+            // 更新數量顯示
+            countDiv.innerText = `共有 ${clients.length} 位客戶`;
+
+            // 生成列表 HTML
             let html = "";
             clients.forEach(c => {
-                // 生成轉發鏈接
                 const link = `index.html?id=${c.code}`;
-                
-                // 這裡把名字和代碼都放在 dataset 裡，方便搜索過濾
+                // data-search 屬性用來存儲搜索關鍵字 (全大寫方便比對)
                 html += `
-                <a href="${link}" class="btn-client" data-search="${c.name.toUpperCase()} ${c.code.toUpperCase()}">
-                    <div class="client-info">
+                <a href="${link}" class="client-link" target="_blank" data-search="${c.name.toUpperCase()} ${c.code.toUpperCase()}">
+                    <div class="list-group-item">
                         <span class="c-name">${c.name}</span>
-                        <span class="c-code">編號: ${c.code}</span>
+                        <span class="c-code">${c.code} <i class="bi bi-box-arrow-up-right ms-2"></i></span>
                     </div>
-                    <i class="bi bi-chevron-right c-icon"></i>
                 </a>
                 `;
             });
 
-            // 統計數量
-            const countHtml = `<div style="text-align:center; color:#aaa; font-size:0.8rem; margin-bottom:5px;">共 ${clients.length} 位客戶</div>`;
-            
-            list.innerHTML = countHtml + (html || "<div class='text-center p-5 text-muted'>暫無客戶資料</div>");
+            list.innerHTML = html || "<div class='p-5 text-center text-muted'>暫無客戶資料</div>";
         }
 
-        // 4. 新客戶專用鏈接 (生成器)
+        // 新客戶鏈接生成
         function filterNewClients() {
-            // 切換按鈕樣式
             document.querySelectorAll('.btn-sales').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            document.getElementById('searchInput').value = '';
+            
+            document.getElementById('searchInput').value = ''; // 清空搜索
+            document.getElementById('countDisplay').innerText = "生成空白單鏈接";
 
             const list = document.getElementById('clientList');
-            let html = `<div style="text-align:center; color:#aaa; font-size:0.8rem; margin-bottom:10px;">點擊生成空白單鏈接</div>`;
+            let html = "";
             
             if (typeof salesTeam !== 'undefined') {
                 for (let id in salesTeam) {
                     const s = salesTeam[id];
                     const link = `index.html?sales=${id}`;
+                    // 這裡也加上 data-search 讓搜索功能對這裡也有效
                     html += `
-                    <a href="${link}" class="btn-client">
-                        <div class="client-info">
-                            <span class="c-name">📝 ${s.name} (新客戶/散客)</span>
-                            <span class="c-code">通用下單鏈接</span>
+                    <a href="${link}" class="client-link" target="_blank" data-search="${s.name.toUpperCase()} 新客戶">
+                        <div class="list-group-item">
+                            <span class="c-name">📝 ${s.name} (空白單)</span>
+                            <span class="c-code">新客戶 <i class="bi bi-box-arrow-up-right ms-2"></i></span>
                         </div>
-                        <i class="bi bi-box-arrow-up-right c-icon"></i>
                     </a>
                     `;
                 }
@@ -275,28 +264,27 @@
             list.innerHTML = html;
         }
 
-        // 🔥 5. 搜索過濾功能 (核心代碼) 🔥
+        // 🔥 核心功能：搜索過濾 🔥
         function filterClients() {
             const input = document.getElementById('searchInput').value.toUpperCase();
-            const buttons = document.querySelectorAll('.btn-client');
+            const items = document.querySelectorAll('.client-link');
             let hasResult = false;
 
-            buttons.forEach(btn => {
-                // 我們在 renderClients 時把名字和代碼藏在 data-search 屬性裡了
-                const searchText = btn.getAttribute('data-search');
+            items.forEach(item => {
+                // 獲取藏在 data-search 裡的名字和編號
+                const text = item.getAttribute('data-search');
                 
-                if (searchText && searchText.includes(input)) {
-                    btn.style.display = "flex"; // 匹配顯示
+                if (text.includes(input)) {
+                    item.style.display = ""; // 顯示
                     hasResult = true;
                 } else {
-                    btn.style.display = "none"; // 不匹配隱藏
+                    item.style.display = "none"; // 隱藏
                 }
             });
 
-            // 顯示/隱藏 "找不到結果"
+            // 如果全部都隱藏了，顯示「找不到」
             document.getElementById('noResult').style.display = hasResult ? 'none' : 'block';
         }
-
     </script>
 </body>
 </html>
