@@ -110,15 +110,15 @@
             justify-content: space-between;
             align-items: center;
             transition: background 0.2s;
-            gap: 10px; /* 增加間距 */
+            gap: 10px;
         }
         
         .client-row:first-child { border-top-left-radius: 10px; border-top-right-radius: 10px; }
         .client-row:last-child { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; border-bottom: none; }
 
         .client-info {
-            flex: 1; /* 佔據剩餘空間 */
-            min-width: 0; /* 防止文字過長撐開 */
+            flex: 1;
+            min-width: 0;
         }
         .c-name { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 2px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .c-code { font-size: 0.85rem; color: #888; font-family: Arial; }
@@ -127,38 +127,38 @@
         .action-group {
             display: flex;
             gap: 8px;
-            width: 180px; /* 設定按鈕組的固定寬度，確保整齊 */
+            width: 180px; /* 固定寬度，確保整齊 */
         }
         
         .btn-action {
             border: none;
             border-radius: 8px;
-            padding: 8px 0; /* 上下 padding，左右靠 flex */
+            padding: 8px 0;
             font-size: 0.9rem;
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center; /* 內容居中 */
+            justify-content: center;
             gap: 4px;
             text-decoration: none;
             font-weight: bold;
             color: white;
             transition: transform 0.1s;
-            flex: 1; /* 🔥 關鍵：讓兩個按鈕平分寬度，一樣大 */
+            flex: 1; /* 平分寬度 */
         }
         
         .btn-action:active { transform: scale(0.95); }
 
-        /* 轉發按鈕 (綠色) */
-        .btn-whatsapp { 
-            background-color: #25D366; 
-            box-shadow: 0 2px 5px rgba(37, 211, 102, 0.3);
-        }
-
-        /* 查看按鈕 (藍色) */
+        /* 查看按鈕 (藍色) - 現在在前面 */
         .btn-enter { 
             background-color: #0d6efd; 
             box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3);
+        }
+
+        /* 轉發按鈕 (綠色) - 現在在後面 */
+        .btn-whatsapp { 
+            background-color: #25D366; 
+            box-shadow: 0 2px 5px rgba(37, 211, 102, 0.3);
         }
 
         .no-result { text-align: center; color: #999; margin-top: 30px; display: none; }
@@ -244,7 +244,6 @@
             countDiv.innerText = `共有 ${clients.length} 位客戶`;
 
             let html = "";
-            
             const baseUrl = window.location.href.replace('admin.html', '').split('?')[0];
 
             clients.forEach(c => {
@@ -259,7 +258,7 @@
                     </div>
                     <div class="action-group">
                         <a href="${fullLink}" class="btn-action btn-enter" target="_blank">
-                            查看 <i class="bi bi-arrow-right"></i>
+                            查看 <i class="bi bi-eye-fill"></i>
                         </a>
                         <button class="btn-action btn-whatsapp" onclick="shareToWhatsApp('${fullLink}', '${c.name}')">
                             <i class="bi bi-whatsapp"></i> 轉發
@@ -294,7 +293,7 @@
                         </div>
                         <div class="action-group">
                             <a href="${fullLink}" class="btn-action btn-enter" target="_blank">
-                                查看 <i class="bi bi-arrow-right"></i>
+                                查看 <i class="bi bi-eye-fill"></i>
                             </a>
                             <button class="btn-action btn-whatsapp" onclick="shareToWhatsApp('${fullLink}', '新客戶')">
                                 <i class="bi bi-whatsapp"></i> 轉發
@@ -307,9 +306,11 @@
             list.innerHTML = html;
         }
 
-        // WhatsApp 自動跳轉
+        // 🔥 文案修改區 🔥
         function shareToWhatsApp(link, name) {
-            const text = `你好，這是 ${name} 的下單鏈接，請點擊下單：\n${link}`;
+            // 您可以在這裡修改發送的文字
+            const text = `你好 ${name}，這是宏達為您準備的專屬電子落單鏈接，請保存：\n${link}`;
+            
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
 
