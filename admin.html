@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>宏達客戶鏈接分發中心</title>
     
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#212529">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
@@ -13,9 +19,11 @@
             background-color: #f8f9fa; 
             font-family: "Microsoft JhengHei", sans-serif; 
             padding-bottom: 50px;
+            /* 讓 iOS 滑動更順暢 */
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* === 1. 頂部黑條 (還原) === */
+        /* === 1. 頂部黑條 === */
         .top-header {
             background-color: #212529;
             color: #ffc107;
@@ -131,32 +139,26 @@
             gap: 5px;
             text-decoration: none;
             font-weight: bold;
+            color: white;
+            transition: transform 0.1s;
+        }
+        
+        .btn-action:active { transform: scale(0.95); }
+
+        /* WhatsApp 按鈕 (綠色) */
+        .btn-whatsapp { 
+            background-color: #25D366; 
+            box-shadow: 0 2px 5px rgba(37, 211, 102, 0.3);
         }
 
-        /* 複製按鈕 (綠色) */
-        .btn-copy { background-color: #e8f5e9; color: #2e7d32; }
-        .btn-copy:active { background-color: #c8e6c9; }
-
-        /* 打開按鈕 (藍色) */
-        .btn-open { background-color: #e3f2fd; color: #1565c0; }
-        .btn-open:active { background-color: #bbdefb; }
+        /* 進入按鈕 (藍色) */
+        .btn-enter { 
+            background-color: #0d6efd; 
+            box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3);
+        }
 
         .no-result { text-align: center; color: #999; margin-top: 30px; display: none; }
         
-        /* 複製成功提示 */
-        #copyToast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            z-index: 2000;
-            display: none;
-            font-size: 0.9rem;
-        }
     </style>
 </head>
 <body onload="initAdmin()">
@@ -176,8 +178,6 @@
         <div class="list-group shadow-sm" id="clientList"></div>
         <div id="noResult" class="no-result">找不到相關客戶 😅</div>
     </div>
-
-    <div id="copyToast">✅ 鏈接已複製！</div>
 
     <script src="sales_config.js"></script>
     <script src="customers.js"></script>
@@ -241,11 +241,11 @@
 
             let html = "";
             
-            // 獲取當前頁面的基礎 URL (去掉 admin.html)
+            // 獲取基礎 URL
             const baseUrl = window.location.href.replace('admin.html', '').split('?')[0];
 
             clients.forEach(c => {
-                // 拼接完整的下單鏈接
+                // 完整的下單鏈接
                 const fullLink = baseUrl + `index.html?id=${c.code}`;
                 const searchKey = `${c.name.toUpperCase()} ${c.code.toUpperCase()}`;
 
@@ -256,11 +256,11 @@
                         <span class="c-code">${c.code}</span>
                     </div>
                     <div class="action-group">
-                        <button class="btn-action btn-copy" onclick="copyToClipboard('${fullLink}')">
-                            <i class="bi bi-clipboard"></i> 複製
+                        <button class="btn-action btn-whatsapp" onclick="shareToWhatsApp('${fullLink}', '${c.name}')">
+                            <i class="bi bi-whatsapp"></i> 發給客戶
                         </button>
-                        <a href="${fullLink}" class="btn-action btn-open" target="_blank">
-                            進入 <i class="bi bi-chevron-right"></i>
+                        <a href="${fullLink}" class="btn-action btn-enter" target="_blank">
+                            檢查 <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -291,11 +291,11 @@
                             <span class="c-code">新客戶專用</span>
                         </div>
                         <div class="action-group">
-                            <button class="btn-action btn-copy" onclick="copyToClipboard('${fullLink}')">
-                                <i class="bi bi-clipboard"></i> 複製
+                            <button class="btn-action btn-whatsapp" onclick="shareToWhatsApp('${fullLink}', '新客戶')">
+                                <i class="bi bi-whatsapp"></i> 發給客戶
                             </button>
-                            <a href="${fullLink}" class="btn-action btn-open" target="_blank">
-                                進入 <i class="bi bi-chevron-right"></i>
+                            <a href="${fullLink}" class="btn-action btn-enter" target="_blank">
+                                檢查 <i class="bi bi-arrow-right"></i>
                             </a>
                         </div>
                     </div>
@@ -305,15 +305,12 @@
             list.innerHTML = html;
         }
 
-        // 複製功能
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                const toast = document.getElementById('copyToast');
-                toast.style.display = 'block';
-                setTimeout(() => { toast.style.display = 'none'; }, 2000);
-            }).catch(err => {
-                alert('複製失敗，請手動複製');
-            });
+        // 🔥 核心功能：WhatsApp 自動跳轉 🔥
+        function shareToWhatsApp(link, name) {
+            // 預設訊息內容
+            const text = `你好，這是 ${name} 的下單鏈接，請點擊下單：\n${link}`;
+            // 呼叫 WhatsApp API
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
 
         // 搜索過濾
