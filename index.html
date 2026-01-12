@@ -3,90 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>宏達落單王</title>
+    <meta property="og:title" content="自助電子落單表">
+    <meta property="og:description" content="香港宏達有限公司提供">
+    <title>自助電子落單表</title>
 
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#212529">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    
     <style>
-        body { 
-            font-family: "Microsoft JhengHei", sans-serif; 
-            background-color: #f8f9fa; 
-            padding-bottom: 160px; 
-            -webkit-overflow-scrolling: touch; 
-        }
-
-        /* === 頂部容器 (Sticky - 最穩定方案) === */
-        .sticky-header-container { 
-            position: sticky; 
-            position: -webkit-sticky; 
-            top: 0; 
-            z-index: 1020; 
-            background-color: #212529; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-            width: 100%;
-            padding-top: env(safe-area-inset-top); 
-            margin-top: -1px;
-        }
-
-        /* 頂部資訊欄 */
-        .top-info { 
-            padding: 10px 15px 5px 15px; 
-            color: white; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: relative;
-            z-index: 2;
-        }
-
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f8f9fa; padding-bottom: 160px; }
+        .sticky-header-container { position: sticky; top: 0; z-index: 1020; background-color: #212529; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .top-info { padding: 12px 15px 5px 15px; color: white; display: flex; justify-content: space-between; align-items: center; }
         .client-name { font-size: 1.3rem; font-weight: 800; color: #ffc107; cursor: pointer; }
-
-        /* 導航標籤 */
-        .nav-tabs { 
-            border-bottom: none; 
-            padding: 0 10px; 
-            background-color: #212529; 
-            position: relative;
-            z-index: 2;
-        }
+        .nav-tabs { border-bottom: none; padding: 0 10px; }
         .nav-link { color: #aaa; font-weight: bold; border: none; border-radius: 10px 10px 0 0; padding: 10px 15px; font-size: 1rem; background: transparent; }
         .nav-link.active { background-color: #f8f9fa; color: #000; border-bottom: 4px solid #ffc107; }
-
-        /* 搜索欄 */
         .search-section { background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; display: none; }
         .search-wrapper { position: relative; }
         .search-input { border-radius: 20px; border: 1px solid #ccc; padding: 8px 35px 8px 15px; width: 100%; }
         .btn-clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #adb5bd; cursor: pointer; font-size: 1.1rem; display: none; z-index: 10; }
-
-        /* 分類標題 */
-        .cat-header { 
-            background-color: #ffc107; 
-            color: #000; 
-            font-weight: 800; 
-            padding: 8px 15px; 
-            margin-top: 0; 
-            font-size: 1.1rem; 
-            border-bottom: 1px solid #e0a800;
-            position: relative; 
-            z-index: 1;
-        }
-
-        /* 產品列表樣式 */
+        .cat-header { background-color: #ffc107; color: #000; font-weight: 800; padding: 8px 15px; margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid #e0a800; }
         .product-row { background: white; border-bottom: 1px solid #eee; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
         .product-row.oos { background-color: #f8f9fa; opacity: 0.8; }
         .p-info { flex: 1; padding-right: 10px; overflow: hidden; }
         .p-name { font-size: 1.1rem; font-weight: 700; color: #000; line-height: 1.3; margin-bottom: 2px; }
         .p-code { font-size: 0.85rem; color: #888; font-weight: normal; font-family: Arial, sans-serif; }
         .oos-badge { font-size: 0.8rem; background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
-
-        /* 數量控制器 */
         .qty-control { display: flex; align-items: center; background: #fff; border: 1px solid #ced4da; border-radius: 8px; width: 120px; justify-content: space-between; height: 38px; flex-shrink: 0; overflow: hidden; }
         .qty-control.disabled { background: #e9ecef; border-color: #dee2e6; }
         .qty-btn { width: 35px; height: 100%; border-radius: 0; background: #f8f9fa; color: #212529; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; user-select: none; border: none; }
@@ -95,8 +41,6 @@
         .qty-input { width: 50px; text-align: center; border: none; font-weight: bold; font-size: 1.1rem; color: #333; background: transparent; padding: 0; }
         .qty-input.unit-kg { color: #d63384; font-size: 1rem; }
         .product-row.selected { background-color: #fff9db; border-left: 5px solid #ffc107; }
-
-        /* 底部購物車 */
         .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); padding: 10px 15px; z-index: 1030; display: flex; flex-direction: column; gap: 8px; }
         .bottom-info-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; }
         .bottom-btn-row { display: flex; gap: 8px; width: 100%; }
@@ -108,8 +52,6 @@
         .btn-send:active { transform: scale(0.98); }
         .btn-sales { background-color: #25D366; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); } 
         .btn-group { background-color: #0d6efd; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
-
-        /* 彈窗與設定 */
         .modal-footer { display: flex; gap: 8px; padding: 15px; justify-content: space-between; flex-wrap: wrap; }
         .modal-footer .btn { flex: 1; min-width: 100px; }
         .modal-footer .btn-outline-danger { flex: 0 0 auto; min-width: auto; border-radius: 50px; padding: 8px 15px; } 
@@ -118,13 +60,11 @@
         .tab-content.active { display: block; }
         .modal-header { background-color: #212529; color: white; }
         .modal-title { font-weight: bold; color: #ffc107; }
-
         .unit-btn-group { display: flex; gap: 15px; justify-content: center; padding: 20px; }
         .btn-unit-select { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-weight: bold; font-size: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
         .btn-unit-select:hover { background-color: #f8f9fa; }
         .btn-unit-select.piece { border-color: #212529; color: #212529; }
         .btn-unit-select.kg { border-color: #d63384; color: #d63384; }
-
         .freq-divider { text-align: center; margin: 20px 0; font-size: 0.85rem; color: #aaa; position: relative; }
         .freq-divider:before { content: ""; position: absolute; top: 50%; left: 15%; width: 25%; height: 1px; background: #ddd; }
         .freq-divider:after { content: ""; position: absolute; top: 50%; right: 15%; width: 25%; height: 1px; background: #ddd; }
@@ -143,618 +83,548 @@
         .btn-logout:hover { background: #fff5f5; color: #a50e0e; border-color: #d32f2f; }
     </style>
 </head>
-<body onload="init()">
+<body>
 
-    <script src="sales_config.js"></script>
-    <script src="customers.js"></script>
+<script src="sales_config.js"></script>
+<script src="customers.js"></script>
 
-    <div class="sticky-header-container">
-        <div class="top-info">
-            <div id="backToAdminBtn" style="display:none; margin-right: 15px; cursor: pointer;">
-                <i class="bi bi-arrow-left-circle-fill" style="font-size: 1.8rem; color: #ffc107;"></i>
-            </div>
-
-            <div id="clientInfoWrapper" onclick="openSetupModal()" style="flex: 1;">
-                <div class="client-name" id="displayClientName">設定客戶 <i class="bi bi-pencil-square" style="font-size:0.8em"></i></div>
-                <div style="font-size: 0.8rem; color: #ccc;" id="displayClientCode">點擊此處設定</div>
-            </div>
-            
-            <div style="text-align: right; font-size: 0.8rem; color: #ccc;">
-                <span id="displaySalesName">宏達批發</span><br>Tel: <span id="displayPhone"></span>
-            </div>
+<div class="sticky-header-container">
+    <div class="top-info">
+        <div onclick="openSetupModal()">
+            <div class="client-name" id="displayClientName">設定客戶 <i class="bi bi-pencil-square" style="font-size:0.8em"></i></div>
+            <div style="font-size: 0.8rem; color: #ccc;" id="displayClientCode">點擊此處設定</div>
         </div>
-
-        <ul class="nav nav-tabs nav-fill">
-            <li class="nav-item">
-                <button class="nav-link active" id="tab-freq" onclick="switchTab('freq')"><i class="bi bi-star-fill text-warning"></i> 常用清單</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" id="tab-all" onclick="switchTab('all')"><i class="bi bi-clipboard-check"></i> 全部產品</button>
-            </li>
-        </ul>
-
-        <div class="search-section" id="searchBar">
-            <div class="search-wrapper">
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜尋產品 / 編號..." oninput="filterAllProducts()">
-                <i class="bi bi-x-circle-fill btn-clear-search" id="clearSearchBtn" onclick="clearSearch()"></i>
-            </div>
+        <div style="text-align: right; font-size: 0.8rem; color: #ccc;">
+            <span id="displaySalesName">宏達批發</span><br>Tel: <span id="displayPhone"></span>
         </div>
     </div>
-
-    <div id="tab-frequent" class="tab-content active">
-        <div class="text-center p-5 text-muted" id="emptyFrequentMsg">
-            <i class="bi bi-basket3" style="font-size: 2rem;"></i><br><br>
-            您的常用清單目前是空的。<br>
-            請到「全部產品」頁面選購，<br>系統會自動記憶您的選擇！
-        </div>
-        <div id="frequentListContent"></div>
-        <div class="admin-controls" id="adminControls">
-            <button class="btn-reset btn-reset-freq" onclick="resetFrequentList()" id="btnResetFreq" style="display:none;">
-                <i class="bi bi-arrow-counterclockwise"></i> 重置常用清單
-            </button>
-            <button class="btn-reset btn-logout" onclick="logoutUser()">
-                <i class="bi bi-box-arrow-right"></i> 登出 / 重置身份
-            </button>
+    <ul class="nav nav-tabs">
+        <li class="nav-item" style="flex:1; text-align:center;"><button class="nav-link active" style="width:100%" onclick="switchTab('frequent')">🌟 常用清單</button></li>
+        <li class="nav-item" style="flex:1; text-align:center;"><button class="nav-link" style="width:100%" onclick="switchTab('all')">📋 全部產品</button></li>
+    </ul>
+    <div class="search-section" id="searchBar">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜尋產品 / 編號..." oninput="filterAllProducts()">
+            <i class="bi bi-x-circle-fill btn-clear-search" id="clearSearchBtn" onclick="clearSearch()"></i>
         </div>
     </div>
+</div>
 
-    <div id="tab-all" class="tab-content"></div>
-
-    <div class="bottom-bar">
-        <div class="bottom-info-row">
-            <div class="total-box">共 <span id="totalQty" class="total-num">0</span> 款</div>
-            <button id="viewCartBtn" class="btn-view-cart" onclick="openCartModal()" disabled><i class="bi bi-cart3"></i> 查看已選</button>
-        </div>
-        <div class="bottom-btn-row">
-            <button class="btn-send btn-sales" onclick="sendWhatsApp('direct')"><i class="bi bi-whatsapp"></i> 發送給銷售</button>
-            <button class="btn-send btn-group" onclick="sendWhatsApp('group')"><i class="bi bi-people-fill"></i> 發送到群組</button>
-        </div>
+<div id="tab-frequent" class="tab-content active">
+    <div class="text-center p-5 text-muted" id="emptyFrequentMsg">
+        <i class="bi bi-basket3" style="font-size: 2rem;"></i><br><br>
+        您的常用清單目前是空的。<br>
+        請到「全部產品」頁面選購，<br>系統會自動記憶您的選擇！
     </div>
+    <div id="frequentListContent"></div>
+    <div class="admin-controls" id="adminControls">
+        <button class="btn-reset btn-reset-freq" onclick="resetFrequentList()" id="btnResetFreq" style="display:none;">
+            <i class="bi bi-arrow-counterclockwise"></i> 重置常用清單
+        </button>
+        <button class="btn-reset btn-logout" onclick="logoutUser()">
+            <i class="bi bi-box-arrow-right"></i> 登出 / 重置身份
+        </button>
+    </div>
+</div>
+<div id="tab-all" class="tab-content"></div>
 
-    <div class="modal fade" id="setupModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">⚙️ 客戶資料設定</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="setupCloseBtn" style="display:none;"></button>
+<div class="bottom-bar">
+    <div class="bottom-info-row">
+        <div class="total-box">共 <span id="totalQty" class="total-num">0</span> 款</div>
+        <button id="viewCartBtn" class="btn-view-cart" onclick="openCartModal()" disabled><i class="bi bi-cart3"></i> 查看已選</button>
+    </div>
+    <div class="bottom-btn-row">
+        <button class="btn-send btn-sales" onclick="sendWhatsApp('direct')"><i class="bi bi-whatsapp"></i> 發送給銷售</button>
+        <button class="btn-send btn-group" onclick="sendWhatsApp('group')"><i class="bi bi-people-fill"></i> 發送到群組</button>
+    </div>
+</div>
+
+<div class="modal fade" id="setupModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">⚙️ 客戶資料設定</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="setupCloseBtn" style="display:none;"></button>
+            </div>
+            <div class="modal-body">
+                <div class="setup-input-group">
+                    <label class="setup-label">客戶名稱 / 店鋪名</label>
+                    <input type="text" id="inputClientName" class="setup-input" placeholder="例如：我的餐廳">
                 </div>
-                <div class="modal-body">
-                    <div class="setup-input-group">
-                        <label class="setup-label">客戶名稱 / 店鋪名</label>
-                        <input type="text" id="inputClientName" class="setup-input" placeholder="例如：我的餐廳">
-                    </div>
-                    <div class="setup-input-group">
-                        <label class="setup-label">客戶編號 (或填寫 新客戶)</label>
-                        <input type="text" id="inputClientCode" class="setup-input" placeholder="例如：A1234">
-                    </div>
-                    <button class="btn-setup-save" onclick="saveClientDetails()">💾 儲存設定</button>
+                <div class="setup-input-group">
+                    <label class="setup-label">客戶編號 (或填寫 新客戶)</label>
+                    <input type="text" id="inputClientCode" class="setup-input" placeholder="例如：A1234">
                 </div>
+                <button class="btn-setup-save" onclick="saveClientDetails()">💾 儲存設定</button>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="unitSelectionModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">請選擇計價單位</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                <div class="modal-body">
-                    <p class="text-center mb-3">此產品支持稱重計價，請確認單位：</p>
-                    <div class="unit-btn-group">
-                        <button id="btn-unit-left" class="btn-unit-select"><i class="bi bi-box-seam"></i> 左按鈕</button>
-                        <button id="btn-unit-right" class="btn-unit-select"><i class="bi bi-speedometer2"></i> 右按鈕</button>
-                    </div>
+<div class="modal fade" id="unitSelectionModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">請選擇計價單位</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body">
+                <p class="text-center mb-3">此產品支持稱重計價，請確認單位：</p>
+                <div class="unit-btn-group">
+                    <button id="btn-unit-left" class="btn-unit-select"><i class="bi bi-box-seam"></i> 左按鈕</button>
+                    <button id="btn-unit-right" class="btn-unit-select"><i class="bi bi-speedometer2"></i> 右按鈕</button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">已選產品清單</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                <div class="modal-body" id="cartModalBody"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-danger" onclick="clearCart()"><i class="bi bi-trash"></i> 清空</button>
-                    <button type="button" class="btn btn-send btn-sales" onclick="sendWhatsApp('direct')">發給銷售</button>
-                    <button type="button" class="btn btn-send btn-group" onclick="sendWhatsApp('group')">發到群組</button>
-                </div>
+<div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">已選產品清單</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body" id="cartModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger" onclick="clearCart()"><i class="bi bi-trash"></i> 清空</button>
+                <button type="button" class="btn btn-send btn-sales" onclick="sendWhatsApp('direct')">發給銷售</button>
+                <button type="button" class="btn btn-send btn-group" onclick="sendWhatsApp('group')">發到群組</button>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 2. 初始化核心變數
+    let currentClientBoxItems = []; // 👈 新增：用來存當前客戶的箱貨清單
+    let currentSalesPhone = ""; 
+    let salesID = "A"; // 默認值
+    let customerName = ""; 
+    let customerCode = "";
     
-    <script>
-        // 🔥🔥🔥 核心修復：直接將產品數據寫入這裡，確保絕對能讀取！ 🔥🔥🔥
-        const fullCatalog = [
-            { cat: "環球海膽", items: ["膠盒海膽 (A06F)", "加拿大海膽 (A03)", "澳洲海膽 (A08)", "練海膽醬 (C59)", "凍海膽漿 (D01)", "紫海膽(膠盒) (A07C)", "墨西哥海膽 (A12A)", "墨西哥海膽10格 (A12B)", "本地海膽 (A02)", "凍熟馬糞膽 (A06E)"] },
-            { cat: "日本海膽", items: ["A Grade(直排) (AJ1)", "A Grade(亂排) (AJ4)", "B Grade(亂排) (AJ3)", "鹽水海膽 (AJ6)"] },
-            { cat: "鮮活海產類", items: ["活赤貝 (B01)", "油甘魚 (B50B)", "三文魚 (B14)", "鮮三文魚(加工)-6邊/箱 (B14AA)", "鮮三文魚(箱)-3條/箱 (B14C)", "鮮三文魚柳 (B14H)"] },
-            { cat: "日本鮮貨", items: ["鮮大拖羅腹1（赤身附） (B67A)", "鮮大拖羅腹2（赤身附） (B67B)", "鮮吞拿魚赤身（去血合） (B67C)", "間八 (B04)", "細池魚 (B55A)", "金目鯛 (B74C)", "蜜柑鯛 (B20E)", "真鯛 (B20G)", "鯖魚 (B73)", "平目 (B74G)", "魴鮄 (B55D)", "活北寄貝 (B09)", "鮮帶子肉(生食用) (B13)", "令和之怪物 (B08SB)", "太刀魚 (B55E)", "伊左木 (B74F)", "活粒貝 (B02E)", "即食生蠔300g (B08TB)"] },
-            { cat: "新鮮蔬菜/裝飾花葉", items: ["大葉 (C01)", "綠楓葉 (C01FA)", "紅楓葉 (C01FB)", "日本小菊（黃） (C01CA)", "青椒仔 (C01CJ)", "萬能蔥 (C01CH)", "迷你食用玫瑰 (C01CO)", "南瓜 (C05)", "竹葉 (C04)", "三支葉 (C01F)", "花穗紫蘇 (C01CB)", "水菜 (C01CK)", "立桂 (C01CG)", "紅椒絲 (C01D)", "日本番薯 (C05A)"] },
-            { cat: "刺身壽司用料（蝦類）", items: ["牡丹蝦L(黑盒) (D03A)", "牡丹蝦XL(黑盒) (D03)", "牡丹蝦J(黑盒) (D03B)", "ATC牡丹蝦XJ (D04D)", "阿根廷赤蝦 L1 (D10JA)", "阿根廷赤蝦 L2 (D10JAA)", "原隻有頭甜蝦 LA (D10F)", "原隻有頭甜蝦 2L (D10)", "原隻有頭甜蝦 3L (D10A)", "原隻有頭甜蝦 4L (D10D)", "天使蝦 (D10M)", "海赤蝦8L (D10JE)", "海赤蝦9L (D10JD)", "無頭甜蝦M50 (D10K)", "無頭甜蝦L50 (D10KC)", "壽司熟蝦 3L (D03DD)", "壽司熟蝦 4L (D03DC)", "虎蝦刺身8g (D10N)", "虎蝦刺身10g (D10NA)", "海膽蝦2L (D03G)", "壽司玻璃蝦3L (D03CA)", "壽司熟蝦 7L (D03DA)", "壽司熟蝦 8L (D03D)"] },
-            { cat: "刺身壽司用料（帶子及貝殼類）", items: ["日本刺身帶子 5S (D09GA)", "日本刺身帶子 4S (D09D)", "日本刺身帶子 3S (D09B)", "日本刺身帶子 2S (D09F)", "日本刺身帶子 S (D09A)", "日本刺身帶子 M (D09)", "日本刺身帶子 L (D09C)", "日本刺身帶子 2L (D09M)", "日本刺身帶子 3L (D09G)", "刺身帶子S 500g (D09AB)", "調味扇貝切片8g (D09LA)", "北寄貝L (D47A)", "北寄貝M (D47)", "北寄貝片 (D47B)", "馬刀貝6g (D07)", "馬刀貝10g (D07A)", "赤貝肉21/25 (D48A)", "赤貝肉16/20 (D48B)", "赤貝片7g (D48E)", "赤貝片8g (D48G)", "刺身海螺片(馬刀貝25g) (D07F)", "刺身赤螺片 (D07BA)", "榮螺片 (D07B)", "象拔蚌片 (D44B)", "冰山蚌片刺身 (D44D)"] },
-            { cat: "刺身壽司用料（魚類）", items: ["急凍油甘魚柳（半邊） (D69)", "螢光魷魚沖漬 (D41AB)", "油甘魚鮫 (D69B)", "凍熟螢光魷魚 (D41F)", "日本紋甲魷魚500g (D39B)", "1K紋甲魷魚 (D39BA)", "壽司墨魚片(8g) (D39)", "刺身池魚片 (D62)", "八爪魚切粒 (D05F)", "中國大八爪 (D05C)", "日本大八爪AAA (D05)", "八爪魚片 (D05B)", "A級八爪魚片 (D05BA)", "左口魚邊刺身1K (D58A)", "左口魚邊刺身20片 (D58)", "特級左口魚邊刺身 (D58C)", "左口魚邊刺身（中國） (D58B)", "臺灣鯛魚柳 (D61C)", "醋青魚柳 (D42)", "安康魚肝 (D31A)", "中國鯛魚柳 (D61B)", "冰頭漬 (D83)", "針魚片 (D25)", "大劍魚腩(有皮) (D18)", "細劍魚腩(有皮) (D18A)"] }, 
-            { cat: "刺身壽司用料（吞拿魚/TORO）", items: ["日本大TORO (D17D)", "日本中TORO (D17DD)", "赤身A（日本） (D17G)", "急凍腦天 (D17DE)", "吞拿魚酒盜（紅） (C31H)", "鮪魚腩碎(築地) (D79)", "日本仿拖羅油脂 (D79A)", "吞拿魚4A (D17C)", "印尼中拖羅 (D17E)", "鰹魚酒盜（黃） (C31G)"] },
-            { cat: "刺身壽司用料（魚籽類）", items: ["山十三文魚籽大粒 (D19ER)", "大粒蟹籽 (D21)", "中粒蟹籽 (D21A)", "鱒魚籽（醬油漬） (D19EA)", "黑色飛魚籽 (D21AA)", "250g裝三文魚籽 (D19EK)", "明太子蓉 (D57A)", "希靈魚籽(黃色) (D51)", "日本芝士蟹籽 (D21D)", "希靈魚籽（獨立包裝） (D51B)", "鱘魚子醬5g (D21FC)", "鱘魚子醬10g (D21FA)", "鱘魚子醬30g (D21FB)", "三文魚籽醬油漬(大粒) (D19E)"] }, 
-            { cat: "蒲燒鰻魚/鯖魚", items: ["蒲燒鰻魚 30尾 (D22J)", "蒲燒鰻魚 35尾 (D22L)", "蒲燒鰻魚 40尾 (D22)", "蒲燒鰻魚 45尾 (D22C)", "蒲燒鰻魚 50尾 (D22A)", "蒲燒鰻魚 60尾 (D22D)", "蒲燒鰻魚 80尾 (D22I)", "蒲燒鰻魚 100尾 (D22G)", "鰻魚粒 (D22H)", "原條海鰻(穴子) (D15B)", "開邊青魚100尾 (D42A)", "開邊青魚70尾 (D42AB)", "獨立開邊青魚 (D42AA)", "真空原條鰻魚 (D22E)", "鰻魚片8g (D22FA)", "鰻魚片10g (D22FB)", "鰻魚片16g (D22FC)"] },
-            { cat: "刺身壽司用料（蟹柳/其他）", items: ["仿皇帝淨蟹棒肉（K裝） (D46A)", "AHJIKAN仿皇帝蟹柳 (D46AA)", "泰國仿松葉蟹棒 (D46B)", "白鬆弛熊魚蛋 (D16BB)", "黃鬆弛熊魚蛋 (D16BA)", "臺灣貴妃鮑片 (D66A)", "味付三角油楊 (D68)", "無味油楊 (D68B)", "大崎蟹柳 (D60D)", "大勝蟹柳 (D46C)", "珍寶蟹棒 (D46F)", "鳴門卷 (D16)", "厚燒玉子 (D06A)", "日本壽司蛋 (D06)", "切絲蛋 (D06C)"] },
-            { cat: "軍艦和日式小食", items: ["中華沙律2kg (D52)", "芝麻八爪仔2kg (D50)", "螺肉2kg (D53)", "帶子裙邊2kg (D54)", "芥辣熟八爪魚 (D50A)", "明太子沙律(中國) (D57)", "黃金魷魚 (D49)", "中華沙律400g (D52A)", "味付螺肉400g (D53A)", "芝麻八爪魚400g (D50AA)", "帶子裙邊400g (D54A)", "味附墨魚仔 (D53B)", "芥辣生八爪魚 (D50B)", "龍蝦沙律 (D55)", "櫻花魷魚 (D49B)", "海膽魷魚（日本） (D49C)", "芥辣生八爪100g (D50BB)", "北寄貝沙律 (D56)", "凍柚子皮 (C31F)", "急凍枝豆 (D84)", "燒雪魚棒 (C54)", "味淋魚乾 (C35A)", "紅魚鬆粉 (C67)", "十勝紅豆 (C30E)", "美國LIGO粟米粒 (D96B)", "迷你燒甜薯 (C30)"] },
-            { cat: "急凍海產類--1", items: ["熟帆立貝M (D09HC)", "熟帆立貝L (D09HA)", "熟帆立貝2L (D09H)", "熟帆立貝5S (D09HB)", "半殼元貝8-10cm (D43)", "扇貝柱IQ (熟食) (D02B)", "加拿大翡翠螺 (D29)", "帶殼即食蜆 (D97)", "急凍東風螺 (D07G)", "廣島蠔2L (D64)", "廣島蠔3L (D64AE)", "半殼青口M (F03)", "智利藍青口40/70 (F03B)", "日式磯煮鮑魚 (D74A)", "滋味鮑魚肉200g (D74C)"] },
-            { cat: "急凍海產類--2", items: ["原隻魷魚桶26/30 (D39D)", "原隻魷魚桶(獨立) (D39DA)", "阿根廷魷魚一夜干 (D39HA)", "銀鱈魚5-7磅 (D26)", "韓國半殼蠔 (F01DB)", "急凍殼付生蠔(刺身級) (F01GB)", "原味無骨魚塊 (D61HC)", "日本魷魚一夜干(2隻裝) (D39H)", "煙三文魚500g (D80A)", "煙三文魚100g (D80AA)", "急凍三文魚柳 (D80C)"] },
-            { cat: "急凍海產類--3", items: ["多春魚 (D21BA)", "生龍蝦尾 (D71)", "有頭虎蝦 4/6 (D03LEB)", "有頭虎蝦 6/8 (D03LEA)", "有頭虎蝦 8/10 (D03LE)", "有頭虎蝦 13/15 (D03LC)", "有頭虎蝦 16/20 (D03LCA)", "原隻熟蝦 (D03MB)", "天婦羅蝦5L (D10ED)", "急凍熟波斯頓龍蝦 (D70)", "蝦仁磚21/25 (D03LJ)", "蝦仁磚70/90 (D03LK)", "無頭虎蝦16/20 (D03LB)", "海赤蝦9L (D10JD)"] },
-            { cat: "急凍海產類--4", items: ["熟帝皇蟹腳4L (D72CA)", "生帝皇蟹腳4L (D72C)", "竹田螃蟹醬 (C58)", "越河蟹肉味噌 (C58AB)", "越河蟹蓋 (C58AC)", "松葉蟹肉碎 (D59D)", "軟殼蟹(少冰，約8隻) (D12)", "龍蝦味噌 (C58A)", "混合鱈蟹肉500g (D59H)", "軟殼蟹(少冰，約9隻) (D12A)", "二本爪M (D60G)", "二本爪L (D60H)", "熟蟹拐棒500g (D72EC)", "熟雪蟹棒肉L (D72ED)", "罐頭蟹肉CLAW (D59EA)"] },
-            { cat: "肉類1", items: ["手羽明太子雞翼 (E03)", "手羽芝士豬肉雞翼 (E03A)", "生雞膝軟骨粒 (D88C)", "芝麻雞翼 (E03F)", "明太子雞翼（日本） (E03K)", "無激素雞扒 (M008C)", "日式炭燒雞扒 (E03JA)", "煙鴨胸 (D76A)", "巴西雞扒 (M008E)", "雞中翼 (M008D)", "華味鳥雞腎 (D88GA)", "華味鳥雞心肝 (D88GB)", "CP炸雞軟骨粒1kg (D88DA)", "鹽酥雞 (E11C)", "雞骨腸 (E02)"] },
-            { cat: "肉類2", items: ["免治雞肉棒 (D88AD)", "開邊生雞翼串 (D88E)", "炭燒雞腿肉串（盒裝） (D88A)", "秘制五花腩串（碟裝） (D88FG)", "秘制雞皮串（碟裝） (D88FD)", "雞腿肉串（碟裝） (D88FE)", "雞軟骨串 (D88)", "生雞皮串（盒裝） (D88AB)", "生雞腎串(盒裝) (D88AC)", "秘制肥腸（碟裝） (D88FB)", "雞腎串（碟裝） (D88FF)", "羊肉串（碟裝） (D88FH)", "雞亦串（碟裝） (D88FC)"] },
-            { cat: "肉類3", items: ["中國鵝肝 (D30)", "原隻紅酒鵝肝 (D30A)", "鵝肝片 (D30D)", "金磚鵝肝片（紅酒味） (D30E)", "一口牛肉粒 (M004)", "和牛漢堡扒 (H02AA)", "和牛腿肉片 (M003M)", "A4和牛肉眼扒 (M003LA)", "A4和牛肉眼（抄碼） (M003LAA)", "中國鴨肝 (D30B)", "美國肥牛片2K裝 (M003BD)", "巴西牛舌(直條) (M007)", "A4和牛西冷扒 (M003LB)", "A4和牛西冷（抄碼） (M003LBA)"] },
-            { cat: "肉類4", items: ["黑豚肉眼（日本） (M010)", "內蒙古法式羊扒 (M006B)", "一口豚肉 (M004B)", "杜洛克風乾火腿片 (D99)", "日式原條叉燒 (E06)", "日式芝士漢堡扒60g (H02A)", "豬軟骨 (E05)", "日式漢堡扒 (H02)", "煙肉片 (D76B)", "日式叉燒片 (E06A)", "豚肉片2K裝 (M010A)", "香芋地瓜丸 (C30C)", "炸魷魚圈 (D41C)"] },
-            { cat: "日式炸物1", items: ["20g吉列蝦(白糠) (D10E)", "25g吉列蝦（黃糠） (D10EAA)", "KS 芝士年糕 (D65)", "日本吉列蠔 (D64BA)", "日本炸年糕串 (D65C)", "中國吉列蠔 (D64B)", "一口炸芝士 (D65AA)", "包裝吉列豬扒130g (E04EA)", "包裝吉列豬扒100g (E04B)","吉列魚柳 (D61F)", "原箱吉列豬扒130g (E04C)", "日式煎菜肉餃子 (E08)", "黑毛豬炸肉餅 (H03B)", "熔岩海膽魚餅 (D01A)", "炸池魚仔 (D62A)", "無頭甜蝦L50 (D10KC)"] },
-            { cat: "日式炸物2", items: ["吉列牛肉薯餅 (H01A)", "甘栗紫薯餅 (H01F)", "吉列南瓜薯餅 (H01E)", "蟹肉忌廉薯餅 (H01)", "芝士薯餅 (H01G)", "雞皮餃子 (E08AA)", "冷凍面包糠 (C60A)", "炸蟹鉗 (D60F)", "拉絲芝士碎 (D65B)", "日式章魚燒50粒 (E09A)", "日式炸雞塊 (E11)", "天婦羅魷魚500g (D39GA)", "車打芝士片12片 (D65BB)", "雙色芝士碎 (D65BA)"] },
-            { cat: "日式甜品/飲料", items: ["忌廉泡芙 (C29C)", "紅豆和果子 (C30B)", "朱古力泡芙 (C29)", "芝士蛋糕 (C47C)", "獺祭三割九分純米大吟醸 (W004)", "京姬匠純米大吟醸 (W005)", "大嶺三粒米山田錦 (W003A)", "ORION沖繩支裝生啤 (W017A)", "富士山威士忌 (W019)", "木村富士山柚子梳打 (G04F)", "波子汽水(白檸) (G03D)", "木村蜜瓜味汽水 (G04A)", "木村水蜜桃味汽水 (G04B)", "菠蘿波子汽水 (G03E)", "木村蘋果味汽水 (G04)", "Sangaria氣水 橙味 (G01AA)", "Sangaria氣水 原味 (G01BA)", "Sangaria氣水 蜜瓜味 (G01CA)", "Sangaria氣水 提子味 (G01DA)", "日本番薯 (C05A)"] },
-            { cat: "調味料", items: ["QP沙律醬 (C24A)", "丘比凱撒沙律汁 (C24G)", "丘比焙煎芝麻沙律汁 (C24F)", "丘比日式沙律汁 (C24E)", "日本KENKO濃味胡麻沙律汁 (C26)", "KENKO蒜蓉牛油汁 (C26A)", "KENKO蜂蜜芥末醬 (C26AB)", "食研和風沙律汁 (C24B)", "山葵沙律汁 (C26B)", "東字冷面汁（4倍濃縮） (C26G)", "KENKO柚子沙律汁 (C26C)", "日本GFC急凍芥辣 (C28A)", "金印芥茉粉 (C28B)", "S&B支裝青芥辣 (C15)", "東字淡口豉油 (C14E)", "溜溜豉油 (C14I)", "萬字豉油（支裝） (C14G)", "魚生豉油（豐泉） (C14DA)", "日本外賣豉油包 (C14J)", "東丸魚生豉油 (C14C)", "勁辣芥茉粉 (C28)", "食研迷你芥辣包 (C15C)", "山葵醬油漬 (C28D)", "日本東字九州拉麵汁 (C38A)", "5號拉麵汁 (C38)", "桃屋朝鮮醬 (C45)", "神戶鰻魚汁 (C25)", "神戶朝鮮醬 (C25B)", "地獄拉麵汁 (C45A)", "豐泉白湯拉麺汁 (C38B)", "日本黑蒜油 (C79C)", "紅葉辣椒醬 (C45BA)", "味噌湯包 (C53F)", "煮酒 (C36D)", "味醂 (C19B)", "桶裝煮酒 (C36E)", "桶裝味醂 (C19C)", "合成醋KD39（麥近） (C22A)", "桶裝萬字豉油 (C14GA)", "優選醋 (C22D)", "白菊醋（麥近） (C20B)", "大豆白鮫油 (C79)", "江戶前赤醋 (C22E)", "日清麻油1.5L（大支） (C79B)", "穀物醋(麥近) (C20A)", "柚子醋（麥近） (C20BA)", "大滝牛肉火鍋汁 (C42)", "荏原燒肉汁 (C44A)", "檸醋 (C22B)", "舵手豬扒汁 (C44)", "日式燒雞汁 (C44C)", "生姜燒（豐泉） (C25E)", "神戶燒肉汁 (C25A)", "神戶壽喜燒汁 (C25J)", "萬字白昆布木魚汁 (C26KB)", "食研原味烤肉醬 (C34C)", "食研照燒汁 (C25F)", "食研薑味烤肉醬 (C34D)", "食研蒜味烤肉醬 (C34E)", "食研山賊燒醬（黑椒汁） (C34B)", "食研什錦海藻 (C34A)", "薑蓉 (C27C)", "蒜蓉 (C27D)", "S&B七味(包裝) (C56A)", "炸雞粉 (C60)", "木魚花 (C41)", "木魚絲 (C23)", "昭和天婦羅粉 (C43)", "韓國柚子蜜 (C61)", "上白糖 (C51C)", "日本鹽 (C51A)", "味鹽 (C51)", "S&B七味粉 (C56)", "木魚精 (C41A)", "瀬戶風味泡飯素 (C67B)", "味椒鹽 (C51B)", "味付椒鹽 (C51BB)", "S&B咖喱磚 甘口 (C39)", "S&B咖喱磚 辛口 (C39A)", "S&B咖喱磚 中辛 (C39B)", "高吸收熟成膜 (C92)", "黑松露醬 (C49)", "芋絲 (C62A)", "迷迭香 (C01E)", "西京白味噌 (C53A)", "一休味噌 (C53B)", "白芝麻 (C65)", "信洲白味噌 (C53)", "花丸木味噌 (C53D)", "合成醋（麥近） (C22A)", "桶裝煮酒 (C36E)"] },
-            { cat: "麵/烏冬/米/茶", items: ["急凍真打稻庭烏冬 (D82)", "急凍拉麵 (D82A)", "日式乾拉麵120g (C52E)", "凍蕎麥面 (D82E)", "乾葛絲 (C62)", "五木赤面（日本） (C52B)", "日本新潟米 (C69D)", "桶裝醋開關蓋 (C07G)", "飯網 (C17)", "炊飯素 (C67C)", "大麥茶包 (C61B)", "玄米茶 (C61A)"] },
-            { cat: "漬物", items: ["壽司紅薑 (C27)", "壽司白薑 (C27A)", "牛蒡醬油漬 (C31B)", "薑芽(30本) (C27B)", "海葡萄100g (D81A)", "青雞冠草 (C09)", "泡菜（400g） (C87B)", "大L蘿白 (C31)", "味噌蒜頭漬 (C31C)", "紅雞冠草 (C09A)", "味付筍 (C31D)", "青海草 (C10AA)"] },
-            { cat: "伴碟/乾貨/工具", items: ["軍艦紫菜50片 (C18A)", "壽司紫菜50片 (C18C)", "神戶切絲紫菜 (C18E)", "單翼手捲海苔 (C18F)", "日出昆布 (C57)", "碎海草 (C10A)", "海苔粉 (C18G)", "紫菜杯 (C18J)", "日高昆布 (C57A)", "山形膠葉 (C01B)", "櫻花蝦乾500g (C03)", "櫻花蝦乾90g (C03A)", "醫用丁晴手套 S (C50BA)", "醫用丁晴手套 M (C50BB)", "醫用丁晴手套 L (C50BC)", "保鮮綿紙M (C70)", "914保鮮紙 (C914SC)", "912保鮮紙 (C912SC)", "910保鮮紙 (C910SC)", "613錫紙 (C613)", "3寸木皮船 (C04C)", "手套S (C50AA)", "手套M (C50AB)", "天婦羅紙 (C43A)", "木盒 (C07)", "細木盒 (C07A)", "日本JFDA消毒酒精 (C50D)"] }
-        ];
+    // 儲存鍵值
+    let storageKey = ""; 
+    let profileKey = ""; 
+    let itemCounts = {}; 
+    let learnedFrequent = []; 
+    let presetFrequent = []; // 專門給老客戶的預設清單
 
-        // 2. 初始化核心變數
-        let currentClientBoxItems = []; 
-        let currentClientAliasCodes = {}; 
-        let currentSalesPhone = ""; 
-        let salesID = "A"; 
-        let customerName = ""; 
-        let customerCode = "";
+    const outOfStockCodes = ["D58C","D10F","D10A","D10D","D09M","D09G"];
+    const eelProducts = ["D22J", "D22L", "D22", "D22C", "D22A", "D22D", "D22I", "D22G"];
+    const weightedProducts = ["D61B", "D61C", "D18A", "D17E", "D17C", "B01", "D18"];
+    
+    // 產品清單
+    const fullCatalog = [
+        { cat: "環球海膽", items: ["膠盒海膽 (A06F)", "加拿大海膽 (A03)", "澳洲海膽 (A08)", "練海膽醬 (C59)", "凍海膽漿 (D01)", "紫海膽(膠盒) (A07C)", "墨西哥海膽 (A12A)", "墨西哥海膽10格 (A12B)", "本地海膽 (A02)", "凍熟馬糞膽 (A06E)"] },
+        { cat: "日本海膽", items: ["A Grade(直排) (AJ1)", "A Grade(亂排) (AJ4)", "B Grade(亂排) (AJ3)", "鹽水海膽 (AJ6)"] },
+        { cat: "鮮活海產類", items: ["活赤貝 (B01)", "油甘魚 (B50B)", "三文魚 (B14)", "鮮三文魚(加工)-6邊/箱 (B14AA)", "鮮三文魚(箱)-3條/箱 (B14C)", "鮮三文魚柳 (B14H)"] },
+        { cat: "日本鮮貨", items: ["鮮大拖羅腹1（赤身附） (B67A)", "鮮大拖羅腹2（赤身附） (B67B)", "鮮吞拿魚赤身（去血合） (B67C)", "間八 (B04)", "細池魚 (B55A)", "金目鯛 (B74C)", "蜜柑鯛 (B20E)", "真鯛 (B20G)", "鯖魚 (B73)", "平目 (B74G)", "魴鮄 (B55D)", "活北寄貝 (B09)", "鮮帶子肉(生食用) (B13)", "令和之怪物 (B08SB)", "太刀魚 (B55E)", "伊左木 (B74F)", "活粒貝 (B02E)", "即食生蠔300g (B08TB)"] },
+        { cat: "新鮮蔬菜/裝飾花葉", items: ["大葉 (C01)", "綠楓葉 (C01FA)", "紅楓葉 (C01FB)", "日本小菊（黃） (C01CA)", "青椒仔 (C01CJ)", "萬能蔥 (C01CH)", "迷你食用玫瑰 (C01CO)", "南瓜 (C05)", "竹葉 (C04)", "三支葉 (C01F)", "花穗紫蘇 (C01CB)", "水菜 (C01CK)", "立桂 (C01CG)", "紅椒絲 (C01D)", "日本番薯 (C05A)"] },
+        { cat: "刺身壽司用料（蝦類）", items: ["牡丹蝦L(黑盒) (D03A)", "牡丹蝦XL(黑盒) (D03)", "牡丹蝦J(黑盒) (D03B)", "ATC牡丹蝦XJ (D04D)", "阿根廷赤蝦 L1 (D10JA)", "阿根廷赤蝦 L2 (D10JAA)", "原隻有頭甜蝦 LA (D10F)", "原隻有頭甜蝦 2L (D10)", "原隻有頭甜蝦 3L (D10A)", "原隻有頭甜蝦 4L (D10D)", "天使蝦 (D10M)", "海赤蝦8L (D10JE)", "海赤蝦9L (D10JD)", "無頭甜蝦M50 (D10K)", "無頭甜蝦L50 (D10KC)", "壽司熟蝦 3L (D03DD)", "壽司熟蝦 4L (D03DC)", "虎蝦刺身8g (D10N)", "虎蝦刺身10g (D10NA)", "海膽蝦2L (D03G)", "壽司玻璃蝦3L (D03CA)", "壽司熟蝦 7L (D03DA)", "壽司熟蝦 8L (D03D)"] },
+        { cat: "刺身壽司用料（帶子及貝殼類）", items: ["日本刺身帶子 5S (D09GA)", "日本刺身帶子 4S (D09D)", "日本刺身帶子 3S (D09B)", "日本刺身帶子 2S (D09F)", "日本刺身帶子 S (D09A)", "日本刺身帶子 M (D09)", "日本刺身帶子 L (D09C)", "日本刺身帶子 2L (D09M)", "日本刺身帶子 3L (D09G)", "刺身帶子S 500g (D09AB)", "調味扇貝切片8g (D09LA)", "北寄貝L (D47A)", "北寄貝M (D47)", "北寄貝片 (D47B)", "馬刀貝6g (D07)", "馬刀貝10g (D07A)", "赤貝肉21/25 (D48A)", "赤貝肉16/20 (D48B)", "赤貝片7g (D48E)", "赤貝片8g (D48G)", "刺身海螺片(馬刀貝25g) (D07F)", "刺身赤螺片 (D07BA)", "榮螺片 (D07B)", "象拔蚌片 (D44B)", "冰山蚌片刺身 (D44D)"] },
+        { cat: "刺身壽司用料（魚類）", items: ["急凍油甘魚柳（半邊） (D69)", "螢光魷魚沖漬 (D41AB)", "油甘魚鮫 (D69B)", "凍熟螢光魷魚 (D41F)", "日本紋甲魷魚500g (D39B)", "1K紋甲魷魚 (D39BA)", "壽司墨魚片(8g) (D39)", "刺身池魚片 (D62)", "八爪魚切粒 (D05F)", "中國大八爪 (D05C)", "日本大八爪AAA (D05)", "八爪魚片 (D05B)", "A級八爪魚片 (D05BA)", "左口魚邊刺身1K (D58A)", "左口魚邊刺身20片 (D58)", "特級左口魚邊刺身 (D58C)", "左口魚邊刺身（中國） (D58B)", "臺灣鯛魚柳 (D61C)", "醋青魚柳 (D42)", "安康魚肝 (D31A)", "中國鯛魚柳 (D61B)", "冰頭漬 (D83)", "針魚片 (D25)", "大劍魚腩(有皮) (D18)", "細劍魚腩(有皮) (D18A)"] }, 
+        { cat: "刺身壽司用料（吞拿魚/TORO）", items: ["日本大TORO (D17D)", "日本中TORO (D17DD)", "赤身A（日本） (D17G)", "急凍腦天 (D17DE)", "吞拿魚酒盜（紅） (C31H)", "鮪魚腩碎(築地) (D79)", "日本仿拖羅油脂 (D79A)", "吞拿魚4A (D17C)", "印尼中拖羅 (D17E)", "鰹魚酒盜（黃） (C31G)"] },
+        { cat: "刺身壽司用料（魚籽類）", items: ["山十三文魚籽大粒 (D19ER)", "大粒蟹籽 (D21)", "中粒蟹籽 (D21A)", "鱒魚籽（醬油漬） (D19EA)", "黑色飛魚籽 (D21AA)", "250g裝三文魚籽 (D19EK)", "明太子蓉 (D57A)", "希靈魚籽(黃色) (D51)", "日本芝士蟹籽 (D21D)", "希靈魚籽（獨立包裝） (D51B)", "鱘魚子醬5g (D21FC)", "鱘魚子醬10g (D21FA)", "鱘魚子醬30g (D21FB)", "三文魚籽醬油漬(大粒) (D19E)"] }, 
+        { cat: "蒲燒鰻魚/鯖魚", items: ["蒲燒鰻魚 30尾 (D22J)", "蒲燒鰻魚 35尾 (D22L)", "蒲燒鰻魚 40尾 (D22)", "蒲燒鰻魚 45尾 (D22C)", "蒲燒鰻魚 50尾 (D22A)", "蒲燒鰻魚 60尾 (D22D)", "蒲燒鰻魚 80尾 (D22I)", "蒲燒鰻魚 100尾 (D22G)", "鰻魚粒 (D22H)", "原條海鰻(穴子) (D15B)", "開邊青魚100尾 (D42A)", "開邊青魚70尾 (D42AB)", "獨立開邊青魚 (D42AA)", "真空原條鰻魚 (D22E)", "鰻魚片8g (D22FA)", "鰻魚片10g (D22FB)", "鰻魚片16g (D22FC)"] },
+        { cat: "刺身壽司用料（蟹柳/其他）", items: ["仿皇帝淨蟹棒肉（K裝） (D46A)", "AHJIKAN仿皇帝蟹柳 (D46AA)", "泰國仿松葉蟹棒 (D46B)", "白鬆弛熊魚蛋 (D16BB)", "黃鬆弛熊魚蛋 (D16BA)", "臺灣貴妃鮑片 (D66A)", "味付三角油楊 (D68)", "無味油楊 (D68B)", "大崎蟹柳 (D60D)", "大勝蟹柳 (D46C)", "珍寶蟹棒 (D46F)", "鳴門卷 (D16)", "厚燒玉子 (D06A)", "日本壽司蛋 (D06)", "切絲蛋 (D06C)"] },
+        { cat: "軍艦和日式小食", items: ["中華沙律2kg (D52)", "芝麻八爪仔2kg (D50)", "螺肉2kg (D53)", "帶子裙邊2kg (D54)", "芥辣熟八爪魚 (D50A)", "明太子沙律(中國) (D57)", "黃金魷魚 (D49)", "中華沙律400g (D52A)", "味付螺肉400g (D53A)", "芝麻八爪魚400g (D50AA)", "帶子裙邊400g (D54A)", "味附墨魚仔 (D53B)", "芥辣生八爪魚 (D50B)", "龍蝦沙律 (D55)", "櫻花魷魚 (D49B)", "海膽魷魚（日本） (D49C)", "芥辣生八爪100g (D50BB)", "北寄貝沙律 (D56)", "凍柚子皮 (C31F)", "急凍枝豆 (D84)", "燒雪魚棒 (C54)", "味淋魚乾 (C35A)", "紅魚鬆粉 (C67)", "十勝紅豆 (C30E)", "美國LIGO粟米粒 (D96B)", "迷你燒甜薯 (C30)"] },
+        { cat: "急凍海產類--1", items: ["熟帆立貝M (D09HC)", "熟帆立貝L (D09HA)", "熟帆立貝2L (D09H)", "熟帆立貝5S (D09HB)", "半殼元貝8-10cm (D43)", "扇貝柱IQ (熟食) (D02B)", "加拿大翡翠螺 (D29)", "帶殼即食蜆 (D97)", "急凍東風螺 (D07G)", "廣島蠔2L (D64)", "廣島蠔3L (D64AE)", "半殼青口M (F03)", "智利藍青口40/70 (F03B)", "日式磯煮鮑魚 (D74A)", "滋味鮑魚肉200g (D74C)"] },
+        { cat: "急凍海產類--2", items: ["原隻魷魚桶26/30 (D39D)", "原隻魷魚桶(獨立) (D39DA)", "阿根廷魷魚一夜干 (D39HA)", "銀鱈魚5-7磅 (D26)", "韓國半殼蠔 (F01DB)", "急凍殼付生蠔(刺身級) (F01GB)", "原味無骨魚塊 (D61HC)", "日本魷魚一夜干(2隻裝) (D39H)", "煙三文魚500g (D80A)", "煙三文魚100g (D80AA)", "急凍三文魚柳 (D80C)"] },
+        { cat: "急凍海產類--3", items: ["多春魚 (D21BA)", "生龍蝦尾 (D71)", "有頭虎蝦 4/6 (D03LEB)", "有頭虎蝦 6/8 (D03LEA)", "有頭虎蝦 8/10 (D03LE)", "有頭虎蝦 13/15 (D03LC)", "有頭虎蝦 16/20 (D03LCA)", "原隻熟蝦 (D03MB)", "天婦羅蝦5L (D10ED)", "急凍熟波斯頓龍蝦 (D70)", "蝦仁磚21/25 (D03LJ)", "蝦仁磚70/90 (D03LK)", "無頭虎蝦16/20 (D03LB)", "海赤蝦9L (D10JD)"] },
+        { cat: "急凍海產類--4", items: ["熟帝皇蟹腳4L (D72CA)", "生帝皇蟹腳4L (D72C)", "竹田螃蟹醬 (C58)", "越河蟹肉味噌 (C58AB)", "越河蟹蓋 (C58AC)", "松葉蟹肉碎 (D59D)", "軟殼蟹(少冰，約8隻) (D12)", "龍蝦味噌 (C58A)", "混合鱈蟹肉500g (D59H)", "軟殼蟹(少冰，約9隻) (D12A)", "二本爪M (D60G)", "二本爪L (D60H)", "熟蟹拐棒500g (D72EC)", "熟雪蟹棒肉L (D72ED)", "罐頭蟹肉CLAW (D59EA)"] },
+        { cat: "肉類1", items: ["手羽明太子雞翼 (E03)", "手羽芝士豬肉雞翼 (E03A)", "生雞膝軟骨粒 (D88C)", "芝麻雞翼 (E03F)", "明太子雞翼（日本） (E03K)", "無激素雞扒 (M008C)", "日式炭燒雞扒 (E03JA)", "煙鴨胸 (D76A)", "巴西雞扒 (M008E)", "雞中翼 (M008D)", "華味鳥雞腎 (D88GA)", "華味鳥雞心肝 (D88GB)", "CP炸雞軟骨粒1kg (D88DA)", "鹽酥雞 (E11C)", "雞骨腸 (E02)"] },
+        { cat: "肉類2", items: ["免治雞肉棒 (D88AD)", "開邊生雞翼串 (D88E)", "炭燒雞腿肉串（盒裝） (D88A)", "秘制五花腩串（碟裝） (D88FG)", "秘制雞皮串（碟裝） (D88FD)", "雞腿肉串（碟裝） (D88FE)", "雞軟骨串 (D88)", "生雞皮串（盒裝） (D88AB)", "生雞腎串(盒裝) (D88AC)", "秘制肥腸（碟裝） (D88FB)", "雞腎串（碟裝） (D88FF)", "羊肉串（碟裝） (D88FH)", "雞亦串（碟裝） (D88FC)"] },
+        { cat: "肉類3", items: ["中國鵝肝 (D30)", "原隻紅酒鵝肝 (D30A)", "鵝肝片 (D30D)", "金磚鵝肝片（紅酒味） (D30E)", "一口牛肉粒 (M004)", "和牛漢堡扒 (H02AA)", "和牛腿肉片 (M003M)", "A4和牛肉眼扒 (M003LA)", "A4和牛肉眼（抄碼） (M003LAA)", "中國鴨肝 (D30B)", "美國肥牛片2K裝 (M003BD)", "巴西牛舌(直條) (M007)", "A4和牛西冷扒 (M003LB)", "A4和牛西冷（抄碼） (M003LBA)"] },
+        { cat: "肉類4", items: ["黑豚肉眼（日本） (M010)", "內蒙古法式羊扒 (M006B)", "一口豚肉 (M004B)", "杜洛克風乾火腿片 (D99)", "日式原條叉燒 (E06)", "日式芝士漢堡扒60g (H02A)", "豬軟骨 (E05)", "日式漢堡扒 (H02)", "煙肉片 (D76B)", "日式叉燒片 (E06A)", "豚肉片2K裝 (M010A)", "香芋地瓜丸 (C30C)", "炸魷魚圈 (D41C)"] },
+        { cat: "日式炸物1", items: ["20g吉列蝦(白糠) (D10E)", "25g吉列蝦（黃糠） (D10EAA)", "KS 芝士年糕 (D65)", "日本吉列蠔 (D64BA)", "日本炸年糕串 (D65C)", "中國吉列蠔 (D64B)", "一口炸芝士 (D65AA)", "包裝吉列豬扒130g (E04EA)", "包裝吉列豬扒100g (E04B)","吉列魚柳 (D61F)", "原箱吉列豬扒130g (E04C)", "日式煎菜肉餃子 (E08)", "黑毛豬炸肉餅 (H03B)", "熔岩海膽魚餅 (D01A)", "炸池魚仔 (D62A)", "無頭甜蝦L50 (D10KC)"] },
+        { cat: "日式炸物2", items: ["吉列牛肉薯餅 (H01A)", "甘栗紫薯餅 (H01F)", "吉列南瓜薯餅 (H01E)", "蟹肉忌廉薯餅 (H01)", "芝士薯餅 (H01G)", "雞皮餃子 (E08AA)", "冷凍面包糠 (C60A)", "炸蟹鉗 (D60F)", "拉絲芝士碎 (D65B)", "日式章魚燒50粒 (E09A)", "日式炸雞塊 (E11)", "天婦羅魷魚500g (D39GA)", "車打芝士片12片 (D65BB)", "雙色芝士碎 (D65BA)"] },
+        { cat: "日式甜品/飲料", items: ["忌廉泡芙 (C29C)", "紅豆和果子 (C30B)", "朱古力泡芙 (C29)", "芝士蛋糕 (C47C)", "獺祭三割九分純米大吟醸 (W004)", "京姬匠純米大吟醸 (W005)", "大嶺三粒米山田錦 (W003A)", "ORION沖繩支裝生啤 (W017A)", "富士山威士忌 (W019)", "木村富士山柚子梳打 (G04F)", "波子汽水(白檸) (G03D)", "木村蜜瓜味汽水 (G04A)", "木村水蜜桃味汽水 (G04B)", "菠蘿波子汽水 (G03E)", "木村蘋果味汽水 (G04)", "Sangaria氣水 橙味 (G01AA)", "Sangaria氣水 原味 (G01BA)", "Sangaria氣水 蜜瓜味 (G01CA)", "Sangaria氣水 提子味 (G01DA)", "日本番薯 (C05A)"] },
+        { cat: "調味料", items: ["QP沙律醬 (C24A)", "丘比凱撒沙律汁 (C24G)", "丘比焙煎芝麻沙律汁 (C24F)", "丘比日式沙律汁 (C24E)", "日本KENKO濃味胡麻沙律汁 (C26)", "KENKO蒜蓉牛油汁 (C26A)", "KENKO蜂蜜芥末醬 (C26AB)", "食研和風沙律汁 (C24B)", "山葵沙律汁 (C26B)", "東字冷面汁（4倍濃縮） (C26G)", "KENKO柚子沙律汁 (C26C)", "日本GFC急凍芥辣 (C28A)", "金印芥茉粉 (C28B)", "S&B支裝青芥辣 (C15)", "東字淡口豉油 (C14E)", "溜溜豉油 (C14I)", "萬字豉油（支裝） (C14G)", "魚生豉油（豐泉） (C14DA)", "日本外賣豉油包 (C14J)", "東丸魚生豉油 (C14C)", "勁辣芥茉粉 (C28)", "食研迷你芥辣包 (C15C)", "山葵醬油漬 (C28D)", "日本東字九州拉麵汁 (C38A)", "5號拉麵汁 (C38)", "桃屋朝鮮醬 (C45)", "神戶鰻魚汁 (C25)", "神戶朝鮮醬 (C25B)", "地獄拉麵汁 (C45A)", "豐泉白湯拉麺汁 (C38B)", "日本黑蒜油 (C79C)", "紅葉辣椒醬 (C45BA)", "味噌湯包 (C53F)", "煮酒 (C36D)", "味醂 (C19B)", "桶裝煮酒 (C36E)", "桶裝味醂 (C19C)", "合成醋KD39（麥近） (C22A)", "桶裝萬字豉油 (C14GA)", "優選醋 (C22D)", "白菊醋（麥近） (C20B)", "大豆白鮫油 (C79)", "江戶前赤醋 (C22E)", "日清麻油1.5L（大支） (C79B)", "穀物醋(麥近) (C20A)", "柚子醋（麥近） (C20BA)", "大滝牛肉火鍋汁 (C42)", "荏原燒肉汁 (C44A)", "檸醋 (C22B)", "舵手豬扒汁 (C44)", "日式燒雞汁 (C44C)", "生姜燒（豐泉） (C25E)", "神戶燒肉汁 (C25A)", "神戶壽喜燒汁 (C25J)", "萬字白昆布木魚汁 (C26KB)", "食研原味烤肉醬 (C34C)", "食研照燒汁 (C25F)", "食研薑味烤肉醬 (C34D)", "食研蒜味烤肉醬 (C34E)", "食研山賊燒醬（黑椒汁） (C34B)", "食研什錦海藻 (C34A)", "薑蓉 (C27C)", "蒜蓉 (C27D)", "S&B七味(包裝) (C56A)", "炸雞粉 (C60)", "木魚花 (C41)", "木魚絲 (C23)", "昭和天婦羅粉 (C43)", "韓國柚子蜜 (C61)", "上白糖 (C51C)", "日本鹽 (C51A)", "味鹽 (C51)", "S&B七味粉 (C56)", "木魚精 (C41A)", "瀬戶風味泡飯素 (C67B)", "味椒鹽 (C51B)", "味付椒鹽 (C51BB)", "S&B咖喱磚 甘口 (C39)", "S&B咖喱磚 辛口 (C39A)", "S&B咖喱磚 中辛 (C39B)", "高吸收熟成膜 (C92)", "黑松露醬 (C49)", "芋絲 (C62A)", "迷迭香 (C01E)", "西京白味噌 (C53A)", "一休味噌 (C53B)", "白芝麻 (C65)", "信洲白味噌 (C53)", "花丸木味噌 (C53D)", "合成醋（麥近） (C22A)", "桶裝煮酒 (C36E)"] },
+        { cat: "麵/烏冬/米/茶", items: ["急凍真打稻庭烏冬 (D82)", "急凍拉麵 (D82A)", "日式乾拉麵120g (C52E)", "凍蕎麥面 (D82E)", "乾葛絲 (C62)", "五木赤面（日本） (C52B)", "日本新潟米 (C69D)", "桶裝醋開關蓋 (C07G)", "飯網 (C17)", "炊飯素 (C67C)", "大麥茶包 (C61B)", "玄米茶 (C61A)"] },
+        { cat: "漬物", items: ["壽司紅薑 (C27)", "壽司白薑 (C27A)", "牛蒡醬油漬 (C31B)", "薑芽(30本) (C27B)", "海葡萄100g (D81A)", "青雞冠草 (C09)", "泡菜（400g） (C87B)", "大L蘿白 (C31)", "味噌蒜頭漬 (C31C)", "紅雞冠草 (C09A)", "味付筍 (C31D)", "青海草 (C10AA)"] },
+        { cat: "伴碟/乾貨/工具", items: ["軍艦紫菜50片 (C18A)", "壽司紫菜50片 (C18C)", "神戶切絲紫菜 (C18E)", "單翼手捲海苔 (C18F)", "日出昆布 (C57)", "碎海草 (C10A)", "海苔粉 (C18G)", "紫菜杯 (C18J)", "日高昆布 (C57A)", "山形膠葉 (C01B)", "櫻花蝦乾500g (C03)", "櫻花蝦乾90g (C03A)", "醫用丁晴手套 S (C50BA)", "醫用丁晴手套 M (C50BB)", "醫用丁晴手套 L (C50BC)", "保鮮綿紙M (C70)", "914保鮮紙 (C914SC)", "912保鮮紙 (C912SC)", "910保鮮紙 (C910SC)", "613錫紙 (C613)", "3寸木皮船 (C04C)", "手套S (C50AA)", "手套M (C50AB)", "天婦羅紙 (C43A)", "木盒 (C07)", "細木盒 (C07A)", "日本JFDA消毒酒精 (C50D)"] }
+    ];
+    
+    let productMap = {}, cart = {}, cartUnits = {}, cartModal = null, unitModal = null, pendingProductCode = null, setupModal = null;
+    
+    // 為了確保不覆蓋您的產品表，這段代碼請貼在 fullCatalog 定義之後
+    // 或者您確認 fullCatalog 變數還在您的文件裡
+    
+    function init() {
+        productMap = {}; 
+        // 這裡依賴上面的 fullCatalog，請確保它存在
+        if(typeof fullCatalog !== 'undefined') {
+            fullCatalog.forEach(c=>{c.items.forEach(i=>{const m=i.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);if(m)productMap[m[2]]={fullName:i,name:m[1],code:m[2]}})});
+        }
+
+        // 3. 識別身份系統
+        identifyUser();
         
-        let storageKey = ""; 
-        let profileKey = ""; 
-        let itemCounts = {}; 
-        let learnedFrequent = []; 
-        let presetFrequent = []; 
-        let productMap = {}; // 這裡直接使用全局定義
-        let cart = {};
-        let cartUnits = {};
-        let cartModal, unitModal, setupModal; 
-        let pendingProductCode = null;
-
-        const outOfStockCodes = ["D58C","D10F","D10A","D10D","D09M","D09G"];
-        const eelProducts = ["D22J", "D22L", "D22", "D22C", "D22A", "D22D", "D22I", "D22G"];
-        const weightedProducts = ["D61B", "D61C", "D18A", "D17E", "D17C", "B01", "D18"];
+        loadCart(); renderFrequent(); renderAll();
         
-        function init() {
-            // 初始化 Bootstrap Modals
-            cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
-            unitModal = new bootstrap.Modal(document.getElementById('unitSelectionModal'));
-            setupModal = new bootstrap.Modal(document.getElementById('setupModal'));
+        cartModal=new bootstrap.Modal(document.getElementById('cartModal')); 
+        unitModal=new bootstrap.Modal(document.getElementById('unitSelectionModal'));
+        setupModal=new bootstrap.Modal(document.getElementById('setupModal'));
 
-            // 1. 返回按鈕邏輯 (這裡確保有 btn)
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('source') === 'admin') {
-                const btn = document.getElementById('backToAdminBtn');
-                if(btn) {
-                    btn.style.display = 'block';
-                    btn.onclick = function() {
-                        window.location.href = 'admin.html';
-                    };
-                }
-            }
-
-            // 2. 構建產品地圖 (直接使用 fullCatalog，不再依賴外部文件！)
-            productMap = {};
-            fullCatalog.forEach(cat => {
-                cat.items.forEach(s => {
-                    let n = s, c = 'UNKNOWN';
-                    // 解析 "產品名 (代碼)" 格式
-                    const m = s.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);
-                    if(m){ n = m[1]; c = m[2]; } else { c = s.replace(/[^a-zA-Z0-9]/g,''); }
-                    
-                    productMap[c] = {
-                        name: n,
-                        code: c,
-                        cat: cat.cat,
-                        fullName: s,
-                        oos: outOfStockCodes.includes(c)
-                    };
-                });
-            });
-
-            // 3. 識別用戶與渲染頁面
-            identifyUser();
-            renderAll();
-            renderFrequent();
-            loadCart(); 
-            calcTotal();
-
-            // 監聽滾動優化
-            window.addEventListener('scroll', function() {
-                const s = document.getElementById('searchBar');
-                if(s) {
-                    if(window.scrollY > 50 && document.getElementById('searchInput').value === '') s.style.display = 'block';
-                }
-            });
+        // 如果是新客戶且未設定過，才彈窗
+        if(presetFrequent.length === 0 && (!customerName || !customerCode)){
+            openSetupModal(false);
+        }
+    }
+    
+    function identifyUser() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientID = urlParams.get('id');
+        
+        // 控制「登出」按鈕的顯示
+        const logoutBtn = document.querySelector('.btn-logout');
+        
+        if (clientID && typeof clientDB !== 'undefined' && clientDB[clientID]) {
+            // === 老客戶模式 ===
+            const client = clientDB[clientID];
+            customerName = client.name;
+            // 👇 讀取箱貨名單，如果沒有就給個空數組
+        if (client.box_items) {
+            currentClientBoxItems = client.box_items;
+        } else {
+            currentClientBoxItems = [];
+        }
+            customerCode = client.realID || clientID;
+            salesID = client.sales || "A"; 
+            presetFrequent = client.list || []; 
+            
+            document.getElementById('displayClientName').innerHTML = customerName;
+            document.getElementById('displayClientCode').innerText = customerCode;
+            document.querySelector('.top-info > div:first-child').onclick = null;
+            
+            // 老客戶隱藏登出按鈕
+            if(logoutBtn) logoutBtn.style.display = 'none';
+            
+        } else {
+            // === 新客戶模式 ===
+            salesID = urlParams.get('sales') || "A";
+            profileKey = "gen_profile_" + salesID; 
+            customerName = localStorage.getItem(profileKey + "_name") || "";
+            customerCode = localStorage.getItem(profileKey + "_code") || "";
+            updateClientInfoUI(); 
+            
+            // 新客戶顯示登出按鈕
+            if(logoutBtn) logoutBtn.style.display = 'inline-block';
         }
         
-        function identifyUser() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const clientID = urlParams.get('id');
-            const logoutBtn = document.querySelector('.btn-logout');
-            const clientWrapper = document.getElementById('clientInfoWrapper');
-
-            if (clientID && typeof clientDB !== 'undefined' && clientDB[clientID]) {
-                // === 老客戶模式 ===
-                const client = clientDB[clientID];
-                customerName = client.name;
-                customerCode = client.realID || clientID;
-                salesID = client.sales || "A"; 
-                presetFrequent = client.list || []; 
-
-                if (client.box_items) {
-                    currentClientBoxItems = client.box_items;
-                } else {
-                    currentClientBoxItems = [];
-                }
-
-                if (client.alias_codes) {
-                    currentClientAliasCodes = client.alias_codes;
-                } else {
-                    currentClientAliasCodes = {};
-                }
-                
-                document.getElementById('displayClientName').innerHTML = customerName;
-                document.getElementById('displayClientCode').innerText = customerCode;
-                
-                // 鎖定客戶資料點擊
-                if(clientWrapper) {
-                    clientWrapper.onclick = null; 
-                    clientWrapper.style.pointerEvents = 'none';
-                }
-                
-                if(logoutBtn) logoutBtn.style.display = 'none';
-                storageKey = "client_user_" + clientID;
-
-            } else {
-                // === 新客戶模式 ===
-                salesID = urlParams.get('sales') || "A";
-                profileKey = "gen_profile_" + salesID; 
-                storageKey = "gen_user_" + salesID;
-
-                customerName = localStorage.getItem(profileKey + "_name") || "";
-                customerCode = localStorage.getItem(profileKey + "_code") || "";
-                updateClientInfoUI(); 
-                
-                // 允許新客戶修改資料
-                if(clientWrapper) {
-                    clientWrapper.onclick = openSetupModal;
-                    clientWrapper.style.pointerEvents = 'auto';
-                }
-                
-                if(logoutBtn) logoutBtn.style.display = 'inline-block';
-            }
-            
-            if (typeof salesTeam !== 'undefined' && salesTeam[salesID]) {
-                currentSalesPhone = salesTeam[salesID].phone;
-                document.getElementById('displaySalesName').innerText = "宏達 (" + salesTeam[salesID].name + ")";
-            } else {
-                document.getElementById('displaySalesName').innerText = "宏達批發";
-            }
+        if (typeof salesTeam !== 'undefined' && salesTeam[salesID]) {
+            currentSalesPhone = salesTeam[salesID].phone;
             document.getElementById('displayPhone').innerText = currentSalesPhone;
-            
-            const savedStats = localStorage.getItem(storageKey + '_stats');
-            if(savedStats) { try { itemCounts = JSON.parse(savedStats); } catch(e) {} }
-            learnedFrequent = Object.keys(itemCounts);
+        } else {
+            currentSalesPhone = "63771688";
+            document.getElementById('displayPhone').innerText = currentSalesPhone;
         }
         
-        function openSetupModal(allowClose = true) {
-            document.getElementById('inputClientName').value = customerName;
-            document.getElementById('inputClientCode').value = customerCode;
-            const closeBtn = document.getElementById('setupCloseBtn');
-            closeBtn.style.display = allowClose ? 'block' : 'none';
-            setupModal.show();
+        if (clientID) {
+            storageKey = "client_user_" + clientID;
+        } else {
+            storageKey = "gen_user_" + salesID;
         }
+        
+        const savedStats = localStorage.getItem(storageKey + '_stats');
+        if(savedStats) { try { itemCounts = JSON.parse(savedStats); } catch(e) {} }
+        learnedFrequent = Object.keys(itemCounts);
+    }
+    
+    function openSetupModal(allowClose = true) {
+        document.getElementById('inputClientName').value = customerName;
+        document.getElementById('inputClientCode').value = customerCode;
+        const closeBtn = document.getElementById('setupCloseBtn');
+        closeBtn.style.display = allowClose ? 'block' : 'none';
+        setupModal.show();
+    }
 
-        function saveClientDetails() {
-            const name = document.getElementById('inputClientName').value.trim();
-            const code = document.getElementById('inputClientCode').value.trim();
-            if(!name || !code) { alert("請輸入完整的名稱和編號！"); return; }
-            
-            customerName = name;
-            customerCode = code;
-            localStorage.setItem(profileKey + "_name", customerName);
-            localStorage.setItem(profileKey + "_code", customerCode);
-            
-            updateClientInfoUI();
-            setupModal.hide();
-        }
+    function saveClientDetails() {
+        const name = document.getElementById('inputClientName').value.trim();
+        const code = document.getElementById('inputClientCode').value.trim();
+        if(!name || !code) { alert("請輸入完整的名稱和編號！"); return; }
+        
+        customerName = name;
+        customerCode = code;
+        localStorage.setItem(profileKey + "_name", customerName);
+        localStorage.setItem(profileKey + "_code", customerCode);
+        
+        updateClientInfoUI();
+        setupModal.hide();
+    }
 
-        function updateClientInfoUI() {
-            if(customerName) document.getElementById('displayClientName').innerHTML = customerName + ' <i class="bi bi-pencil-square" style="font-size:0.8em"></i>';
-            if(customerCode) document.getElementById('displayClientCode').innerText = customerCode;
-        }
+    function updateClientInfoUI() {
+        if(customerName) document.getElementById('displayClientName').innerHTML = customerName + ' <i class="bi bi-pencil-square" style="font-size:0.8em"></i>';
+        if(customerCode) document.getElementById('displayClientCode').innerText = customerCode;
+    }
 
-        function logoutUser() {
-            if(confirm("確定要登出並清除此裝置上的客戶資料嗎？\n(常用清單和購物車也會被清空)")) {
-                if(profileKey) {
-                    localStorage.removeItem(profileKey + "_name");
-                    localStorage.removeItem(profileKey + "_code");
-                }
-                localStorage.removeItem(storageKey + '_stats');
-                localStorage.removeItem('orderCart_'+storageKey);
-                localStorage.removeItem('orderUnits_'+storageKey);
-                location.reload(); 
+    function logoutUser() {
+        if(confirm("確定要登出並清除此裝置上的客戶資料嗎？\n(常用清單和購物車也會被清空)")) {
+            if(profileKey) {
+                localStorage.removeItem(profileKey + "_name");
+                localStorage.removeItem(profileKey + "_code");
             }
+            localStorage.removeItem(storageKey + '_stats');
+            localStorage.removeItem('orderCart_'+storageKey);
+            localStorage.removeItem('orderUnits_'+storageKey);
+            location.reload(); 
         }
+    }
+    
+    function getDeliveryDate() {
+        const now = new Date();
+        const hour = now.getHours();
+        let targetDate = new Date(now);
+        if (hour >= 11) targetDate.setDate(targetDate.getDate() + 1);
+        if (targetDate.getDay() === 0) targetDate.setDate(targetDate.getDate() + 1);
         
-        function getDeliveryDate() {
-            const now = new Date();
-            const hour = now.getHours();
-            let targetDate = new Date(now);
-            if (hour >= 11) targetDate.setDate(targetDate.getDate() + 1);
-            if (targetDate.getDay() === 0) targetDate.setDate(targetDate.getDate() + 1);
-            
-            const y = targetDate.getFullYear();
-            const m = String(targetDate.getMonth() + 1).padStart(2, '0');
-            const d = String(targetDate.getDate()).padStart(2, '0');
-            const w = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"][targetDate.getDay()];
-            return `${y}-${m}-${d} (${w})`;
-        }
+        const y = targetDate.getFullYear();
+        const m = String(targetDate.getMonth() + 1).padStart(2, '0');
+        const d = String(targetDate.getDate()).padStart(2, '0');
+        const w = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"][targetDate.getDay()];
+        return `${y}-${m}-${d} (${w})`;
+    }
 
-        function loadCart() {
-            const c=localStorage.getItem('orderCart_'+storageKey), u=localStorage.getItem('orderUnits_'+storageKey);
-            if(c)try{cart=JSON.parse(c)}catch(e){} if(u)try{cartUnits=JSON.parse(u)}catch(e){}
-        }
-        function saveCart() {
-            localStorage.setItem('orderCart_'+storageKey, JSON.stringify(cart));
-            localStorage.setItem('orderUnits_'+storageKey, JSON.stringify(cartUnits));
-        }
+    function loadCart() {
+        const c=localStorage.getItem('orderCart_'+storageKey), u=localStorage.getItem('orderUnits_'+storageKey);
+        if(c)try{cart=JSON.parse(c)}catch(e){} if(u)try{cartUnits=JSON.parse(u)}catch(e){}
+        calcTotal();
+    }
+    function saveCart() {
+        localStorage.setItem('orderCart_'+storageKey, JSON.stringify(cart));
+        localStorage.setItem('orderUnits_'+storageKey, JSON.stringify(cartUnits));
+    }
+    function switchTab(t){document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.nav-link').forEach(e=>e.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');event.target.classList.add('active');if(t==='all'){clearSearch();document.getElementById('searchBar').style.display='block';window.scrollTo(0,0)}else{document.getElementById('searchBar').style.display='none'}}
+    
+    // 👇👇👇 核心修改：渲染常用清單的邏輯優化 👇👇👇
+    function renderFrequent(){
+        const c=document.getElementById('frequentListContent');
+        const emptyMsg = document.getElementById('emptyFrequentMsg');
+        const resetBtn = document.getElementById('btnResetFreq');
+        let h='';
         
-        function switchTab(t){
-            document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(e=>e.classList.remove('active'));
+        // 1. 處理老客戶 (有預設清單)
+        if (presetFrequent.length > 0) {
+            // 先顯示預設的
+            presetFrequent.forEach(code => {
+                const p = productMap[code];
+                if(p) h += createProductRow(p.fullName);
+            });
+
+            // 再計算「最近新增」 (在記憶中，但不在預設名單裡的)
+            // 先排序
+            let sortedKeys = Object.keys(itemCounts).sort((a,b) => {
+                let diff = itemCounts[b] - itemCounts[a];
+                return diff !== 0 ? diff : a.localeCompare(b);
+            });
             
-            let tabId = (t === 'frequent') ? 'tab-frequent' : 'tab-all';
-            let btnId = (t === 'frequent') ? 'tab-freq' : 'tab-all';
-            
-            document.getElementById(tabId).classList.add('active');
-            document.getElementById(btnId).classList.add('active');
-            
-            if(t==='all'){
-                clearSearch();
-                document.getElementById('searchBar').style.display='block';
-                window.scrollTo(0,0);
-            } else {
-                document.getElementById('searchBar').style.display='none';
-            }
-        }
-        
-        function renderFrequent(){
-            const c=document.getElementById('frequentListContent');
-            const emptyMsg = document.getElementById('emptyFrequentMsg');
-            const resetBtn = document.getElementById('btnResetFreq');
-            let h='';
-            
-            if (presetFrequent.length > 0) {
-                // 老客戶：預設清單
-                presetFrequent.forEach(code => {
+            // 過濾掉已經在預設清單裡的
+            let newAddedItems = sortedKeys.filter(code => !presetFrequent.includes(code));
+
+            // 如果有新增的，顯示分隔線
+            if (newAddedItems.length > 0) {
+                h += `<div class="freq-divider">👇 最近新增產品 👇</div>`;
+                newAddedItems.forEach(code => {
                     const p = productMap[code];
                     if(p) h += createProductRow(p.fullName);
                 });
+                
+                // 老客戶顯示「清除最近新增」
+                resetBtn.innerHTML = '<i class="bi bi-trash"></i> 清除最近新增';
+                resetBtn.style.display = 'inline-block';
+            } else {
+                // 如果沒有新增的，老客戶不需要重置按鈕 (因為預設清單刪不掉)
+                resetBtn.style.display = 'none';
+            }
+            
+            emptyMsg.style.display = 'none';
+            c.innerHTML = h;
 
-                // 老客戶：最近新增
-                let sortedKeys = Object.keys(itemCounts).sort((a,b) => {
-                    let diff = itemCounts[b] - itemCounts[a];
-                    return diff !== 0 ? diff : a.localeCompare(b);
+        } else {
+            // 2. 處理新客戶 (無預設清單)
+            let sortedKeys = Object.keys(itemCounts).sort((a,b) => {
+                let diff = itemCounts[b] - itemCounts[a];
+                return diff !== 0 ? diff : a.localeCompare(b);
+            });
+
+            if (sortedKeys.length > 0) {
+                sortedKeys.forEach(code=>{
+                    const p=productMap[code];
+                    if(p) h+=createProductRow(p.fullName);
                 });
-                let newAddedItems = sortedKeys.filter(code => !presetFrequent.includes(code));
-
-                if (newAddedItems.length > 0) {
-                    h += `<div class="freq-divider">👇 最近新增產品 👇</div>`;
-                    newAddedItems.forEach(code => {
-                        const p = productMap[code];
-                        if(p) h += createProductRow(p.fullName);
-                    });
-                    resetBtn.innerHTML = '<i class="bi bi-trash"></i> 清除最近新增';
-                    resetBtn.style.display = 'inline-block';
-                } else {
-                    resetBtn.style.display = 'none';
-                }
                 emptyMsg.style.display = 'none';
+                resetBtn.style.display = 'inline-block'; 
+                // 新客戶顯示「重置常用清單」
+                resetBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> 重置常用清單';
                 c.innerHTML = h;
-
             } else {
-                // 新客戶：學習清單
-                let sortedKeys = Object.keys(itemCounts).sort((a,b) => {
-                    let diff = itemCounts[b] - itemCounts[a];
-                    return diff !== 0 ? diff : a.localeCompare(b);
-                });
-
-                if (sortedKeys.length > 0) {
-                    sortedKeys.forEach(code=>{
-                        const p=productMap[code];
-                        if(p) h+=createProductRow(p.fullName);
-                    });
-                    emptyMsg.style.display = 'none';
-                    resetBtn.style.display = 'inline-block'; 
-                    resetBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> 重置常用清單';
-                    c.innerHTML = h;
-                } else {
-                    emptyMsg.style.display = 'block';
-                    resetBtn.style.display = 'none'; 
-                    c.innerHTML = '';
-                }
+                emptyMsg.style.display = 'block';
+                resetBtn.style.display = 'none'; 
+                c.innerHTML = '';
             }
         }
+    }
 
-        function resetFrequentList() {
-            const isOldClient = presetFrequent.length > 0;
-            const msg = isOldClient 
-                ? "確定要清除「最近新增」的產品記錄嗎？\n(原本的固定清單不會受影響)" 
-                : "確定要重置常用清單嗎？\n這將清空所有自動記憶的產品。";
+    // 👇👇👇 核心修改：重置功能的邏輯優化 👇👇👇
+    function resetFrequentList() {
+        // 判斷是老客戶還是新客戶
+        const isOldClient = presetFrequent.length > 0;
+        const msg = isOldClient 
+            ? "確定要清除「最近新增」的產品記錄嗎？\n(原本的固定清單不會受影響)" 
+            : "確定要重置常用清單嗎？\n這將清空所有自動記憶的產品。";
 
-            if(confirm(msg)) {
-                itemCounts = {};
-                learnedFrequent = [];
-                localStorage.removeItem(storageKey + '_stats');
-                renderFrequent();
-            }
+        if(confirm(msg)) {
+            itemCounts = {};
+            learnedFrequent = [];
+            localStorage.removeItem(storageKey + '_stats');
+            renderFrequent();
         }
-        
-        function renderAll(f=''){
-            const c=document.getElementById('tab-all');
-            let h='';
-            const t=f.toUpperCase().split('');
-            
-            fullCatalog.forEach(cat=>{
-                const items=cat.items.filter(i=>{
-                    if(!f)return true;
-                    const u=i.toUpperCase();
-                    return t.every(x=>u.includes(x))
-                });
-                if(items.length>0){
-                    if(!f)h+=`<div class="cat-header">${cat.cat}</div>`;
-                    items.forEach(i=>h+=createProductRow(i))
-                }
-            });
-            if(h==='')h='<div class="text-center p-5 text-muted">找不到相關產品</div>';
-            c.innerHTML=h + '<div style="height:80px"></div>'; 
-        }
-        
-        function createProductRow(s){
-            let n=s,c='UNKNOWN';
-            const m=s.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);
-            if(m){n=m[1];c=m[2]}else{c=s.replace(/[^a-zA-Z0-9]/g,'')}
+    }
+    
+    function renderAll(f=''){const c=document.getElementById('tab-all');let h='';const t=f.toUpperCase().split('');fullCatalog.forEach(cat=>{const items=cat.items.filter(i=>{if(!f)return true;const u=i.toUpperCase();return t.every(x=>u.includes(x))});if(items.length>0){if(!f)h+=`<div class="cat-header">${cat.cat}</div>`;items.forEach(i=>h+=createProductRow(i))}});if(h==='')h='<div class="text-center p-5 text-muted">找不到相關產品</div>';c.innerHTML=h}
+    
+    function createProductRow(s){
+        let n=s,c='UNKNOWN';
+        const m=s.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);
+        if(m){n=m[1];c=m[2]}else{c=s.replace(/[^a-zA-Z0-9]/g,'')}
 
-            // 黃色原箱標籤
-            if (currentClientBoxItems.includes(c)) {
-                n += ' <span style="background-color:#ffc107; color:#000; padding:1px 5px; border-radius:4px; font-size:0.8rem; font-weight:bold; margin-left:5px;">📦 原箱</span>';
-            }
-
-            if (outOfStockCodes.includes(c)) return `<div class="product-row oos" id="row-${c}"><div class="p-info"><div class="p-name">${n} <span class="oos-badge">🚫 缺貨</span></div><div class="p-code">${c}</div></div><div class="qty-control disabled"><div class="qty-btn disabled">-</div><input type="text" class="qty-input" value="0" readonly disabled><div class="qty-btn disabled">+</div></div></div>`;
-            
-            const q=cart[c]||0; 
-            let val=q, cls='qty-input'; 
-            if(q>0&&cartUnits[c]==='kg'){val+=' K';cls+=' unit-kg'}
-            const sel=q>0?'selected':'';
-            
-            return `<div class="product-row ${sel}" id="row-${c}"><div class="p-info"><div class="p-name">${n}</div><div class="p-code">${c}</div></div><div class="qty-control"><div class="qty-btn" onclick="updateQty('${c}',-1)">-</div><input type="text" class="${cls}" id="qty-${c}" value="${val}" readonly><div class="qty-btn" onclick="updateQty('${c}',1)">+</div></div></div>`
+        // === 👇 新增邏輯：如果是箱貨，給名字加個漂亮標籤 👇 ===
+        if (currentClientBoxItems.includes(c)) {
+            // 加上黃色背景的「原箱」標籤
+            n += ' <span style="background-color:#ffc107; color:#000; padding:1px 5px; border-radius:4px; font-size:0.8rem; font-weight:bold; margin-left:5px;">📦 原箱</span>';
         }
+        // === 👆 新增結束 👆 ===
+
+        if (outOfStockCodes.includes(c)) return `<div class="product-row oos" id="row-${c}"><div class="p-info"><div class="p-name">${n} <span class="oos-badge">🚫 缺貨</span></div><div class="p-code">${c}</div></div><div class="qty-control disabled"><div class="qty-btn disabled">-</div><input type="text" class="qty-input" value="0" readonly disabled><div class="qty-btn disabled">+</div></div></div>`;
         
-        function filterAllProducts(){const v=document.getElementById('searchInput').value;document.getElementById('clearSearchBtn').style.display=v.length?'block':'none';renderAll(v)}
-        function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('clearSearchBtn').style.display='none';renderAll('')}
+        const q=cart[c]||0; let val=q, cls='qty-input'; if(q>0&&cartUnits[c]==='kg'){val+=' K';cls+=' unit-kg'}
+        const sel=q>0?'selected':'';
         
-        function updateQty(c,d){
-            if (outOfStockCodes.includes(c)) return;
-            if(eelProducts.includes(c)){
-                if(d>0&&(!cart[c]||cart[c]===0)){cart[c]=5;cartUnits[c]='kg'}else{if(!cart[c])cart[c]=0;cart[c]+=d*5}
-                if(cart[c]<=0){delete cart[c];delete cartUnits[c]}
-                syncUI(c); return;
-            }
-            if(d>0&&(!cart[c]||cart[c]===0)&&weightedProducts.includes(c)&&!cartUnits[c]){
-                pendingProductCode=c;
-                const leftBtn = document.getElementById('btn-unit-left');
-                const rightBtn = document.getElementById('btn-unit-right');
-                leftBtn.className = 'btn-unit-select';
-                rightBtn.className = 'btn-unit-select';
-                if (c === 'B01') {
-                    leftBtn.classList.add('kg'); leftBtn.innerHTML = '<i class="bi bi-speedometer2"></i> KG<br>(默認)'; leftBtn.onclick = function() { confirmUnit('kg'); };
-                    rightBtn.classList.add('piece'); rightBtn.innerHTML = '<i class="bi bi-box-seam"></i> 隻'; rightBtn.onclick = function() { confirmUnit('piece'); };
-                } else {
-                    leftBtn.classList.add('piece'); leftBtn.innerHTML = '<i class="bi bi-box-seam"></i> 件 / 包<br>(默認)'; leftBtn.onclick = function() { confirmUnit('piece'); };
-                    rightBtn.classList.add('kg'); rightBtn.innerHTML = '<i class="bi bi-speedometer2"></i> KG<br>(公斤)'; rightBtn.onclick = function() { confirmUnit('kg'); };
-                }
-                unitModal.show(); return;
-            }
-            if(!cart[c])cart[c]=0; cart[c]+=d;
+        // 注意：這裡的 ${n} 現在已經包含了我們的標籤 HTML
+        return `<div class="product-row ${sel}" id="row-${c}"><div class="p-info"><div class="p-name">${n}</div><div class="p-code">${c}</div></div><div class="qty-control"><div class="qty-btn" onclick="updateQty('${c}',-1)">-</div><input type="text" class="${cls}" id="qty-${c}" value="${val}" readonly><div class="qty-btn" onclick="updateQty('${c}',1)">+</div></div></div>`
+    }
+    
+    function filterAllProducts(){const v=document.getElementById('searchInput').value;document.getElementById('clearSearchBtn').style.display=v.length?'block':'none';renderAll(v)}
+    function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('clearSearchBtn').style.display='none';renderAll('')}
+    
+    function updateQty(c,d){
+        if (outOfStockCodes.includes(c)) return;
+        if(eelProducts.includes(c)){
+            if(d>0&&(!cart[c]||cart[c]===0)){cart[c]=5;cartUnits[c]='kg'}else{if(!cart[c])cart[c]=0;cart[c]+=d*5}
             if(cart[c]<=0){delete cart[c];delete cartUnits[c]}
-            syncUI(c);
+            syncUI(c); return;
         }
-        
-        function confirmUnit(u){if(pendingProductCode){cartUnits[pendingProductCode]=u;updateQty(pendingProductCode,1);unitModal.hide();pendingProductCode=null}}
-        
-        function syncUI(c){
-            const q=cart[c]||0, u=cartUnits[c];
-            document.querySelectorAll(`#qty-${c}`).forEach(i=>{
-                i.className='qty-input'+(u==='kg'?' unit-kg':'');
-                i.value=q+(u==='kg'?' K':'');
-                const r=i.closest('.product-row');
-                if(r&&!r.classList.contains('modal-row')){q>0?r.classList.add('selected'):r.classList.remove('selected')}
-            });
-            calcTotal(); saveCart(); if(document.getElementById('cartModal').classList.contains('show'))renderCartModalItems();
-        }
-        
-        function clearCart(){if(Object.keys(cart).length===0)return;if(confirm("確定要清空所有已選貨品嗎？")){cart={};cartUnits={};localStorage.removeItem('orderCart_'+storageKey);localStorage.removeItem('orderUnits_'+storageKey);renderFrequent();renderAll();calcTotal();renderCartModalItems()}}
-        
-        function calcTotal(){
-            const count=Object.keys(cart).length; document.getElementById('totalQty').innerText=count;
-            const b=document.getElementById('viewCartBtn');
-            if(count>0){b.classList.add('active');b.disabled=false;b.innerHTML=`<i class="bi bi-cart-check-fill"></i> 查看已選 (${count})`}else{b.classList.remove('active');b.disabled=true;b.innerHTML=`<i class="bi bi-cart3"></i> 查看已選`}
-        }
-        function openCartModal(){renderCartModalItems();cartModal.show()}
-        function renderCartModalItems(){
-            const c=document.getElementById('cartModalBody');
-            if(Object.keys(cart).length===0){c.innerHTML='<div class="text-center p-4 text-muted">尚未選擇任何產品</div>';return}
-            let h=''; for(let k in cart){const p=productMap[k];h+=createProductRow(p?p.fullName:`${k} (未知)`);} c.innerHTML=h;
-        }
-        
-        function sendWhatsApp(mode){
-            if(!customerName || !customerCode) { alert("請先設定客戶資料！"); openSetupModal(); return; }
-            if(Object.keys(cart).length===0){alert("請先選擇產品！");return}
-            
-            const dateStr = getDeliveryDate();
-            let msg=`${customerCode} ${customerName}\n日期：${dateStr}\n訂貨單：\n\n`;
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const clientID = urlParams.get('id');
-            const currentClient = (typeof clientDB !== 'undefined' && clientID) ? clientDB[clientID] : null;
-
-            const fmt = c => {
-                const p = productMap[c];
-                const n = p ? p.name : c;
-                let q = cart[c].toString();
-
-                if(cartUnits[c] === 'kg') { 
-                    q += 'K';
-                } 
-                else if(cartUnits[c] === 'piece' && c === 'B01') { 
-                    q += '隻';
-                } 
-                else if (currentClient && currentClient.box_items && currentClient.box_items.includes(c)) {
-                    q += '箱'; 
-                }
-
-                // 代碼轉換 (Alias)
-                let displayCode = c;
-                if (currentClient && currentClient.alias_codes && currentClient.alias_codes[c]) {
-                    displayCode = currentClient.alias_codes[c];
-                }
-
-                return ` ${q.padEnd(5,' ')} ${n} (${displayCode})\n`;
-            };
-            
-            let codes = Object.keys(cart).sort(); 
-            let hasNewItems = false;
-            for(let c of codes){
-                msg+=fmt(c);
-                if(itemCounts[c]) itemCounts[c]++;
-                else itemCounts[c] = 1;
-                hasNewItems = true;
-            }
-            
-            if(hasNewItems){
-                localStorage.setItem(storageKey + '_stats', JSON.stringify(itemCounts));
-            }
-
-            if (mode === 'direct') {
-                window.open(`https://api.whatsapp.com/send?phone=852${currentSalesPhone}&text=${encodeURIComponent(msg)}`,'_blank');
+        if(d>0&&(!cart[c]||cart[c]===0)&&weightedProducts.includes(c)&&!cartUnits[c]){
+            pendingProductCode=c;
+            const leftBtn = document.getElementById('btn-unit-left');
+            const rightBtn = document.getElementById('btn-unit-right');
+            leftBtn.className = 'btn-unit-select';
+            rightBtn.className = 'btn-unit-select';
+            if (c === 'B01') {
+                leftBtn.classList.add('kg'); leftBtn.innerHTML = '<i class="bi bi-speedometer2"></i> KG<br>(默認)'; leftBtn.onclick = function() { confirmUnit('kg'); };
+                rightBtn.classList.add('piece'); rightBtn.innerHTML = '<i class="bi bi-box-seam"></i> 隻'; rightBtn.onclick = function() { confirmUnit('piece'); };
             } else {
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`,'_blank');
+                leftBtn.classList.add('piece'); leftBtn.innerHTML = '<i class="bi bi-box-seam"></i> 件 / 包<br>(默認)'; leftBtn.onclick = function() { confirmUnit('piece'); };
+                rightBtn.classList.add('kg'); rightBtn.innerHTML = '<i class="bi bi-speedometer2"></i> KG<br>(公斤)'; rightBtn.onclick = function() { confirmUnit('kg'); };
             }
-            
-            setTimeout(() => {
-                cart = {}; cartUnits = {};
-                saveCart();
-                renderAll(); renderFrequent(); calcTotal();
-                if(document.getElementById('cartModal').classList.contains('show')) cartModal.hide();
-            }, 1000);
+            unitModal.show(); return;
         }
-    </script>
+        if(!cart[c])cart[c]=0; cart[c]+=d;
+        if(cart[c]<=0){delete cart[c];delete cartUnits[c]}
+        syncUI(c);
+    }
+    
+    function confirmUnit(u){if(pendingProductCode){cartUnits[pendingProductCode]=u;updateQty(pendingProductCode,1);unitModal.hide();pendingProductCode=null}}
+    
+    function syncUI(c){
+        const q=cart[c]||0, u=cartUnits[c];
+        document.querySelectorAll(`#qty-${c}`).forEach(i=>{
+            i.className='qty-input'+(u==='kg'?' unit-kg':'');
+            i.value=q+(u==='kg'?' K':'');
+            const r=i.closest('.product-row');
+            if(r&&!r.classList.contains('modal-row')){q>0?r.classList.add('selected'):r.classList.remove('selected')}
+        });
+        calcTotal(); saveCart(); if(document.getElementById('cartModal').classList.contains('show'))renderCartModalItems();
+    }
+    
+    function clearCart(){if(Object.keys(cart).length===0)return;if(confirm("確定要清空所有已選貨品嗎？")){cart={};cartUnits={};localStorage.removeItem('orderCart_'+storageKey);localStorage.removeItem('orderUnits_'+storageKey);renderFrequent();renderAll();calcTotal();renderCartModalItems()}}
+    
+    function calcTotal(){
+        const count=Object.keys(cart).length; document.getElementById('totalQty').innerText=count;
+        const b=document.getElementById('viewCartBtn');
+        if(count>0){b.classList.add('active');b.disabled=false;b.innerHTML=`<i class="bi bi-cart-check-fill"></i> 查看已選 (${count})`}else{b.classList.remove('active');b.disabled=true;b.innerHTML=`<i class="bi bi-cart3"></i> 查看已選`}
+    }
+    function openCartModal(){renderCartModalItems();cartModal.show()}
+    function renderCartModalItems(){
+        const c=document.getElementById('cartModalBody');
+        if(Object.keys(cart).length===0){c.innerHTML='<div class="text-center p-4 text-muted">尚未選擇任何產品</div>';return}
+        let h=''; for(let k in cart){const p=productMap[k];h+=createProductRow(p?p.fullName:`${k} (未知)`);} c.innerHTML=h;
+    }
+    
+    function sendWhatsApp(mode){
+        if(!customerName || !customerCode) { alert("請先設定客戶資料！"); openSetupModal(); return; }
+        if(Object.keys(cart).length===0){alert("請先選擇產品！");return}
+        
+        const dateStr = getDeliveryDate();
+        let msg=`${customerCode} ${customerName}\n日期：${dateStr}\n訂貨單：\n\n`;
+        
+        // 1. 獲取當前客戶資料
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientID = urlParams.get('id');
+        const currentClient = (typeof clientDB !== 'undefined' && clientID) ? clientDB[clientID] : null;
+
+        const fmt = c => {
+            const p = productMap[c];
+            const n = p ? p.name : c;
+            let q = cart[c].toString();
+
+            // 2. 單位判斷邏輯
+            if(cartUnits[c] === 'kg') { 
+                q += 'K';
+            } 
+            else if(cartUnits[c] === 'piece' && c === 'B01') { 
+                q += '隻';
+            } 
+            else if (currentClient && currentClient.box_items && currentClient.box_items.includes(c)) {
+                q += '箱'; 
+            }
+
+            // 3. 【新功能】代碼轉換邏輯 (Alias Code)
+            // 默認使用原代碼 c
+            let displayCode = c;
+            // 如果客戶設定了 alias_codes，且當前產品在轉換名單內，就換成新代碼
+            if (currentClient && currentClient.alias_codes && currentClient.alias_codes[c]) {
+                displayCode = currentClient.alias_codes[c];
+            }
+
+            // 4. 組合訊息 (注意這裡用的是 displayCode)
+            return ` ${q.padEnd(5,' ')} ${n} (${displayCode})\n`;
+        };
+        
+        let codes = Object.keys(cart).sort(); 
+        let hasNewItems = false;
+        for(let c of codes){
+            msg+=fmt(c);
+            if(itemCounts[c]) itemCounts[c]++;
+            else itemCounts[c] = 1;
+            hasNewItems = true;
+        }
+        
+        if(hasNewItems){
+            localStorage.setItem(storageKey + '_stats', JSON.stringify(itemCounts));
+        }
+
+        if (mode === 'direct') {
+            window.open(`https://api.whatsapp.com/send?phone=852${currentSalesPhone}&text=${encodeURIComponent(msg)}`,'_blank');
+        } else {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`,'_blank');
+        }
+        
+        setTimeout(() => {
+            cart = {}; cartUnits = {};
+            saveCart();
+            renderAll(); renderFrequent(); calcTotal();
+            if(document.getElementById('cartModal').classList.contains('show')) cartModal.hide();
+        }, 1000);
+    }
+    init();
+</script>
 </body>
 </html>
