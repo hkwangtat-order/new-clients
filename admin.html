@@ -2,241 +2,301 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宏達內部 - 客戶鏈接總控台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宏達客戶鏈接分發中心</title>
     
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#ffc107">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    
-    <style>
-        body { background-color: #f0f2f5; font-family: "Microsoft JhengHei", sans-serif; padding-bottom: 50px; }
-        .header { background: #212529; color: #ffc107; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        /* 導航按鈕樣式 */
-        .nav-pills .nav-link { color: #555; font-weight: bold; background: white; margin: 0 4px; border: 1px solid #ddd; border-radius: 20px; font-size: 0.95rem; padding: 8px 15px; }
-        .nav-pills .nav-link.active { background-color: #ffc107; color: black; border-color: #ffc107; }
-        .nav-scroll { overflow-x: auto; white-space: nowrap; padding-bottom: 15px; -webkit-overflow-scrolling: touch; }
-        
-        /* === 卡片樣式 (V2.6 舒適版) === */
-        .client-card { 
-            background: white; 
-            border-radius: 10px; 
-            padding: 16px 15px; 
-            margin-bottom: 15px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            display: flex; 
-            flex-direction: row; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-left: 5px solid #ddd; 
-            gap: 10px; 
-        }
-        
-        /* === 左側信息 === */
-        .client-info { 
-            flex: 1; 
-            min-width: 0; 
-            margin-right: 5px;
-        }
-        .c-name { 
-            font-size: 1.1rem; 
-            font-weight: bold; 
-            color: #333; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            margin-bottom: 2px;
-            line-height: 1.3;
-        }
-        .c-code { 
-            font-size: 0.8rem; 
-            color: #999; 
-            font-family: monospace; 
-        }
-        
-        /* === 右側按鈕組 === */
-        .btn-group-custom { 
-            display: flex; 
-            gap: 8px; 
-            flex-shrink: 0; 
-        }
-        
-        /* === 按鈕樣式 === */
-        .btn-action { 
-            border: none;
-            color: white;
-            font-weight: bold;
-            font-size: 0.9rem;
-            padding: 8px 14px;
-            border-radius: 6px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            white-space: nowrap;
-            transition: opacity 0.2s;
-            cursor: pointer; 
-        }
-        .btn-action:hover { color: white; opacity: 0.9; }
-        .btn-action:active { transform: scale(0.96); }
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
-        .btn-blue { background-color: #0d6efd; }
-        .btn-green { background-color: #198754; }
+    <style>
+        body { 
+            background-color: #f0f2f5; 
+            font-family: "Microsoft JhengHei", sans-serif; 
+            padding-bottom: 50px;
+        }
+
+        /* === 頂部固定區域 === */
+        .sticky-top-area {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #f0f2f5;
+            padding-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .header-title {
+            background-color: #212529;
+            color: #ffc107;
+            padding: 15px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        /* === 銷售按鈕組 === */
+        .sales-btn-group {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 0 10px;
+            margin-bottom: 10px;
+            -webkit-overflow-scrolling: touch; /* 讓滑動更順暢 */
+        }
         
+        .sales-btn-group::-webkit-scrollbar { display: none; } /* 隱藏滾動條 */
+
+        .btn-sales {
+            white-space: nowrap;
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            background: white;
+            color: #555;
+            transition: all 0.2s;
+        }
+
+        .btn-sales.active {
+            background-color: #ffc107;
+            color: #000;
+            border-color: #ffc107;
+            transform: scale(1.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* === 搜索欄樣式 === */
+        .search-wrapper {
+            padding: 0 15px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #ffc107;
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+        }
+        .search-icon {
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        /* === 客戶列表 === */
+        .client-list {
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-client {
+            background: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.1s;
+        }
+
+        .btn-client:active {
+            transform: scale(0.98);
+            background-color: #fff9db;
+        }
+
+        .client-info { display: flex; flex-direction: column; }
+        .c-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 2px; }
+        .c-code { color: #888; font-size: 0.9rem; font-family: Arial; }
+        .c-icon { font-size: 1.2rem; color: #ccc; }
+
+        .no-result {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+            display: none;
+        }
     </style>
 </head>
-<body>
+<body onload="initAdmin()">
 
-<div class="header">
-    🎯 宏達客戶鏈接分發中心
-</div>
+    <div class="sticky-top-area">
+        <div class="header-title">🎯 宏達客戶鏈接分發中心</div>
+        
+        <div class="sales-btn-group" id="salesBtnContainer">
+            </div>
 
-<div class="container">
-    <div class="nav-scroll">
-        <ul class="nav nav-pills justify-content-center mb-3" id="salesTabs">
-            <li class="nav-item"><button class="nav-link" onclick="filterSales('NEW')"><i class="bi bi-people-fill"></i> 新客戶專用</button></li>
-            
-            <li class="nav-item"><button class="nav-link active" onclick="filterSales('A')">志哥 (A)</button></li>
-            <li class="nav-item"><button class="nav-link" onclick="filterSales('E')">二佬 (E)</button></li>
-            <li class="nav-item"><button class="nav-link" onclick="filterSales('B')">博士 (B)</button></li>
-            <li class="nav-item"><button class="nav-link" onclick="filterSales('C')">嫦姐 (C)</button></li>
-            <li class="nav-item"><button class="nav-link" onclick="filterSales('D')">David (D)</button></li>
-        </ul>
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜尋客戶名稱或編號..." oninput="filterClients()">
+            <i class="bi bi-search search-icon"></i>
+        </div>
     </div>
 
-    <div id="clientListArea"></div>
-</div>
+    <div id="clientList" class="client-list"></div>
+    
+    <div id="noResult" class="no-result">
+        <i class="bi bi-emoji-frown"></i> 找不到相關客戶
+    </div>
 
-<script src="customers.js"></script>
-<script>
-    // ⚠️ 請確保這是您最終的網址
-    const baseUrl = "https://hkwangtat-order.github.io/new-clients/index.html";
+    <script src="sales_config.js"></script>
+    <script src="customers.js"></script>
 
-    function init() {
-        filterSales('A'); // 默認顯示志哥
-    }
+    <script>
+        let currentSales = "A"; // 默認志哥
 
-    function filterSales(salesCode) {
-        // 1. 更新按鈕狀態
-        document.querySelectorAll('.nav-link').forEach(btn => {
-            btn.classList.remove('active');
-            if(salesCode === 'NEW' && btn.innerText.includes('新客戶')) {
-                btn.classList.add('active');
-            } else if (salesCode !== 'NEW' && btn.innerText.includes(`(${salesCode})`)) {
-                btn.classList.add('active');
+        function initAdmin() {
+            renderSalesButtons();
+            renderClients("A"); // 默認顯示志哥
+        }
+
+        // 1. 渲染銷售按鈕
+        function renderSalesButtons() {
+            const container = document.getElementById('salesBtnContainer');
+            let html = `
+                <button class="btn-sales" onclick="filterNewClients()">
+                    <i class="bi bi-person-plus-fill"></i> 新客戶專用
+                </button>
+            `;
+
+            // 從 sales_config.js 讀取銷售名單
+            if (typeof salesTeam !== 'undefined') {
+                for (let id in salesTeam) {
+                    const s = salesTeam[id];
+                    const activeClass = (id === "A") ? "active" : "";
+                    html += `<button class="btn-sales ${activeClass}" id="btn-${id}" onclick="switchSales('${id}')">${s.name} (${id})</button>`;
+                }
             }
-        });
+            container.innerHTML = html;
+        }
 
-        const container = document.getElementById('clientListArea');
-        container.innerHTML = ''; 
+        // 2. 切換銷售
+        function switchSales(id) {
+            currentSales = id;
+            
+            // 更新按鈕樣式
+            document.querySelectorAll('.btn-sales').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('btn-' + id);
+            if(btn) btn.classList.add('active');
 
-        // === 分支 1：新客戶專用 ===
-        if (salesCode === 'NEW') {
-            const salesTeam = [
-                { name: "志哥 (A)", code: "A" },
-                { name: "二佬 (E)", code: "E" },
-                { name: "博士 (B)", code: "B" },
-                { name: "嫦姐 (C)", code: "C" },
-                { name: "David (D)", code: "D" }
-            ];
+            // 清空搜索框 (這很重要，換人要重置搜索)
+            document.getElementById('searchInput').value = '';
+            document.getElementById('noResult').style.display = 'none';
 
-            let html = '';
-            salesTeam.forEach(s => {
-                const link = `${baseUrl}?sales=${s.code}&source=admin`;
-                // 新客戶極簡話術
-                const msg = `你好，這是宏達為您準備的電子落單鏈接，請點擊下單：\n${link}`;
-                // 直接生成 WhatsApp 鏈接
-                const waLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+            renderClients(id);
+            window.scrollTo(0,0);
+        }
 
+        // 3. 渲染客戶列表
+        function renderClients(salesId) {
+            const list = document.getElementById('clientList');
+            list.innerHTML = "";
+
+            if (typeof clientDB === 'undefined') {
+                list.innerHTML = "<div class='text-center p-3'>找不到客戶數據庫 (customers.js)</div>";
+                return;
+            }
+
+            // 將客戶轉為數組並排序 (按編號或名稱)
+            let clients = [];
+            for (let code in clientDB) {
+                let c = clientDB[code];
+                if (c.sales === salesId) {
+                    clients.push({ code: code, ...c }); // 展開屬性
+                }
+            }
+
+            // 簡單排序：把數字編號的放前面，W/A開頭的放後面 (可選)
+            clients.sort((a, b) => a.code.localeCompare(b.code));
+
+            // 生成 HTML
+            let html = "";
+            clients.forEach(c => {
+                // 生成轉發鏈接
+                const link = `index.html?id=${c.code}`;
+                
+                // 這裡把名字和代碼都放在 dataset 裡，方便搜索過濾
                 html += `
-                    <div class="client-card" style="border-left-color: #333">
-                        <div class="client-info">
-                            <div class="c-name">${s.name} 的新客戶</div>
-                            <div class="c-code">通用鏈接 (General Link)</div>
-                        </div>
-                        
-                        <div class="btn-group-custom">
-                            <a href="${link}" target="_blank" class="btn-action btn-blue">
-                                <i class="bi bi-search"></i> 檢查
-                            </a>
-                            <a href="${waLink}" target="_blank" class="btn-action btn-green">
-                                <i class="bi bi-whatsapp"></i> 轉發
-                            </a>
-                        </div>
+                <a href="${link}" class="btn-client" data-search="${c.name.toUpperCase()} ${c.code.toUpperCase()}">
+                    <div class="client-info">
+                        <span class="c-name">${c.name}</span>
+                        <span class="c-code">編號: ${c.code}</span>
                     </div>
+                    <i class="bi bi-chevron-right c-icon"></i>
+                </a>
                 `;
             });
-            container.innerHTML = html;
-            return;
+
+            // 統計數量
+            const countHtml = `<div style="text-align:center; color:#aaa; font-size:0.8rem; margin-bottom:5px;">共 ${clients.length} 位客戶</div>`;
+            
+            list.innerHTML = countHtml + (html || "<div class='text-center p-5 text-muted'>暫無客戶資料</div>");
         }
 
-        // === 分支 2：老客戶 (極速模式) ===
-        let clientArray = Object.entries(clientDB).reverse();
+        // 4. 新客戶專用鏈接 (生成器)
+        function filterNewClients() {
+            // 切換按鈕樣式
+            document.querySelectorAll('.btn-sales').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('searchInput').value = '';
 
-        let found = false;
-        let html = '';
-
-        for (const [id, data] of clientArray) {
-            if (data.sales === salesCode) {
-                found = true;
-                const link = `${baseUrl}?id=${id}&source=admin`;
-
-                html += `
-                    <div class="client-card" style="border-left-color: ${getColor(salesCode)}">
+            const list = document.getElementById('clientList');
+            let html = `<div style="text-align:center; color:#aaa; font-size:0.8rem; margin-bottom:10px;">點擊生成空白單鏈接</div>`;
+            
+            if (typeof salesTeam !== 'undefined') {
+                for (let id in salesTeam) {
+                    const s = salesTeam[id];
+                    const link = `index.html?sales=${id}`;
+                    html += `
+                    <a href="${link}" class="btn-client">
                         <div class="client-info">
-                            <div class="c-name">${data.name}</div>
-                            <div class="c-code">${id}</div>
+                            <span class="c-name">📝 ${s.name} (新客戶/散客)</span>
+                            <span class="c-code">通用下單鏈接</span>
                         </div>
-                        
-                        <div class="btn-group-custom">
-                            <a href="${link}" target="_blank" class="btn-action btn-blue">
-                                <i class="bi bi-search"></i> 檢查
-                            </a>
-                            <div onclick="copyLink('${id}', '${data.name}')" class="btn-action btn-green">
-                                <i class="bi bi-whatsapp"></i> 轉發
-                            </div>
-                        </div>
-                    </div>
-                `;
+                        <i class="bi bi-box-arrow-up-right c-icon"></i>
+                    </a>
+                    `;
+                }
             }
+            list.innerHTML = html;
         }
 
-        if (!found) {
-            container.innerHTML = '<div class="text-center text-muted mt-5">暫無此銷售的客戶資料</div>';
-        } else {
-            container.innerHTML = html;
+        // 🔥 5. 搜索過濾功能 (核心代碼) 🔥
+        function filterClients() {
+            const input = document.getElementById('searchInput').value.toUpperCase();
+            const buttons = document.querySelectorAll('.btn-client');
+            let hasResult = false;
+
+            buttons.forEach(btn => {
+                // 我們在 renderClients 時把名字和代碼藏在 data-search 屬性裡了
+                const searchText = btn.getAttribute('data-search');
+                
+                if (searchText && searchText.includes(input)) {
+                    btn.style.display = "flex"; // 匹配顯示
+                    hasResult = true;
+                } else {
+                    btn.style.display = "none"; // 不匹配隱藏
+                }
+            });
+
+            // 顯示/隱藏 "找不到結果"
+            document.getElementById('noResult').style.display = hasResult ? 'none' : 'block';
         }
-    }
 
-    // === 核心修改：老客戶極速轉發 (無彈窗) ===
-    function copyLink(id, name) {
-        const link = `${baseUrl}?id=${id}`;
-        
-        // 您的指定簡短話術
-        const msg = `你好 ${name}，這是宏達為您準備的專屬電子落單鏈接，請保存：\n${link}`;
-
-        // 1. 嘗試複製到剪貼簿 (當作備用，不阻塞流程)
-        navigator.clipboard.writeText(msg).catch(() => {});
-
-        // 2. 直接打開 WhatsApp
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-
-    function getColor(code) {
-        const colors = { 'A': '#0d6efd', 'E': '#198754', 'B': '#dc3545', 'C': '#ffc107', 'D': '#6f42c1' };
-        return colors[code] || '#ccc';
-    }
-
-    init();
-</script>
-
+    </script>
 </body>
 </html>
-
