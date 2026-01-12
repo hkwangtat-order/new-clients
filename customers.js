@@ -731,7 +731,7 @@ const clientDB = {
     "A1618": {
         name: "神户屋(旺角)",
         sales: "A",
-        list: ["D10JA","D84","D03G","D03D","D10ED","D10EAA","D19ER","E06A","D19E","D46C","C01","C22E","C57","D60G"]
+        list: ["D10JA","D84","D03G","D03D","D10ED","D10EAA","D19ER","E06A","D46C","C01","C22E","C57","D60G"]
     },
 
     // === 105. 帝王(旺角) ===
@@ -739,6 +739,7 @@ const clientDB = {
         name: "帝王(旺角)",
         sales: "A",
         list: ["D10JA","D84","D10","D10ED","E06A","D03D","H02A","D03G","C01","A03","D19ER","D10JAC","D46C"]
+        box_items: ["H02A"]
     },
 
     // === 106. 壽司駅(西環) ===
