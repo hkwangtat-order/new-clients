@@ -1065,6 +1065,7 @@ const clientDB = {
         name: "魚屋(中環)",
         sales: "C",
         list: ["B14AA","C18C","D22C","D58B","D10JD","C15","C18A","C14J","C15C","C27A","D58C","C14G","C22B","C51A","C51C","D10JDC","C53B","C07","C19B","C25","C50D","C58"]
+        box_items: ["D10JD"]        
     },
 
     // === 152. 田森(長) PACK箱 ===
