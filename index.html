@@ -248,26 +248,84 @@
     // 或者您確認 fullCatalog 變數還在您的文件裡
     
     function init() {
-        productMap = {}; 
-        // 這裡依賴上面的 fullCatalog，請確保它存在
-        if(typeof fullCatalog !== 'undefined') {
-            fullCatalog.forEach(c=>{c.items.forEach(i=>{const m=i.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);if(m)productMap[m[2]]={fullName:i,name:m[1],code:m[2]}})});
-        }
+            // 1. 初始化 Bootstrap Modals (彈窗功能)
+            cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
+            unitModal = new bootstrap.Modal(document.getElementById('unitSelectionModal'));
+            setupModal = new bootstrap.Modal(document.getElementById('setupModal'));
 
-        // 3. 識別身份系統
-        identifyUser();
-        
-        loadCart(); renderFrequent(); renderAll();
-        
-        cartModal=new bootstrap.Modal(document.getElementById('cartModal')); 
-        unitModal=new bootstrap.Modal(document.getElementById('unitSelectionModal'));
-        setupModal=new bootstrap.Modal(document.getElementById('setupModal'));
+            // 2. 構建基礎產品地圖 (從 fullCatalog 讀取)
+            productMap = {};
+            if (typeof fullCatalog !== 'undefined') {
+                fullCatalog.forEach(cat => {
+                    cat.items.forEach(s => {
+                        let n = s, c = 'UNKNOWN';
+                        const m = s.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);
+                        if(m){ n = m[1]; c = m[2]; } else { c = s.replace(/[^a-zA-Z0-9]/g,''); }
+                        
+                        productMap[c] = {
+                            name: n,
+                            code: c,
+                            cat: cat.cat,
+                            fullName: s,
+                            oos: outOfStockCodes.includes(c)
+                        };
+                    });
+                });
+            }
 
-        // 如果是新客戶且未設定過，才彈窗
-        if(presetFrequent.length === 0 && (!customerName || !customerCode)){
-            openSetupModal(false);
+            // 3. 識別身份 (這一步會獲取用戶，並加載他的常用清單)
+            identifyUser();
+
+            // 🔥🔥🔥【新增功能】智能產品替換邏輯 (C35A vs C35B) 🔥🔥🔥
+            
+            // A. 先手動把 C35B 加入產品字典
+            // (這樣就算全部產品裡沒有，常用清單也能正常顯示，不會報錯)
+            productMap['C35B'] = {
+                name: "味淋魚幹（魚勝）",
+                code: "C35B",
+                cat: "軍艦和日式小食", // 借用分類
+                fullName: "味淋魚幹（魚勝） (C35B)",
+                oos: false
+            };
+
+            // B. 判斷該客戶是否使用 C35B
+            // (檢查「固定清單 presetFrequent」和「自動記憶清單 learnedFrequent」)
+            const userHasC35B = (presetFrequent && presetFrequent.includes('C35B')) ||
+                                (learnedFrequent && learnedFrequent.includes('C35B'));
+
+            if (userHasC35B) {
+                // 如果客戶用 C35B，我們就去「全部產品」裡把 C35A 換掉
+                // 這樣他搜尋 "味淋" 時，會看到 C35B，且看不到 C35A (減少干擾)
+                fullCatalog.forEach(cat => {
+                    const index = cat.items.findIndex(item => item.includes('(C35A)'));
+                    if (index !== -1) {
+                        cat.items[index] = "味淋魚幹（魚勝） (C35B)";
+                    }
+                });
+            }
+            // 🔥🔥🔥【新增功能結束】🔥🔥🔥
+
+            // 4. 渲染頁面 (這時候 fullCatalog 已經被修改過了)
+            loadCart(); 
+            renderFrequent(); 
+            renderAll();
+            calcTotal();
+
+            // 5. 處理返回按鈕 (Admin 跳轉用)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('source') === 'admin') {
+                const btn = document.getElementById('backToAdminBtn');
+                if(btn) {
+                    btn.style.display = 'block';
+                    btn.onclick = function() { window.location.href = 'admin.html'; };
+                }
+            }
+
+            // 6. 新客戶彈窗邏輯
+            if(presetFrequent.length === 0 && (!customerName || !customerCode)){
+                openSetupModal(false);
+            }
         }
-    }
     
     function identifyUser() {
         const urlParams = new URLSearchParams(window.location.search);
