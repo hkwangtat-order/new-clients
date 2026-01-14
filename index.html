@@ -248,95 +248,79 @@
     // 或者您確認 fullCatalog 變數還在您的文件裡
     
     function init() {
-            console.log("系統初始化開始...");
+            // 步驟 1: 檢查初始化
+            // alert("1. 系統開始初始化..."); // 測試時可開啟
 
-            // 1. 初始化彈窗
             cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
             unitModal = new bootstrap.Modal(document.getElementById('unitSelectionModal'));
             setupModal = new bootstrap.Modal(document.getElementById('setupModal'));
 
-            // 2. 構建基礎產品地圖
+            // 步驟 2: 建立產品地圖
             productMap = {};
-            // 先找一下 C35A 在哪個分類，方便我們把 C35B 放進去
-            let categoryForC35B = "軍艦和日式小食"; // 默認值
-            
             if (typeof fullCatalog !== 'undefined') {
                 fullCatalog.forEach(cat => {
                     cat.items.forEach(s => {
-                        // 順便找看看 C35A 的分類
-                        if(s.includes('C35A')) categoryForC35B = cat.cat;
-
                         let n = s, c = 'UNKNOWN';
                         const m = s.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);
                         if(m){ n = m[1]; c = m[2]; } else { c = s.replace(/[^a-zA-Z0-9]/g,''); }
                         
-                        productMap[c] = {
-                            name: n,
-                            code: c,
-                            cat: cat.cat,
-                            fullName: s,
-                            oos: outOfStockCodes.includes(c)
-                        };
+                        productMap[c] = { name: n, code: c, cat: cat.cat, fullName: s, oos: outOfStockCodes.includes(c) };
                     });
                 });
             }
 
-            // 🔥🔥🔥 強制注入 C35B (不管有沒有人用，先塞進去字典) 🔥🔥🔥
+            // 🔥 強制注入 C35B
             productMap['C35B'] = {
                 name: "味淋魚幹（魚勝）",
                 code: "C35B",
-                cat: categoryForC35B, // 跟隨 C35A 的分類
+                cat: "隱藏菜單", 
                 fullName: "味淋魚幹（魚勝） (C35B)",
                 oos: false
             };
-            console.log("C35B 已強制注入字典，分類為：" + categoryForC35B);
-
-            // 3. 識別身份 (獲取用戶的清單)
-            identifyUser();
-
-            // 4. 智能替換邏輯 (暴力版)
-            // 檢查常用清單裡是否有 C35B
-            let needSwap = false;
             
-            // 檢查 presetFrequent (常用清單)
-            if (typeof presetFrequent !== 'undefined' && Array.isArray(presetFrequent)) {
-                if (presetFrequent.includes('C35B')) needSwap = true;
-            }
-            
-            // 檢查 learnedFrequent (學習清單)
-            if (typeof learnedFrequent !== 'undefined' && Array.isArray(learnedFrequent)) {
-                if (learnedFrequent.includes('C35B')) needSwap = true;
-            }
+            // 步驟 3: 識別用戶
+            identifyUser(); 
 
-            if (needSwap) {
-                //alert("系統提示：檢測到此客戶使用 C35B，正在執行產品替換..."); // 測試成功後可註釋掉這行
+            // 🚨🚨🚨【診斷關鍵點】🚨🚨🚨
+            // 請留意這裡彈出的內容
+            if (typeof presetFrequent !== 'undefined' && presetFrequent.length > 0) {
+                // 檢查清單裡到底有沒有 C35B
+                const hasIt = presetFrequent.includes('C35B');
                 
-                // A. 修改 fullCatalog (讓「全部產品」列表顯示 C35B)
+                // 如果您是測試那個客戶，請告訴我這個彈窗顯示什麼
+                if(customerName && (customerName.includes("喜多郎") || customerName.includes("一杯喜") || hasIt)) {
+                    alert(`診斷報告：\n客戶：${customerName}\n清單長度：${presetFrequent.length}\n是否有 C35B：${hasIt ? "有！✅" : "沒有...❌"}`);
+                }
+            }
+            // 🚨🚨🚨【診斷結束】🚨🚨🚨
+
+
+            // 步驟 4: 執行替換邏輯
+            const userHasC35B = (typeof presetFrequent !== 'undefined' && presetFrequent.includes('C35B')) ||
+                                (typeof learnedFrequent !== 'undefined' && learnedFrequent.includes('C35B'));
+
+            if (userHasC35B) {
                 if (typeof fullCatalog !== 'undefined') {
                     fullCatalog.forEach(cat => {
+                        // 這裡用更暴力的迴圈來替換
                         for(let i=0; i<cat.items.length; i++) {
-                            // 只要看到 C35A 就殺掉，換成 C35B
-                            if (cat.items[i].indexOf('C35A') !== -1) {
-                                cat.items[i] = "味淋魚幹（魚勝） (C35B)";
+                            if (cat.items[i].includes('C35A')) {
+                                cat.items[i] = "味淋魚幹（魚勝） (C35B)"; // 替換掉
                             }
                         }
                     });
                 }
-
-                // B. 修改 productMap (讓搜尋結果也變成 C35B)
-                // 刪除 C35A，這樣搜 "味淋" 時就不會出現 C35A
-                if (productMap['C35A']) {
-                    delete productMap['C35A'];
-                }
+                // 也要記得從 Map 裡刪除 C35A，這樣搜索才不會搜到舊的
+                if(productMap['C35A']) delete productMap['C35A'];
             }
 
-            // 5. 渲染頁面
+            // 步驟 5: 渲染
             loadCart(); 
             renderFrequent(); 
             renderAll();
             calcTotal();
 
-            // 6. 處理 Admin 返回按鈕
+            // Admin 按鈕
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('source') === 'admin') {
                 const btn = document.getElementById('backToAdminBtn');
@@ -346,7 +330,7 @@
                 }
             }
 
-            // 7. 新客戶彈窗
+            // 新客戶彈窗
             if(presetFrequent.length === 0 && (!customerName || !customerCode)){
                 openSetupModal(false);
             }
