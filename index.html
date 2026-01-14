@@ -248,12 +248,12 @@
     // 或者您確認 fullCatalog 變數還在您的文件裡
     
     function init() {
-            // 1. 初始化 Bootstrap Modals (彈窗功能)
+            // 1. 初始化 Bootstrap Modals
             cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
             unitModal = new bootstrap.Modal(document.getElementById('unitSelectionModal'));
             setupModal = new bootstrap.Modal(document.getElementById('setupModal'));
 
-            // 2. 構建基礎產品地圖 (從 fullCatalog 讀取)
+            // 2. 構建基礎產品地圖 (先讀取所有正常產品)
             productMap = {};
             if (typeof fullCatalog !== 'undefined') {
                 fullCatalog.forEach(cat => {
@@ -273,45 +273,47 @@
                 });
             }
 
-            // 3. 識別身份 (這一步會獲取用戶，並加載他的常用清單)
-            identifyUser();
-
-            // 🔥🔥🔥【新增功能】智能產品替換邏輯 (C35A vs C35B) 🔥🔥🔥
-            
-            // A. 先手動把 C35B 加入產品字典
-            // (這樣就算全部產品裡沒有，常用清單也能正常顯示，不會報錯)
+            // 🔥🔥🔥【關鍵修正】先強行把 C35B 加入字典，確保一定能讀到！ 🔥🔥🔥
+            // 不管有沒有人要用，先註冊進去，這樣常用清單讀取時才不會報錯
             productMap['C35B'] = {
-                name: "味淋魚幹（魚勝）",
+                name: "味淋魚幹（魚勝）", // 這裡可以自定義名字
                 code: "C35B",
-                cat: "軍艦和日式小食", // 借用分類
+                cat: "調味料", // 為了方便搜索，歸類在調味料
                 fullName: "味淋魚幹（魚勝） (C35B)",
                 oos: false
             };
 
-            // B. 判斷該客戶是否使用 C35B
-            // (檢查「固定清單 presetFrequent」和「自動記憶清單 learnedFrequent」)
-            const userHasC35B = (presetFrequent && presetFrequent.includes('C35B')) ||
-                                (learnedFrequent && learnedFrequent.includes('C35B'));
+            // 3. 識別身份 (獲取用戶的常用清單)
+            identifyUser();
+
+            // 4. 【智能替換】如果這個客戶需要用 C35B
+            // (檢查「固定清單」或「自動學習清單」裡有沒有 C35B)
+            const userHasC35B = (typeof presetFrequent !== 'undefined' && presetFrequent.includes('C35B')) ||
+                                (typeof learnedFrequent !== 'undefined' && learnedFrequent.includes('C35B'));
 
             if (userHasC35B) {
-                // 如果客戶用 C35B，我們就去「全部產品」裡把 C35A 換掉
-                // 這樣他搜尋 "味淋" 時，會看到 C35B，且看不到 C35A (減少干擾)
-                fullCatalog.forEach(cat => {
-                    const index = cat.items.findIndex(item => item.includes('(C35A)'));
-                    if (index !== -1) {
-                        cat.items[index] = "味淋魚幹（魚勝） (C35B)";
-                    }
-                });
+                console.log("發現 C35B 客戶，正在執行產品替換...");
+                
+                // 去「全部產品」目錄裡，把 C35A 換成 C35B
+                if (typeof fullCatalog !== 'undefined') {
+                    fullCatalog.forEach(cat => {
+                        // 只要代碼裡包含 C35A 就替換 (比對更寬鬆，防止括號格式問題)
+                        const index = cat.items.findIndex(item => item.includes('C35A'));
+                        if (index !== -1) {
+                            // 替換成新的顯示字串
+                            cat.items[index] = "味淋魚幹（魚勝） (C35B)";
+                        }
+                    });
+                }
             }
-            // 🔥🔥🔥【新增功能結束】🔥🔥🔥
 
-            // 4. 渲染頁面 (這時候 fullCatalog 已經被修改過了)
+            // 5. 渲染頁面 (這時候資料都準備好了，才開始畫畫面)
             loadCart(); 
             renderFrequent(); 
             renderAll();
             calcTotal();
 
-            // 5. 處理返回按鈕 (Admin 跳轉用)
+            // 6. 處理返回按鈕
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('source') === 'admin') {
                 const btn = document.getElementById('backToAdminBtn');
@@ -321,7 +323,7 @@
                 }
             }
 
-            // 6. 新客戶彈窗邏輯
+            // 7. 新客戶彈窗
             if(presetFrequent.length === 0 && (!customerName || !customerCode)){
                 openSetupModal(false);
             }
