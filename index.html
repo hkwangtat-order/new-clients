@@ -248,79 +248,86 @@
     // 或者您確認 fullCatalog 變數還在您的文件裡
     
     function init() {
-            // 步驟 1: 檢查初始化
-            // alert("1. 系統開始初始化..."); // 測試時可開啟
-
+            // 1. 初始化彈窗組件
             cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
             unitModal = new bootstrap.Modal(document.getElementById('unitSelectionModal'));
             setupModal = new bootstrap.Modal(document.getElementById('setupModal'));
 
-            // 步驟 2: 建立產品地圖
+            // 2. 構建基礎產品地圖 (從 fullCatalog 讀取所有正常產品)
             productMap = {};
             if (typeof fullCatalog !== 'undefined') {
                 fullCatalog.forEach(cat => {
                     cat.items.forEach(s => {
                         let n = s, c = 'UNKNOWN';
+                        // 解析 "產品名 (代碼)"
                         const m = s.match(/^(.*)\s*\(([A-Za-z0-9]+)\)$/);
                         if(m){ n = m[1]; c = m[2]; } else { c = s.replace(/[^a-zA-Z0-9]/g,''); }
                         
-                        productMap[c] = { name: n, code: c, cat: cat.cat, fullName: s, oos: outOfStockCodes.includes(c) };
+                        productMap[c] = {
+                            name: n,
+                            code: c,
+                            cat: cat.cat,
+                            fullName: s,
+                            oos: outOfStockCodes.includes(c)
+                        };
                     });
                 });
             }
 
-            // 🔥 強制注入 C35B
+            // 🔥🔥🔥 核心步驟：強制注入 C35B (隱藏產品) 🔥🔥🔥
+            // 這裡先註冊進去，確保常用清單讀取時不會報錯
             productMap['C35B'] = {
                 name: "味淋魚幹（魚勝）",
                 code: "C35B",
-                cat: "隱藏菜單", 
+                cat: "軍艦和日式小食", // 為了方便搜索，設定一個分類
                 fullName: "味淋魚幹（魚勝） (C35B)",
                 oos: false
             };
+
+            // 3. 識別身份 (獲取用戶的常用清單)
+            identifyUser();
+
+            // 4. 【智能替換邏輯】
+            // 檢查該客戶的清單裡是否有 C35B
+            let needSwap = false;
             
-            // 步驟 3: 識別用戶
-            identifyUser(); 
-
-            // 🚨🚨🚨【診斷關鍵點】🚨🚨🚨
-            // 請留意這裡彈出的內容
-            if (typeof presetFrequent !== 'undefined' && presetFrequent.length > 0) {
-                // 檢查清單裡到底有沒有 C35B
-                const hasIt = presetFrequent.includes('C35B');
-                
-                // 如果您是測試那個客戶，請告訴我這個彈窗顯示什麼
-                if(customerName && (customerName.includes("喜多郎") || customerName.includes("一杯喜") || hasIt)) {
-                    alert(`診斷報告：\n客戶：${customerName}\n清單長度：${presetFrequent.length}\n是否有 C35B：${hasIt ? "有！✅" : "沒有...❌"}`);
-                }
+            // 檢查固定清單 (presetFrequent)
+            if (typeof presetFrequent !== 'undefined' && Array.isArray(presetFrequent)) {
+                if (presetFrequent.includes('C35B')) needSwap = true;
             }
-            // 🚨🚨🚨【診斷結束】🚨🚨🚨
+            
+            // 檢查自動記憶清單 (learnedFrequent)
+            if (typeof learnedFrequent !== 'undefined' && Array.isArray(learnedFrequent)) {
+                if (learnedFrequent.includes('C35B')) needSwap = true;
+            }
 
-
-            // 步驟 4: 執行替換邏輯
-            const userHasC35B = (typeof presetFrequent !== 'undefined' && presetFrequent.includes('C35B')) ||
-                                (typeof learnedFrequent !== 'undefined' && learnedFrequent.includes('C35B'));
-
-            if (userHasC35B) {
+            // 如果客戶需要 C35B，我們就執行「狸貓換太子」
+            if (needSwap) {
+                // A. 修改「全部產品」列表：把 C35A 換成 C35B
                 if (typeof fullCatalog !== 'undefined') {
                     fullCatalog.forEach(cat => {
-                        // 這裡用更暴力的迴圈來替換
                         for(let i=0; i<cat.items.length; i++) {
+                            // 只要看到 C35A 就替換 (使用 includes 防止括號格式差異)
                             if (cat.items[i].includes('C35A')) {
-                                cat.items[i] = "味淋魚幹（魚勝） (C35B)"; // 替換掉
+                                cat.items[i] = "味淋魚幹（魚勝） (C35B)";
                             }
                         }
                     });
                 }
-                // 也要記得從 Map 裡刪除 C35A，這樣搜索才不會搜到舊的
-                if(productMap['C35A']) delete productMap['C35A'];
+
+                // B. 修改「搜尋字典」：刪除 C35A，這樣搜 "味淋" 時就不會出現 C35A 造成干擾
+                if (productMap['C35A']) {
+                    delete productMap['C35A'];
+                }
             }
 
-            // 步驟 5: 渲染
+            // 5. 渲染頁面 (這時候資料都已經是替換好的了)
             loadCart(); 
             renderFrequent(); 
             renderAll();
             calcTotal();
 
-            // Admin 按鈕
+            // 6. 處理 Admin 返回按鈕 (如果是從分發中心跳轉過來的)
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('source') === 'admin') {
                 const btn = document.getElementById('backToAdminBtn');
@@ -330,7 +337,7 @@
                 }
             }
 
-            // 新客戶彈窗
+            // 7. 新客戶彈窗邏輯
             if(presetFrequent.length === 0 && (!customerName || !customerCode)){
                 openSetupModal(false);
             }
