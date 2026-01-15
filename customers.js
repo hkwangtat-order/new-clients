@@ -1843,9 +1843,9 @@ const clientDB = {
         list: ["D09","D10A","D17DD","D72CA","A03","D19ER","D39B","A12A","C01","C14G","D19E","C19B"]
     },
 
-    // === 244. 四季‧(金鐘) ===
+    // === 244. 四季(金鐘) ===
     "W3349A": {
-        name: "四季‧(金鐘)",
+        name: "四季(金鐘)",
         sales: "B",
         list: ["D09B","A03"],
         box_items: ["D09B"] // 按箱下單
@@ -2254,9 +2254,9 @@ const clientDB = {
         list: ["E03JA", "C39", "C39A", "C24A", "D79", "C23", "C24B", "D30", "C06", "C13"]
     },
 
-    // === 299. How To Live Well (荃灣) ===
+    // === 299. How To Live Well (荃) ===
     "W3275C": {
-        name: "How To Live Well (荃灣)",
+        name: "How To Live Well (荃)",
         sales: "D",
         list: ["D10E", "D82", "D79", "H01", "C31", "C31C", "D22H", "C19B", "C36D", "C39", "D59EA", "C59", "C61", "C14G", "C56A", "C39A", "D39BA", "D88AD", "C06"]
     }
