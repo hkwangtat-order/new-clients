@@ -209,6 +209,8 @@
     const outOfStockCodes = ["D58C","D10F","D10A","D10D","D09M","D09G","C61AA"];
     const eelProducts = ["D22J", "D22L", "D22", "D22C", "D22A", "D22D", "D22I", "D22G"];
     const weightedProducts = ["D61B", "D61C", "D18A", "D17E", "D17C", "B01", "D18", "D17D", "D17DD", "D17G", "D17DE"];
+    // 🔥🔥🔥 新增：定義每次加減數量為 10 的產品 (木盒) 🔥🔥🔥
+    const stepTenCodes = ["C07", "C07A"];
     
     // 產品清單
     const fullCatalog = [
@@ -580,6 +582,12 @@
     
     function updateQty(c,d){
         if (outOfStockCodes.includes(c)) return;
+
+        // 🔥🔥🔥 木盒系列邏輯：每次跳 10 🔥🔥🔥
+        if (stepTenCodes.includes(c)) {
+            d = d * 10;
+        }
+
         if(eelProducts.includes(c)){
             if(d>0&&(!cart[c]||cart[c]===0)){cart[c]=5;cartUnits[c]='kg'}else{if(!cart[c])cart[c]=0;cart[c]+=d*5}
             if(cart[c]<=0){delete cart[c];delete cartUnits[c]}
